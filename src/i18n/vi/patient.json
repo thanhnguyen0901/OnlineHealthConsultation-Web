@@ -1,0 +1,14 @@
+{
+  "dashboard": "Bảng điều khiển bệnh nhân",
+  "askQuestion": "Đặt câu hỏi",
+  "bookAppointment": "Đặt lịch khám",
+  "consultationHistory": "Lịch sử tư vấn",
+  "yourQuestion": "Câu hỏi của bạn",
+  "questionPlaceholder": "Mô tả vấn đề sức khỏe của bạn...",
+  "selectDoctor": "Chọn bác sĩ",
+  "selectSpecialty": "Chọn chuyên khoa",
+  "appointmentDate": "Ngày khám",
+  "appointmentTime": "Giờ khám",
+  "questionSubmitted": "Câu hỏi đã được gửi thành công",
+  "appointmentBooked": "Đặt lịch khám thành công"
+}

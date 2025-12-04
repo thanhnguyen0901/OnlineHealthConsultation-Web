@@ -1,0 +1,11 @@
+{
+  "dashboard": "Bảng điều khiển bác sĩ",
+  "inbox": "Hộp thư câu hỏi",
+  "schedule": "Lịch làm việc",
+  "answerQuestion": "Trả lời câu hỏi",
+  "patientName": "Tên bệnh nhân",
+  "questionDate": "Ngày đặt câu hỏi",
+  "yourAnswer": "Câu trả lời của bạn",
+  "answerPlaceholder": "Đưa ra lời khuyên y tế...",
+  "answerSubmitted": "Câu trả lời đã được gửi thành công"
+}

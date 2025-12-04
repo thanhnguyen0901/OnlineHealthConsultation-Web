@@ -1,0 +1,11 @@
+{
+  "dashboard": "Doctor Dashboard",
+  "inbox": "Questions Inbox",
+  "schedule": "My Schedule",
+  "answerQuestion": "Answer Question",
+  "patientName": "Patient Name",
+  "questionDate": "Question Date",
+  "yourAnswer": "Your Answer",
+  "answerPlaceholder": "Provide your medical advice...",
+  "answerSubmitted": "Answer submitted successfully"
+}

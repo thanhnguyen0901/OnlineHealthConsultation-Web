@@ -1,0 +1,15 @@
+{
+  "dashboard": "Admin Dashboard",
+  "manageUsers": "Manage Users",
+  "manageDoctors": "Manage Doctors",
+  "manageSpecialties": "Manage Specialties",
+  "manageAppointments": "Manage Appointments",
+  "users": "Users",
+  "doctors": "Doctors",
+  "specialties": "Specialties",
+  "appointments": "Appointments",
+  "totalUsers": "Total Users",
+  "totalDoctors": "Total Doctors",
+  "totalAppointments": "Total Appointments",
+  "reports": "Reports"
+}

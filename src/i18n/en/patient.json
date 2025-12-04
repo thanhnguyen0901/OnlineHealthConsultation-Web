@@ -1,0 +1,14 @@
+{
+  "dashboard": "Patient Dashboard",
+  "askQuestion": "Ask a Question",
+  "bookAppointment": "Book Appointment",
+  "consultationHistory": "Consultation History",
+  "yourQuestion": "Your Question",
+  "questionPlaceholder": "Describe your health concern...",
+  "selectDoctor": "Select Doctor",
+  "selectSpecialty": "Select Specialty",
+  "appointmentDate": "Appointment Date",
+  "appointmentTime": "Appointment Time",
+  "questionSubmitted": "Question submitted successfully",
+  "appointmentBooked": "Appointment booked successfully"
+}

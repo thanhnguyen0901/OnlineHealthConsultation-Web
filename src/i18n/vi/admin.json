@@ -1,0 +1,15 @@
+{
+  "dashboard": "Bảng điều khiển quản trị",
+  "manageUsers": "Quản lý người dùng",
+  "manageDoctors": "Quản lý bác sĩ",
+  "manageSpecialties": "Quản lý chuyên khoa",
+  "manageAppointments": "Quản lý lịch khám",
+  "users": "Người dùng",
+  "doctors": "Bác sĩ",
+  "specialties": "Chuyên khoa",
+  "appointments": "Lịch khám",
+  "totalUsers": "Tổng số người dùng",
+  "totalDoctors": "Tổng số bác sĩ",
+  "totalAppointments": "Tổng số lịch khám",
+  "reports": "Báo cáo"
+}

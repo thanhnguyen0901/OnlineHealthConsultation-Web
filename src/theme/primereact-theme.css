@@ -1,0 +1,9 @@
+/* PrimeReact Theme Customization */
+@import 'primereact/resources/themes/lara-light-blue/theme.css';
+@import 'primereact/resources/primereact.min.css';
+@import 'primeicons/primeicons.css';
+
+/* Dark mode theme override */
+.dark {
+  @import 'primereact/resources/themes/lara-dark-blue/theme.css';
+}
