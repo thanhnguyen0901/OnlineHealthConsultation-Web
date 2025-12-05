@@ -1,4 +1,4 @@
-export interface ReportData {
+export interface ReportData extends Record<string, string | number> {
   date: string;
   appointments: number;
   questions: number;
@@ -8,4 +8,12 @@ export interface ReportData {
 export interface ChartData {
   name: string;
   value: number;
+}
+
+export interface Statistics {
+  totalUsers: number;
+  totalDoctors: number;
+  totalAppointments: number;
+  totalQuestions: number;
+  activeUsers: number;
 }

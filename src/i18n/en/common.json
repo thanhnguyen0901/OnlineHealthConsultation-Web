@@ -20,5 +20,31 @@
   "darkMode": "Dark Mode",
   "language": "Language",
   "noData": "No data available",
-  "confirmDelete": "Are you sure you want to delete this item?"
+  "confirmDelete": "Are you sure you want to delete this item?",
+  "pageNotFound": "Page not found",
+  "backToHome": "Back to Home",
+  "home": {
+    "heroTitle": "Online Health Consultation System",
+    "heroSubtitle": "Connect with specialist doctors, ask health questions and receive online consultation quickly and conveniently",
+    "featuresTitle": "Key Features",
+    "feature1Title": "Ask Questions",
+    "feature1Desc": "Send health questions directly to specialist doctors",
+    "feature2Title": "Book Appointments",
+    "feature2Desc": "Schedule consultation appointments with doctors at your convenience",
+    "feature3Title": "Online Consultation",
+    "feature3Desc": "Receive consultation and treatment guidance from doctors",
+    "featuredDoctors": "Featured Doctors",
+    "yearsExperience": "years of experience",
+    "noDoctorsAvailable": "No featured doctors available at the moment",
+    "ctaTitle": "Start Consulting Today",
+    "ctaSubtitle": "Register now to receive health consultation from professional doctors",
+    "getStarted": "Get Started"
+  },
+  "reports": "Reports",
+  "totalUsers": "Total Users",
+  "totalDoctors": "Total Doctors",
+  "totalAppointments": "Total Appointments",
+  "totalQuestions": "Total Questions",
+  "questionsDistribution": "Questions Distribution",
+  "appointmentsTrends": "Appointments Trends"
 }

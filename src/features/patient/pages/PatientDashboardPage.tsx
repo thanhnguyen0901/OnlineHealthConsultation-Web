@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card } from 'primereact/card';
-import { Button } from '@/components/common/Button';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 export const PatientDashboardPage: React.FC = () => {

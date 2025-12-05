@@ -5,6 +5,8 @@ export interface AdminState {
   users: User[];
   doctors: Doctor[];
   specialties: Specialty[];
+  appointments: any[];
+  moderationItems: any[];
   stats: AdminStats | null;
   loading: boolean;
   error: string | null;
@@ -14,6 +16,8 @@ export const initialAdminState: AdminState = {
   users: [],
   doctors: [],
   specialties: [],
+  appointments: [],
+  moderationItems: [],
   stats: null,
   loading: false,
   error: null,

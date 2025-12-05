@@ -2,12 +2,14 @@ import React, { memo } from 'react';
 import { useField } from 'formik';
 import { Calendar, CalendarProps } from 'primereact/calendar';
 
-interface FormikCalendarProps {
+export interface FormikCalendarProps {
   name: string;
   label?: string;
   placeholder?: string;
   showTime?: boolean;
   disabled?: boolean;
+  minDate?: Date;
+  showIcon?: boolean;
 }
 
 export const FormikCalendar: React.FC<FormikCalendarProps> = memo(({
@@ -16,6 +18,8 @@ export const FormikCalendar: React.FC<FormikCalendarProps> = memo(({
   placeholder,
   showTime = false,
   disabled = false,
+  minDate,
+  showIcon = false,
 }) => {
   const [field, meta, helpers] = useField(name);
   const hasError = meta.touched && meta.error;
@@ -38,6 +42,8 @@ export const FormikCalendar: React.FC<FormikCalendarProps> = memo(({
         placeholder={placeholder}
         showTime={showTime}
         disabled={disabled}
+        minDate={minDate}
+        showIcon={showIcon}
         className={`w-full ${hasError ? 'p-invalid' : ''}`}
       />
       {hasError && <small className="p-error block mt-1">{meta.error}</small>}

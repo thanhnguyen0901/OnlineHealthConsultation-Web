@@ -8,6 +8,7 @@ export const ROUTE_PATHS = {
   ASK_QUESTION: '/patient/ask-question',
   BOOK_APPOINTMENT: '/patient/book-appointment',
   CONSULTATION_HISTORY: '/patient/history',
+  PATIENT_PROFILE: '/patient/profile',
   
   // Doctor routes
   DOCTOR_DASHBOARD: '/doctor',
@@ -20,6 +21,7 @@ export const ROUTE_PATHS = {
   MANAGE_DOCTORS: '/admin/doctors',
   MANAGE_SPECIALTIES: '/admin/specialties',
   MANAGE_APPOINTMENTS: '/admin/appointments',
+  MODERATION: '/admin/moderation',
   
   // Reports
   REPORTS: '/reports',

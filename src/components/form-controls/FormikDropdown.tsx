@@ -3,12 +3,13 @@ import { useField } from 'formik';
 import { Dropdown, DropdownProps } from 'primereact/dropdown';
 import type { Option } from '@/types/common';
 
-interface FormikDropdownProps {
+export interface FormikDropdownProps {
   name: string;
   label?: string;
   placeholder?: string;
   options: Option[];
   disabled?: boolean;
+  onChange?: (e: any) => void;
 }
 
 export const FormikDropdown: React.FC<FormikDropdownProps> = memo(({
@@ -17,12 +18,16 @@ export const FormikDropdown: React.FC<FormikDropdownProps> = memo(({
   placeholder,
   options,
   disabled = false,
+  onChange,
 }) => {
   const [field, meta, helpers] = useField(name);
   const hasError = meta.touched && meta.error;
 
   const handleChange: DropdownProps['onChange'] = (e) => {
     helpers.setValue(e.value);
+    if (onChange) {
+      onChange(e);
+    }
   };
 
   return (

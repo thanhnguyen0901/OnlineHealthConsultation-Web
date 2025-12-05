@@ -26,17 +26,103 @@ export const MainLayout: React.FC = () => {
     i18n.changeLanguage(newLang);
   };
 
-  const menuItems = [
-    {
-      label: t('common:dashboard'),
-      icon: 'pi pi-home',
-      command: () => {
-        if (user?.role === 'PATIENT') navigate(ROUTE_PATHS.PATIENT_DASHBOARD);
-        else if (user?.role === 'DOCTOR') navigate(ROUTE_PATHS.DOCTOR_DASHBOARD);
-        else if (user?.role === 'ADMIN') navigate(ROUTE_PATHS.ADMIN_DASHBOARD);
+  const getMenuItems = () => {
+    if (!user) return [];
+
+    const baseItems = [
+      {
+        label: t('common:dashboard'),
+        icon: 'pi pi-home',
+        command: () => {
+          if (user.role === 'PATIENT') navigate(ROUTE_PATHS.PATIENT_DASHBOARD);
+          else if (user.role === 'DOCTOR') navigate(ROUTE_PATHS.DOCTOR_DASHBOARD);
+          else if (user.role === 'ADMIN') navigate(ROUTE_PATHS.ADMIN_DASHBOARD);
+        },
       },
-    },
-  ];
+    ];
+
+    if (user.role === 'PATIENT') {
+      return [
+        ...baseItems,
+        {
+          label: t('patient:askQuestion'),
+          icon: 'pi pi-question-circle',
+          command: () => navigate(ROUTE_PATHS.ASK_QUESTION),
+        },
+        {
+          label: t('patient:bookAppointment'),
+          icon: 'pi pi-calendar-plus',
+          command: () => navigate(ROUTE_PATHS.BOOK_APPOINTMENT),
+        },
+        {
+          label: t('patient:consultationHistory'),
+          icon: 'pi pi-history',
+          command: () => navigate(ROUTE_PATHS.CONSULTATION_HISTORY),
+        },
+        {
+          label: t('patient:profile'),
+          icon: 'pi pi-user',
+          command: () => navigate(ROUTE_PATHS.PATIENT_PROFILE),
+        },
+      ];
+    }
+
+    if (user.role === 'DOCTOR') {
+      return [
+        ...baseItems,
+        {
+          label: t('doctor:inbox'),
+          icon: 'pi pi-inbox',
+          command: () => navigate(ROUTE_PATHS.INBOX_QUESTIONS),
+        },
+        {
+          label: t('doctor:schedule'),
+          icon: 'pi pi-calendar',
+          command: () => navigate(ROUTE_PATHS.SCHEDULE),
+        },
+      ];
+    }
+
+    if (user.role === 'ADMIN') {
+      return [
+        ...baseItems,
+        {
+          label: t('admin:manageUsers'),
+          icon: 'pi pi-users',
+          command: () => navigate(ROUTE_PATHS.MANAGE_USERS),
+        },
+        {
+          label: t('admin:manageDoctors'),
+          icon: 'pi pi-user-plus',
+          command: () => navigate(ROUTE_PATHS.MANAGE_DOCTORS),
+        },
+        {
+          label: t('admin:manageSpecialties'),
+          icon: 'pi pi-tags',
+          command: () => navigate(ROUTE_PATHS.MANAGE_SPECIALTIES),
+        },
+        {
+          label: t('admin:manageAppointments'),
+          icon: 'pi pi-calendar-times',
+          command: () => navigate(ROUTE_PATHS.MANAGE_APPOINTMENTS),
+        },
+        {
+          label: t('admin:moderation'),
+          icon: 'pi pi-shield',
+          command: () => navigate(ROUTE_PATHS.MODERATION),
+        },
+        {
+          label: t('admin:reports'),
+          icon: 'pi pi-chart-bar',
+          command: () => navigate(ROUTE_PATHS.REPORTS),
+        },
+      ];
+    }
+
+    return baseItems;
+  };
+
+  const menuItems = getMenuItems();
 
   const endContent = (
     <div className="flex items-center gap-2">

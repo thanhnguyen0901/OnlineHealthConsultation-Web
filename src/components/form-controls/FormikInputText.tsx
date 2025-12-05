@@ -1,13 +1,16 @@
 import React, { memo } from 'react';
 import { useField } from 'formik';
 import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 
-interface FormikInputTextProps {
+export interface FormikInputTextProps {
   name: string;
   label?: string;
   placeholder?: string;
   type?: string;
   disabled?: boolean;
+  as?: string;
+  rows?: number;
 }
 
 export const FormikInputText: React.FC<FormikInputTextProps> = memo(({
@@ -16,9 +19,13 @@ export const FormikInputText: React.FC<FormikInputTextProps> = memo(({
   placeholder,
   type = 'text',
   disabled = false,
+  as,
+  rows,
 }) => {
   const [field, meta] = useField(name);
   const hasError = meta.touched && meta.error;
+  
+  const isTextarea = as === 'textarea';
 
   return (
     <div className="w-full">
@@ -30,14 +37,25 @@ export const FormikInputText: React.FC<FormikInputTextProps> = memo(({
           {label}
         </label>
       )}
-      <InputText
-        id={name}
-        {...field}
-        type={type}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
-      />
+      {isTextarea ? (
+        <InputTextarea
+          id={name}
+          {...field}
+          placeholder={placeholder}
+          disabled={disabled}
+          rows={rows || 3}
+          className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
+        />
+      ) : (
+        <InputText
+          id={name}
+          {...field}
+          type={type}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
+        />
+      )}
       {hasError && (
         <small className="text-red-500 text-xs mt-1 block">
           {meta.error}

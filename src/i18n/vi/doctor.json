@@ -7,5 +7,21 @@
   "questionDate": "Ngày đặt câu hỏi",
   "yourAnswer": "Câu trả lời của bạn",
   "answerPlaceholder": "Đưa ra lời khuyên y tế...",
-  "answerSubmitted": "Câu trả lời đã được gửi thành công"
+  "answerSubmitted": "Câu trả lời đã được gửi thành công",
+  "patient": "Bệnh nhân",
+  "question": "Câu hỏi",
+  "date": "Ngày",
+  "status": "Trạng thái",
+  "actions": "Hành động",
+  "answer": "Trả lời",
+  "answered": "Đã trả lời",
+  "noQuestions": "Không có câu hỏi nào",
+  "enterAnswer": "Nhập câu trả lời của bạn...",
+  "cancel": "Hủy",
+  "submit": "Gửi",
+  "startTime": "Giờ bắt đầu",
+  "endTime": "Giờ kết thúc",
+  "available": "Còn trống",
+  "booked": "Đã đặt",
+  "noSchedule": "Không có lịch làm việc"
 }

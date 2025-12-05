@@ -28,3 +28,23 @@ export interface ConsultationHistory {
   questions: Question[];
   appointments: Appointment[];
 }
+
+export interface PatientProfile {
+  id: Id;
+  fullName: string;
+  dateOfBirth?: string;
+  gender?: 'male' | 'female' | 'other';
+  phone?: string;
+  address?: string;
+  medicalHistory?: string;
+  allergies?: string;
+  chronicDiseases?: string;
+}
+
+export interface Rating {
+  id: Id;
+  consultationId: Id;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+}

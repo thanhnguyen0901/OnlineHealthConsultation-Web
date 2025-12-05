@@ -20,5 +20,31 @@
   "darkMode": "Chế độ tối",
   "language": "Ngôn ngữ",
   "noData": "Không có dữ liệu",
-  "confirmDelete": "Bạn có chắc chắn muốn xóa mục này?"
+  "confirmDelete": "Bạn có chắc chắn muốn xóa mục này?",
+  "pageNotFound": "Trang không tồn tại",
+  "backToHome": "Về trang chủ",
+  "home": {
+    "heroTitle": "Hệ Thống Tư Vấn Sức Khỏe Trực Tuyến",
+    "heroSubtitle": "Kết nối với bác sĩ chuyên khoa, đặt câu hỏi sức khỏe và nhận tư vấn trực tuyến nhanh chóng, tiện lợi",
+    "featuresTitle": "Tính Năng Nổi Bật",
+    "feature1Title": "Đặt Câu Hỏi",
+    "feature1Desc": "Gửi câu hỏi sức khỏe trực tiếp cho bác sĩ chuyên khoa",
+    "feature2Title": "Đặt Lịch Khám",
+    "feature2Desc": "Đặt lịch hẹn tư vấn với bác sĩ theo thời gian phù hợp",
+    "feature3Title": "Tư Vấn Trực Tuyến",
+    "feature3Desc": "Nhận tư vấn và hướng dẫn điều trị từ bác sĩ",
+    "featuredDoctors": "Bác Sĩ Nổi Bật",
+    "yearsExperience": "năm kinh nghiệm",
+    "noDoctorsAvailable": "Hiện chưa có bác sĩ nổi bật",
+    "ctaTitle": "Bắt Đầu Tư Vấn Ngay Hôm Nay",
+    "ctaSubtitle": "Đăng ký ngay để được tư vấn sức khỏe từ các bác sĩ chuyên nghiệp",
+    "getStarted": "Đăng Ký Ngay"
+  },
+  "reports": "Báo cáo",
+  "totalUsers": "Tổng người dùng",
+  "totalDoctors": "Tổng bác sĩ",
+  "totalAppointments": "Tổng lịch hẹn",
+  "totalQuestions": "Tổng câu hỏi",
+  "questionsDistribution": "Phân bố câu hỏi",
+  "appointmentsTrends": "Xu hướng lịch hẹn"
 }

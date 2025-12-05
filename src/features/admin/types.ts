@@ -1,4 +1,4 @@
-import type { Id, User, PagedResult } from '@/types/common';
+import type { Id, User } from '@/types/common';
 
 export interface Doctor extends User {
   specialtyId: Id;

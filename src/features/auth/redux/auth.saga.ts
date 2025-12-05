@@ -18,22 +18,8 @@ import type { User } from '@/types/common';
 
 function* handleLogin(action: PayloadAction<{ email: string; password: string }>) {
   try {
-    // TEMPORARY: Mock login for testing - bypass API call
-    const mockUser: User = {
-      id: '1',
-      email: action.payload.email,
-      name: action.payload.email.split('@')[0],
-      role: 'PATIENT', // Change to 'DOCTOR' or 'ADMIN' to test other roles
-    };
-    
-    // Simulate API delay
-    yield new Promise(resolve => setTimeout(resolve, 500));
-    
-    yield put(loginSucceeded(mockUser));
-    
-    // TODO: Uncomment when backend is ready
-    // const user: User = yield call(authApi.login, action.payload);
-    // yield put(loginSucceeded(user));
+    const user: User = yield call(authApi.login, action.payload);
+    yield put(loginSucceeded(user));
   } catch (error) {
     yield put(loginFailed((error as Error).message));
   }
@@ -41,22 +27,8 @@ function* handleLogin(action: PayloadAction<{ email: string; password: string }>
 
 function* handleRegister(action: PayloadAction<{ email: string; password: string; name: string }>) {
   try {
-    // TEMPORARY: Mock register for testing - bypass API call
-    const mockUser: User = {
-      id: '1',
-      email: action.payload.email,
-      name: action.payload.name,
-      role: 'PATIENT',
-    };
-    
-    // Simulate API delay
-    yield new Promise(resolve => setTimeout(resolve, 500));
-    
-    yield put(registerSucceeded(mockUser));
-    
-    // TODO: Uncomment when backend is ready
-    // const user: User = yield call(authApi.register, action.payload);
-    // yield put(registerSucceeded(user));
+    const user: User = yield call(authApi.register, action.payload);
+    yield put(registerSucceeded(user));
   } catch (error) {
     yield put(registerFailed((error as Error).message));
   }
@@ -64,8 +36,7 @@ function* handleRegister(action: PayloadAction<{ email: string; password: string
 
 function* handleLogout() {
   try {
-    // TEMPORARY: Mock logout - bypass API call
-    // yield call(authApi.logout);
+    yield call(authApi.logout);
     yield put(logoutSucceeded());
   } catch (error) {
     yield put(logoutSucceeded()); // Logout anyway on error
@@ -74,10 +45,8 @@ function* handleLogout() {
 
 function* handleMe() {
   try {
-    // TEMPORARY: Skip /me call for testing
-    // const user: User = yield call(authApi.me);
-    // yield put(meSucceeded(user));
-    yield put(meFailed());
+    const user: User = yield call(authApi.me);
+    yield put(meSucceeded(user));
   } catch (error) {
     yield put(meFailed());
   }
