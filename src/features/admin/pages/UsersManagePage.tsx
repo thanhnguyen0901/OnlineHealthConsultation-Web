@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
@@ -57,10 +56,19 @@ export const UsersManagePage: React.FC = () => {
     setSubmitted(true);
     if (user.name?.trim() && user.email?.trim()) {
       if (user.id) {
-        dispatch(updateUserRequested({ id: user.id, data: { name: user.name, email: user.email, role: user.role } }));
+        dispatch(
+          updateUserRequested({
+            id: user.id,
+            data: { name: user.name, email: user.email, role: user.role },
+          })
+        );
       } else {
         if (user.password) {
-          dispatch(createUserRequested({ ...user, password: user.password } as Partial<User> & { password: string }));
+          dispatch(
+            createUserRequested({ ...user, password: user.password } as Partial<User> & {
+              password: string;
+            })
+          );
         }
       }
       setDialog(false);
@@ -120,90 +128,122 @@ export const UsersManagePage: React.FC = () => {
   );
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">{t('manageUsers')}</h1>
-      <Card>
-        <div className="mb-4">
-          <Button label={t('addUser')} icon="pi pi-plus" onClick={openNew} />
-        </div>
-        <DataTable value={users} paginator rows={10} loading={loading} emptyMessage={t('noUsers')}>
-          <Column field="id" header="ID" style={{ width: '100px' }} />
-          <Column field="name" header={t('name')} sortable />
-          <Column field="email" header={t('email')} sortable />
-          <Column field="role" header={t('role')} sortable />
-          <Column body={actionBodyTemplate} header={t('actions')} style={{ width: '150px' }} />
-        </DataTable>
-      </Card>
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+          {t('manageUsers')}
+        </h1>
 
-      <Dialog
-        visible={dialog}
-        style={{ width: '450px' }}
-        header={user.id ? t('editUser') : t('addUser')}
-        modal
-        footer={dialogFooter}
-        onHide={hideDialog}
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="block mb-2">{t('name')}</label>
-            <InputText
-              value={user.name || ''}
-              onChange={(e) => setUser({ ...user, name: e.target.value })}
-              required
-              autoFocus
-              className={`w-full ${submitted && !user.name ? 'p-invalid' : ''}`}
-            />
-            {submitted && !user.name && <small className="p-error">{t('nameRequired')}</small>}
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
+          <div className="mb-4">
+            <Button icon="pi pi-plus" onClick={openNew}>
+              {t('addUser')}
+            </Button>
           </div>
-          <div>
-            <label className="block mb-2">{t('email')}</label>
-            <InputText
-              value={user.email || ''}
-              onChange={(e) => setUser({ ...user, email: e.target.value })}
-              required
-              className={`w-full ${submitted && !user.email ? 'p-invalid' : ''}`}
-            />
-            {submitted && !user.email && <small className="p-error">{t('emailRequired')}</small>}
-          </div>
-          {!user.id && (
+          <DataTable
+            value={users}
+            paginator
+            rows={10}
+            loading={loading}
+            emptyMessage={t('noUsers')}
+            className="text-sm"
+          >
+            <Column field="id" header="ID" style={{ width: '100px' }} sortable />
+            <Column field="name" header={t('name')} sortable />
+            <Column field="email" header={t('email')} sortable />
+            <Column field="role" header={t('role')} sortable style={{ width: '140px' }} />
+            <Column body={actionBodyTemplate} header={t('actions')} style={{ width: '140px' }} />
+          </DataTable>
+        </div>
+
+        <Dialog
+          visible={dialog}
+          style={{ width: '500px' }}
+          header={user.id ? t('editUser') : t('addUser')}
+          modal
+          footer={dialogFooter}
+          onHide={hideDialog}
+        >
+          <div className="p-6 space-y-5">
             <div>
-              <label className="block mb-2">{t('password')}</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('name')}
+              </label>
               <InputText
-                type="password"
-                value={user.password || ''}
-                onChange={(e) => setUser({ ...user, password: e.target.value })}
+                value={user.name || ''}
+                onChange={(e) => setUser({ ...user, name: e.target.value })}
                 required
-                className={`w-full ${submitted && !user.password ? 'p-invalid' : ''}`}
+                autoFocus
+                className={`w-full ${submitted && !user.name ? 'p-invalid' : ''}`}
               />
-              {submitted && !user.password && <small className="p-error">{t('passwordRequired')}</small>}
+              {submitted && !user.name && (
+                <small className="text-red-500 text-xs mt-1">{t('nameRequired')}</small>
+              )}
             </div>
-          )}
-          <div>
-            <label className="block mb-2">{t('role')}</label>
-            <Dropdown
-              value={user.role}
-              options={roleOptions}
-              onChange={(e) => setUser({ ...user, role: e.value })}
-              placeholder={t('selectRole')}
-              className="w-full"
-            />
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('email')}
+              </label>
+              <InputText
+                value={user.email || ''}
+                onChange={(e) => setUser({ ...user, email: e.target.value })}
+                required
+                className={`w-full ${submitted && !user.email ? 'p-invalid' : ''}`}
+              />
+              {submitted && !user.email && (
+                <small className="text-red-500 text-xs mt-1">{t('emailRequired')}</small>
+              )}
+            </div>
+            {!user.id && (
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('password')}
+                </label>
+                <InputText
+                  type="password"
+                  value={user.password || ''}
+                  onChange={(e) => setUser({ ...user, password: e.target.value })}
+                  required
+                  className={`w-full ${submitted && !user.password ? 'p-invalid' : ''}`}
+                />
+                {submitted && !user.password && (
+                  <small className="text-red-500 text-xs mt-1">{t('passwordRequired')}</small>
+                )}
+              </div>
+            )}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('role')}
+              </label>
+              <Dropdown
+                value={user.role}
+                options={roleOptions}
+                onChange={(e) => setUser({ ...user, role: e.value })}
+                placeholder={t('selectRole')}
+                className="w-full"
+              />
+            </div>
           </div>
-        </div>
-      </Dialog>
+        </Dialog>
 
-      <Dialog
-        visible={deleteDialog}
-        style={{ width: '450px' }}
-        header={t('confirm')}
-        modal
-        footer={deleteDialogFooter}
-        onHide={hideDeleteDialog}
-      >
-        <div className="flex items-center">
-          <i className="pi pi-exclamation-triangle mr-3 text-3xl text-red-500" />
-          {user && <span>{t('deleteUserConfirm', { name: user.name })}</span>}
-        </div>
-      </Dialog>
+        <Dialog
+          visible={deleteDialog}
+          style={{ width: '450px' }}
+          header={t('confirm')}
+          modal
+          footer={deleteDialogFooter}
+          onHide={hideDeleteDialog}
+        >
+          <div className="flex items-center">
+            <i className="pi pi-exclamation-triangle mr-3 text-4xl text-red-500" />
+            {user && (
+              <span className="text-gray-700 dark:text-gray-300">
+                {t('deleteUserConfirm', { name: user.name })}
+              </span>
+            )}
+          </div>
+        </Dialog>
+      </div>
     </div>
   );
 };

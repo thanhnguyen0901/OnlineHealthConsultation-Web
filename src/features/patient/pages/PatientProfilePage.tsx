@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
 import { FormikCalendar } from '@/components/form-controls/FormikCalendar';
@@ -52,12 +51,14 @@ export const PatientProfilePage: React.FC = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
-        {t('patient:profile')}
-      </h1>
-      <Card>
-        <Formik
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+          {t('patient:profile')}
+        </h1>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
+          <Formik
           initialValues={{
             fullName: profile?.fullName || '',
             dateOfBirth: profile?.dateOfBirth ? new Date(profile.dateOfBirth) : null,
@@ -86,47 +87,56 @@ export const PatientProfilePage: React.FC = () => {
             dispatch(updateProfileRequested(profileData));
           }}
         >
-          <Form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormikInputText
-                name="fullName"
-                label={t('patient:fullName')}
-                placeholder={t('patient:fullNamePlaceholder')}
-              />
-              <FormikInputText
-                name="phone"
-                label={t('patient:phone')}
-                placeholder={t('patient:phonePlaceholder')}
-              />
-            </div>
+          <Form className="space-y-8">
+            <section>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
+                {t('patient:personalInformation')}
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormikInputText
+                  name="fullName"
+                  label={t('patient:fullName')}
+                  placeholder={t('patient:fullNamePlaceholder')}
+                />
+                <FormikInputText
+                  name="phone"
+                  label={t('patient:phone')}
+                  placeholder={t('patient:phonePlaceholder')}
+                />
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormikCalendar
-                name="dateOfBirth"
-                label={t('patient:dateOfBirth')}
-                placeholder={t('patient:selectDate')}
-              />
-              <FormikDropdown
-                name="gender"
-                label={t('patient:gender')}
-                options={genderOptions}
-                placeholder={t('patient:selectGender')}
-              />
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormikCalendar
+                  name="dateOfBirth"
+                  label={t('patient:dateOfBirth')}
+                  placeholder={t('patient:selectDate')}
+                />
+                <FormikDropdown
+                  name="gender"
+                  label={t('patient:gender')}
+                  options={genderOptions}
+                  placeholder={t('patient:selectGender')}
+                />
+                </div>
 
-            <FormikInputText
-              name="address"
-              label={t('patient:address')}
-              placeholder={t('patient:addressPlaceholder')}
-            />
+                <FormikInputText
+                  name="address"
+                  label={t('patient:address')}
+                  placeholder={t('patient:addressPlaceholder')}
+                />
+              </div>
+            </section>
 
-            <div className="border-t pt-4 mt-4">
-              <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+            <section>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
                 {t('patient:medicalInformation')}
               </h3>
 
-              <FormikInputText
-                name="medicalHistory"
+              <div className="space-y-4">
+                <FormikInputText
+                  name="medicalHistory"
                 label={t('patient:medicalHistory')}
                 placeholder={t('patient:medicalHistoryPlaceholder')}
                 as="textarea"
@@ -147,17 +157,19 @@ export const PatientProfilePage: React.FC = () => {
                 placeholder={t('patient:chronicDiseasesPlaceholder')}
                 as="textarea"
                 rows={2}
-              />
-            </div>
+                />
+              </div>
+            </section>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-2 pt-6 border-t border-gray-200 dark:border-gray-700">
               <Button type="submit" loading={loading}>
                 {t('common:save')}
               </Button>
             </div>
           </Form>
         </Formik>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

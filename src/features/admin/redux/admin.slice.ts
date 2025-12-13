@@ -87,7 +87,10 @@ const adminSlice = createSlice({
       state.error = action.payload;
     },
     // Doctor CRUD
-    createDoctorRequested: (state, _action: PayloadAction<Partial<Doctor> & { password: string }>) => {
+    createDoctorRequested: (
+      state,
+      _action: PayloadAction<Partial<Doctor> & { password: string }>
+    ) => {
       state.loading = true;
     },
     createDoctorSucceeded: (state, action: PayloadAction<Doctor>) => {
@@ -98,7 +101,10 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    updateDoctorRequested: (state, _action: PayloadAction<{ id: string; data: Partial<Doctor> }>) => {
+    updateDoctorRequested: (
+      state,
+      _action: PayloadAction<{ id: string; data: Partial<Doctor> }>
+    ) => {
       state.loading = true;
     },
     updateDoctorSucceeded: (state, action: PayloadAction<Doctor>) => {
@@ -133,7 +139,10 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    updateSpecialtyRequested: (state, _action: PayloadAction<{ id: string; data: Partial<Specialty> }>) => {
+    updateSpecialtyRequested: (
+      state,
+      _action: PayloadAction<{ id: string; data: Partial<Specialty> }>
+    ) => {
       state.loading = true;
     },
     updateSpecialtySucceeded: (state, action: PayloadAction<Specialty>) => {
@@ -170,7 +179,10 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    updateAppointmentStatusRequested: (state, _action: PayloadAction<{ id: Id; status: string }>) => {
+    updateAppointmentStatusRequested: (
+      state,
+      _action: PayloadAction<{ id: Id; status: string }>
+    ) => {
       state.loading = true;
       state.error = null;
     },

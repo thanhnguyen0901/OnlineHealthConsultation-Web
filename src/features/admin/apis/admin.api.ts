@@ -33,7 +33,9 @@ export const getDoctors = async (): Promise<Doctor[]> => {
   return response.data;
 };
 
-export const createDoctor = async (data: Partial<Doctor> & { password: string }): Promise<Doctor> => {
+export const createDoctor = async (
+  data: Partial<Doctor> & { password: string }
+): Promise<Doctor> => {
   const response = await apiClient.post<Doctor>('/admin/doctors', data);
   return response.data;
 };

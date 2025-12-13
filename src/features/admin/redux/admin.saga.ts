@@ -136,7 +136,11 @@ function* handleCreateDoctor(action: PayloadAction<Partial<Doctor> & { password:
 
 function* handleUpdateDoctor(action: PayloadAction<{ id: string; data: Partial<Doctor> }>) {
   try {
-    const doctor: Doctor = yield call(adminApi.updateDoctor, action.payload.id, action.payload.data);
+    const doctor: Doctor = yield call(
+      adminApi.updateDoctor,
+      action.payload.id,
+      action.payload.data
+    );
     yield put(updateDoctorSucceeded(doctor));
   } catch (error) {
     yield put(updateDoctorFailed((error as Error).message));
@@ -164,7 +168,11 @@ function* handleCreateSpecialty(action: PayloadAction<Partial<Specialty>>) {
 
 function* handleUpdateSpecialty(action: PayloadAction<{ id: string; data: Partial<Specialty> }>) {
   try {
-    const specialty: Specialty = yield call(adminApi.updateSpecialty, action.payload.id, action.payload.data);
+    const specialty: Specialty = yield call(
+      adminApi.updateSpecialty,
+      action.payload.id,
+      action.payload.data
+    );
     yield put(updateSpecialtySucceeded(specialty));
   } catch (error) {
     yield put(updateSpecialtyFailed((error as Error).message));
@@ -190,9 +198,15 @@ function* handleLoadAppointments() {
   }
 }
 
-function* handleUpdateAppointmentStatus(action: PayloadAction<{ id: string; status: string }>): Generator<any, void, any> {
+function* handleUpdateAppointmentStatus(
+  action: PayloadAction<{ id: string; status: string }>
+): Generator<any, void, any> {
   try {
-    const appointment: any = yield call(adminApi.updateAppointmentStatus, action.payload.id, action.payload.status);
+    const appointment: any = yield call(
+      adminApi.updateAppointmentStatus,
+      action.payload.id,
+      action.payload.status
+    );
     yield put(updateAppointmentStatusSucceeded(appointment));
   } catch (error) {
     yield put(updateAppointmentStatusFailed((error as Error).message));

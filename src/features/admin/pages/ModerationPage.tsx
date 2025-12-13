@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from '@/components/common/Button';
@@ -52,7 +51,11 @@ export const ModerationPage: React.FC = () => {
       approved: 'text-green-600',
       rejected: 'text-red-600',
     };
-    return <span className={`font-semibold ${statusColors[rowData.status] || ''}`}>{t(rowData.status)}</span>;
+    return (
+      <span className={`font-semibold ${statusColors[rowData.status] || ''}`}>
+        {t(rowData.status)}
+      </span>
+    );
   };
 
   const actionsBodyTemplate = (rowData: any) => {
@@ -78,18 +81,48 @@ export const ModerationPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">{t('moderation')}</h1>
-      <Card>
-        <DataTable value={moderationItems} paginator rows={10} loading={loading} emptyMessage={t('noModerationItems')}>
-          <Column field="type" header={t('type')} body={typeBodyTemplate} style={{ width: '100px' }} sortable />
-          <Column field="content" header={t('snippet')} body={snippetBodyTemplate} />
-          <Column field="userName" header={t('user')} sortable />
-          <Column field="createdAt" header={t('createdAt')} body={createdAtBodyTemplate} sortable />
-          <Column field="status" header={t('status')} body={statusBodyTemplate} sortable />
-          <Column header={t('actions')} body={actionsBodyTemplate} style={{ width: '220px' }} />
-        </DataTable>
-      </Card>
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+          {t('moderation')}
+        </h1>
+
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
+          <DataTable
+            value={moderationItems}
+            paginator
+            rows={10}
+            loading={loading}
+            emptyMessage={t('noModerationItems')}
+            className="text-sm"
+          >
+            <Column
+              field="type"
+              header={t('type')}
+              body={typeBodyTemplate}
+              style={{ width: '120px' }}
+              sortable
+            />
+            <Column field="content" header={t('snippet')} body={snippetBodyTemplate} />
+            <Column field="userName" header={t('user')} sortable style={{ width: '150px' }} />
+            <Column
+              field="createdAt"
+              header={t('createdAt')}
+              body={createdAtBodyTemplate}
+              sortable
+              style={{ width: '180px' }}
+            />
+            <Column
+              field="status"
+              header={t('status')}
+              body={statusBodyTemplate}
+              sortable
+              style={{ width: '120px' }}
+            />
+            <Column header={t('actions')} body={actionsBodyTemplate} style={{ width: '220px' }} />
+          </DataTable>
+        </div>
+      </div>
     </div>
   );
 };

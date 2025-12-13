@@ -2,7 +2,6 @@ import React from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { useField } from 'formik';
 import { Button } from '@/components/common/Button';
@@ -31,23 +30,36 @@ export const AskQuestionPage: React.FC = () => {
   const loading = useAppSelector(selectPatientLoading);
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">{t('askQuestion')}</h1>
-      <Card>
-        <Formik
-          initialValues={{ question: '' }}
-          validationSchema={questionSchema}
-          onSubmit={(values, { resetForm }) => {
-            dispatch(askQuestionRequested(values));
-            resetForm();
-          }}
-        >
-          <Form>
-            <FormikTextArea name="question" label={t('yourQuestion')} rows={8} />
-            <Button type="submit" loading={loading}>{t('common:submit')}</Button>
-          </Form>
-        </Formik>
-      </Card>
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('askQuestion')}</h1>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
+          <Formik
+            initialValues={{ question: '' }}
+            validationSchema={questionSchema}
+            onSubmit={(values, { resetForm }) => {
+              dispatch(askQuestionRequested(values));
+              resetForm();
+            }}
+          >
+            <Form className="space-y-5">
+              <div>
+                <label htmlFor="question" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  {t('yourQuestion')}
+                </label>
+                <FormikTextArea name="question" label="" rows={8} />
+              </div>
+              
+              <div className="flex justify-end pt-4">
+                <Button type="submit" loading={loading}>
+                  {t('common:submit')}
+                </Button>
+              </div>
+            </Form>
+          </Formik>
+        </div>
+      </div>
     </div>
   );
 };

@@ -11,6 +11,11 @@ interface AuthGuardProps {
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
 
+  // ===== HARD CODE FOR TESTING - BYPASS AUTH CHECK =====
+  // Uncomment dòng này để bypass hoàn toàn auth guard (test mà không cần login)
+  // return <>{children}</>;
+  // ===== END HARD CODE =====
+
   // You could add loading state here for checking authentication
   if (user === undefined) {
     return <Spinner size="lg" />;

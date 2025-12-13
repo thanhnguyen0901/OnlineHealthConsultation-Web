@@ -32,10 +32,12 @@ export const SchedulePage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">{t('schedule')}</h1>
-      <Card>
-        <DataTable
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('schedule')}</h1>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
+          <DataTable
           value={schedules}
           paginator
           rows={10}
@@ -43,13 +45,15 @@ export const SchedulePage: React.FC = () => {
           emptyMessage={t('noSchedule')}
           sortField="date"
           sortOrder={1}
+          className="text-sm"
         >
-          <Column field="date" header={t('date')} body={dateTemplate} sortable />
-          <Column field="startTime" header={t('startTime')} />
-          <Column field="endTime" header={t('endTime')} />
-          <Column field="available" header={t('status')} body={statusTemplate} />
+          <Column field="date" header={t('date')} body={dateTemplate} sortable style={{ width: '180px' }} />
+          <Column field="startTime" header={t('startTime')} style={{ width: '140px' }} />
+          <Column field="endTime" header={t('endTime')} style={{ width: '140px' }} />
+          <Column field="available" header={t('status')} body={statusTemplate} style={{ width: '150px' }} />
         </DataTable>
-      </Card>
+      </div>
+      </div>
     </div>
   );
 };

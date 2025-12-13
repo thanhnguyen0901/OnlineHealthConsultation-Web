@@ -13,56 +13,46 @@ export interface FormikInputTextProps {
   rows?: number;
 }
 
-export const FormikInputText: React.FC<FormikInputTextProps> = memo(({
-  name,
-  label,
-  placeholder,
-  type = 'text',
-  disabled = false,
-  as,
-  rows,
-}) => {
-  const [field, meta] = useField(name);
-  const hasError = meta.touched && meta.error;
-  
-  const isTextarea = as === 'textarea';
+export const FormikInputText: React.FC<FormikInputTextProps> = memo(
+  ({ name, label, placeholder, type = 'text', disabled = false, as, rows }) => {
+    const [field, meta] = useField(name);
+    const hasError = meta.touched && meta.error;
 
-  return (
-    <div className="w-full">
-      {label && (
-        <label 
-          htmlFor={name} 
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-        >
-          {label}
-        </label>
-      )}
-      {isTextarea ? (
-        <InputTextarea
-          id={name}
-          {...field}
-          placeholder={placeholder}
-          disabled={disabled}
-          rows={rows || 3}
-          className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
-        />
-      ) : (
-        <InputText
-          id={name}
-          {...field}
-          type={type}
-          placeholder={placeholder}
-          disabled={disabled}
-          className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
-        />
-      )}
-      {hasError && (
-        <small className="text-red-500 text-xs mt-1 block">
-          {meta.error}
-        </small>
-      )}
-    </div>
-  );
-});
+    const isTextarea = as === 'textarea';
+
+    return (
+      <div className="w-full">
+        {label && (
+          <label
+            htmlFor={name}
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            {label}
+          </label>
+        )}
+        {isTextarea ? (
+          <InputTextarea
+            id={name}
+            {...field}
+            placeholder={placeholder}
+            disabled={disabled}
+            rows={rows || 3}
+            className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
+          />
+        ) : (
+          <InputText
+            id={name}
+            {...field}
+            type={type}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
+          />
+        )}
+        {hasError && <small className="text-red-500 text-xs mt-1 block">{meta.error}</small>}
+      </div>
+    );
+  }
+);
 
 FormikInputText.displayName = 'FormikInputText';

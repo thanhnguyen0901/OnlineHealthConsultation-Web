@@ -7,3 +7,10 @@
 .dark {
   @import 'primereact/resources/themes/lara-dark-blue/theme.css';
 }
+
+/* Tooltip styling - prevent text from breaking into multiple lines */
+.p-tooltip .p-tooltip-text {
+  white-space: nowrap;
+  max-width: none;
+}
+

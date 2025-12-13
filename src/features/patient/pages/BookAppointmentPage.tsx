@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
@@ -78,68 +77,81 @@ export const BookAppointmentPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">{t('bookAppointment')}</h1>
-      <Card>
-        <Formik
-          initialValues={{
-            specialtyId: '',
-            doctorId: '',
-            date: null,
-            time: '',
-            notes: '',
-          }}
-          validationSchema={appointmentSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ setFieldValue }) => (
-            <Form className="space-y-4">
-              <FormikDropdown
-                name="specialtyId"
-                label={t('selectSpecialty')}
-                options={specialtyOptions}
-                onChange={(e) => {
-                  setFieldValue('specialtyId', e.value);
-                  setFieldValue('doctorId', '');
-                  setSelectedSpecialtyId(e.value);
-                  if (e.value) {
-                    dispatch(loadDoctorsBySpecialtyRequested(e.value));
-                  }
-                }}
-              />
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('bookAppointment')}</h1>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
+          <Formik
+            initialValues={{
+              specialtyId: '',
+              doctorId: '',
+              date: null,
+              time: '',
+              notes: '',
+            }}
+            validationSchema={appointmentSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ setFieldValue }) => (
+              <Form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormikDropdown
+                  name="specialtyId"
+                  label={t('selectSpecialty')}
+                  options={specialtyOptions}
+                  onChange={(e) => {
+                    setFieldValue('specialtyId', e.value);
+                    setFieldValue('doctorId', '');
+                    setSelectedSpecialtyId(e.value);
+                    if (e.value) {
+                      dispatch(loadDoctorsBySpecialtyRequested(e.value));
+                    }
+                  }}
+                />
 
-              <FormikDropdown
-                name="doctorId"
-                label={t('selectDoctor')}
-                options={doctorOptions}
-                disabled={!selectedSpecialtyId || doctors.length === 0}
-              />
+                <FormikDropdown
+                  name="doctorId"
+                  label={t('selectDoctor')}
+                  options={doctorOptions}
+                  disabled={!selectedSpecialtyId || doctors.length === 0}
+                />
+                </div>
 
-              <FormikCalendar
-                name="date"
-                label={t('appointmentDate')}
-                minDate={new Date()}
-                showIcon
-              />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormikCalendar
+                    name="date"
+                    label={t('appointmentDate')}
+                    minDate={new Date()}
+                    showIcon
+                  />
 
-              <FormikDropdown
-                name="time"
-                label={t('appointmentTime')}
-                options={timeSlots}
-              />
+                  <FormikDropdown
+                    name="time"
+                    label={t('appointmentTime')}
+                    options={timeSlots}
+                  />
+                </div>
 
-              <FormikInputText
-                name="notes"
-                label={t('notes')}
-                as="textarea"
-                rows={4}
-              />
+                <div className="mt-2">
+                  <FormikInputText
+                    name="notes"
+                    label={t('notes')}
+                    as="textarea"
+                    rows={4}
+                  />
+                </div>
 
-              <Button type="submit" label={t('bookAppointment')} loading={loading} />
-            </Form>
-          )}
-        </Formik>
-      </Card>
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="submit" loading={loading}>
+                    {t('bookAppointment')}
+                  </Button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
     </div>
   );
 };

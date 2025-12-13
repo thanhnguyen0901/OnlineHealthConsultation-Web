@@ -13,7 +13,9 @@ import { useEffect } from 'react';
 
 const loginSchema = Yup.object({
   email: Yup.string().email('Invalid email').required('Email is required'),
-  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
 });
 
 export const LoginPage: React.FC = () => {
@@ -34,37 +36,42 @@ export const LoginPage: React.FC = () => {
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
         {t('common:login')}
       </h2>
+
       <Formik
-        initialValues={{ email: '', password: '' }}
+        initialValues={{
+          email: 'test@example.com', // Pre-filled for easy testing
+          password: '123456',
+        }}
         validationSchema={loginSchema}
         onSubmit={(values) => {
           dispatch(loginRequested(values));
         }}
       >
         <Form className="space-y-4">
-          <FormikInputText 
-            name="email" 
-            label={t('common:email')} 
-            type="email" 
-            placeholder="you@example.com" 
+          <FormikInputText
+            name="email"
+            label={t('common:email')}
+            type="email"
+            placeholder="you@example.com"
           />
-          <FormikInputText 
-            name="password" 
-            label={t('common:password')} 
-            type="password" 
-            placeholder="••••••••" 
+          <FormikInputText
+            name="password"
+            label={t('common:password')}
+            type="password"
+            placeholder="••••••••"
           />
-          <Button type="submit" className="w-full mt-6" loading={loading}>
-            {t('common:login')}
-          </Button>
+          <div className="pt-2">
+            <Button type="submit" className="w-full" loading={loading}>
+              {t('common:login')}
+            </Button>
+          </div>
         </Form>
       </Formik>
+
       <div className="mt-6 text-center">
-        <span className="text-gray-600 dark:text-gray-400 text-sm">
-          Don't have an account?{' '}
-        </span>
-        <Link 
-          to={ROUTE_PATHS.REGISTER} 
+        <span className="text-gray-600 dark:text-gray-400 text-sm">Don't have an account? </span>
+        <Link
+          to={ROUTE_PATHS.REGISTER}
           className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm hover:underline"
         >
           {t('common:register')}

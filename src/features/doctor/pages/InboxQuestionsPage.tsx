@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
@@ -62,35 +61,46 @@ export const InboxQuestionsPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">{t('inbox')}</h1>
-      <Card>
-        <DataTable value={questions} paginator rows={10} loading={loading} emptyMessage={t('noQuestions')}>
-          <Column field="patientName" header={t('patient')} />
-          <Column field="question" header={t('question')} style={{ maxWidth: '400px' }} />
-          <Column field="createdAt" header={t('date')} body={dateTemplate} style={{ width: '150px' }} />
-          <Column field="status" header={t('status')} style={{ width: '120px' }} />
-          <Column body={actionTemplate} header={t('actions')} style={{ width: '150px' }} />
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('inbox')}</h1>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
+          <DataTable 
+          value={questions} 
+          paginator 
+          rows={10} 
+          loading={loading} 
+          emptyMessage={t('noQuestions')}
+          className="text-sm"
+        >
+          <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
+          <Column field="question" header={t('question')} />
+          <Column field="createdAt" header={t('date')} body={dateTemplate} sortable style={{ width: '140px' }} />
+          <Column field="status" header={t('status')} sortable style={{ width: '120px' }} />
+          <Column body={actionTemplate} header={t('actions')} style={{ width: '160px' }} />
         </DataTable>
-      </Card>
+      </div>
+      </div>
 
       <Dialog
         header={t('answerQuestion')}
         visible={answerDialog}
-        style={{ width: '600px' }}
+        style={{ width: '650px' }}
         onHide={() => setAnswerDialog(false)}
+        modal
       >
-        <div className="space-y-4">
+        <div className="p-6 space-y-5">
           {selectedQuestion && (
-            <div>
-              <h3 className="font-semibold mb-2">{t('question')}:</h3>
-              <p className="text-gray-700 dark:text-gray-300 p-3 bg-gray-100 dark:bg-gray-800 rounded">
+            <div className="pb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('question')}:</label>
+              <div className="text-gray-800 dark:text-gray-200 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
                 {selectedQuestion.question}
-              </p>
+              </div>
             </div>
           )}
           <div>
-            <label className="block mb-2 font-semibold">{t('yourAnswer')}</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('yourAnswer')}</label>
             <InputTextarea
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
@@ -99,14 +109,17 @@ export const InboxQuestionsPage: React.FC = () => {
               placeholder={t('enterAnswer')}
             />
           </div>
-          <div className="flex justify-end gap-2">
-            <Button label={t('cancel')} variant="secondary" onClick={() => setAnswerDialog(false)} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setAnswerDialog(false)}>
+              {t('cancel')}
+            </Button>
             <Button
-              label={t('submit')}
               onClick={handleSubmitAnswer}
               disabled={!answerText.trim()}
               loading={loading}
-            />
+            >
+              {t('submit')}
+            </Button>
           </div>
         </div>
       </Dialog>

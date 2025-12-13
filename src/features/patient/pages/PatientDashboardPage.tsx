@@ -15,19 +15,26 @@ export const PatientDashboardPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">{t('dashboard')}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('dashboard')}</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {quickActions.map((action) => (
-          <Card key={action.path} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(action.path)}>
-            <div className="flex flex-col items-center p-4">
-              <div className={`${action.color} rounded-full p-6 mb-4`}>
+          <Card 
+            key={action.path} 
+            className="hover:shadow-xl transition-all cursor-pointer bg-white dark:bg-slate-900"
+            onClick={() => navigate(action.path)}
+          >
+            <div className="flex flex-col items-center p-6">
+              <div className={`${action.color} rounded-full p-6 mb-4 shadow-lg`}>
                 <i className={`${action.icon} text-4xl text-white`} />
               </div>
-              <h3 className="text-xl font-semibold text-center">{action.label}</h3>
+              <h3 className="text-xl font-semibold text-center text-gray-900 dark:text-white">{action.label}</h3>
             </div>
           </Card>
         ))}
+        </div>
       </div>
     </div>
   );

@@ -62,39 +62,70 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">{t('consultationHistory')}</h1>
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-3">{t('questions')}</h2>
-        <DataTable value={questions} paginator rows={10}>
-          <Column field="question" header={t('question')} />
-          <Column field="status" header={t('status')} />
-          <Column field="createdAt" header={t('date')} />
-          <Column body={actionTemplate} header={t('actions')} style={{ width: '150px' }} />
-        </DataTable>
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('consultationHistory')}</h1>
+        
+        <div className="space-y-8">
+          <section>
+            <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">{t('questions')}</h2>
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
+              <DataTable 
+            value={questions} 
+            paginator 
+            rows={10}
+            loading={loading}
+            emptyMessage={t('noQuestions')}
+            className="text-sm"
+          >
+            <Column field="question" header={t('question')} sortable />
+            <Column field="status" header={t('status')} sortable style={{ width: '150px' }} />
+            <Column field="createdAt" header={t('date')} sortable style={{ width: '150px' }} />
+              <Column body={actionTemplate} header={t('actions')} style={{ width: '180px' }} />
+            </DataTable>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">{t('appointments')}</h2>
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
+            <DataTable 
+            value={appointments} 
+            paginator 
+            rows={10}
+            loading={loading}
+            emptyMessage={t('noAppointments')}
+            className="text-sm"
+          >
+            <Column field="doctorName" header={t('doctor')} sortable />
+            <Column field="date" header={t('date')} sortable style={{ width: '150px' }} />
+              <Column field="status" header={t('status')} sortable style={{ width: '150px' }} />
+            </DataTable>
+          </div>
+        </section>
       </div>
-      <div>
-        <h2 className="text-xl font-semibold mb-3">{t('appointments')}</h2>
-        <DataTable value={appointments} paginator rows={10}>
-          <Column field="doctorName" header={t('doctor')} />
-          <Column field="date" header={t('date')} />
-          <Column field="status" header={t('status')} />
-        </DataTable>
       </div>
 
       <Dialog
         header={t('rateConsultation')}
         visible={ratingDialog}
-        style={{ width: '450px' }}
+        style={{ width: '500px' }}
         onHide={() => setRatingDialog(false)}
+        modal
       >
-        <div className="space-y-4">
+        <div className="p-6 space-y-5">
           <div>
-            <label className="block mb-2 font-semibold">{t('rating')}</label>
-            <Rating value={ratingValue} onChange={(e) => setRatingValue(e.value ?? 0)} stars={5} cancel={false} />
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('rating')}</label>
+            <Rating 
+              value={ratingValue} 
+              onChange={(e) => setRatingValue(e.value ?? 0)} 
+              stars={5} 
+              cancel={false}
+              className="text-yellow-500"
+            />
           </div>
           <div>
-            <label className="block mb-2 font-semibold">{t('comment')}</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('comment')}</label>
             <InputTextarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -103,14 +134,20 @@ export const ConsultationHistoryPage: React.FC = () => {
               placeholder={t('commentPlaceholder')}
             />
           </div>
-          <div className="flex justify-end gap-2">
-            <Button label={t('cancel')} className="p-button-text" onClick={() => setRatingDialog(false)} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button 
+              variant="secondary" 
+              onClick={() => setRatingDialog(false)}
+            >
+              {t('cancel')}
+            </Button>
             <Button
-              label={t('submit')}
               onClick={handleSubmitRating}
               disabled={ratingValue === 0}
               loading={loading}
-            />
+            >
+              {t('submit')}
+            </Button>
           </div>
         </div>
       </Dialog>
