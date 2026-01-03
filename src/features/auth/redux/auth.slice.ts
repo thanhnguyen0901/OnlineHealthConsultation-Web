@@ -2,6 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialAuthState } from './auth.state';
 import type { User } from '@/types/common';
 
+interface AuthSuccessPayload {
+  user: User;
+  accessToken: string;
+}
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: initialAuthState,
@@ -10,9 +15,10 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    loginSucceeded: (state, action: PayloadAction<User>) => {
+    loginSucceeded: (state, action: PayloadAction<AuthSuccessPayload>) => {
       state.loading = false;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
       state.isAuthenticated = true;
       state.error = null;
     },
@@ -28,9 +34,10 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    registerSucceeded: (state, action: PayloadAction<User>) => {
+    registerSucceeded: (state, action: PayloadAction<AuthSuccessPayload>) => {
       state.loading = false;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
       state.isAuthenticated = true;
       state.error = null;
     },
@@ -43,6 +50,7 @@ const authSlice = createSlice({
     },
     logoutSucceeded: (state) => {
       state.user = null;
+      state.accessToken = null;
       state.loading = false;
       state.isAuthenticated = false;
       state.error = null;
@@ -50,15 +58,22 @@ const authSlice = createSlice({
     meRequested: (state) => {
       state.loading = true;
     },
-    meSucceeded: (state, action: PayloadAction<User>) => {
+    meSucceeded: (state, action: PayloadAction<AuthSuccessPayload>) => {
       state.loading = false;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
       state.isAuthenticated = true;
+      state.isBootstrapping = false;
     },
     meFailed: (state) => {
       state.loading = false;
       state.isAuthenticated = false;
       state.user = null;
+      state.accessToken = null;
+      state.isBootstrapping = false;
+    },
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      state.accessToken = action.payload;
     },
   },
 });
@@ -75,6 +90,7 @@ export const {
   meRequested,
   meSucceeded,
   meFailed,
+  setAccessToken,
 } = authSlice.actions;
 
 export default authSlice.reducer;

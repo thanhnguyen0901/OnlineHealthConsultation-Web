@@ -4,17 +4,15 @@ import { RoutesConfig } from './routes';
 import { ToastPortal } from '@/components/common/ToastPortal';
 import { useAppDispatch } from '@/state/hooks';
 import { meRequested } from '@/features/auth/redux/auth.slice';
-import { storage } from '@/utils/storage';
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Auto-login: If access token exists, fetch user info
-    const accessToken = storage.get<string>('accessToken');
-    if (accessToken) {
-      dispatch(meRequested());
-    }
+    // Silent refresh: Attempt to restore session from HttpOnly refresh cookie
+    // This will call POST /auth/refresh and update Redux state if successful
+    // If refresh cookie doesn't exist or is expired, meFailed will be dispatched
+    dispatch(meRequested());
   }, [dispatch]);
 
   return (

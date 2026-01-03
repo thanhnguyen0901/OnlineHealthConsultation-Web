@@ -14,13 +14,12 @@ import {
   meFailed,
 } from './auth.slice';
 import * as authApi from '../apis/auth.api';
-import type { User } from '@/types/common';
-import { storage } from '@/utils/storage';
+import type { AuthResult } from '../apis/auth.api';
 
 function* handleLogin(action: PayloadAction<{ email: string; password: string }>) {
   try {
-    const user: User = yield call(authApi.login, action.payload);
-    yield put(loginSucceeded(user));
+    const result: AuthResult = yield call(authApi.login, action.payload);
+    yield put(loginSucceeded(result));
   } catch (error) {
     yield put(loginFailed((error as Error).message));
   }
@@ -28,8 +27,8 @@ function* handleLogin(action: PayloadAction<{ email: string; password: string }>
 
 function* handleRegister(action: PayloadAction<{ email: string; password: string; name: string }>) {
   try {
-    const user: User = yield call(authApi.register, action.payload);
-    yield put(registerSucceeded(user));
+    const result: AuthResult = yield call(authApi.register, action.payload);
+    yield put(registerSucceeded(result));
   } catch (error) {
     yield put(registerFailed((error as Error).message));
   }
@@ -41,16 +40,14 @@ function* handleLogout() {
   } catch (error) {
     // Ignore logout API errors - always clear local state
   } finally {
-    // Always clear access token from localStorage
-    storage.remove('accessToken');
     yield put(logoutSucceeded());
   }
 }
 
 function* handleMe() {
   try {
-    const user: User = yield call(authApi.me);
-    yield put(meSucceeded(user));
+    const result: AuthResult = yield call(authApi.refresh);
+    yield put(meSucceeded(result));
   } catch (error) {
     yield put(meFailed());
   }

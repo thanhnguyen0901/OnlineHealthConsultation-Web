@@ -1,8 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { HttpError } from './httpError';
-import { storage } from '@/utils/storage';
 import { API_CONFIG } from '@/config/api.config';
 import { ROUTE_PATHS } from '@/constants/routePaths';
+import { store } from '@/state/store';
+import { selectAccessToken } from '@/features/auth/redux/auth.selectors';
+import { setAccessToken, logoutSucceeded } from '@/features/auth/redux/auth.slice';
 
 const apiClient = axios.create({
   baseURL: (import.meta.env.VITE_API_BASE_URL || API_CONFIG.BASE_URL) + '/api',
@@ -33,9 +35,9 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 // Request interceptor
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Attach access token to Authorization header
-    const accessToken = storage.get<string>('accessToken');
-    if (accessToken) {
+    // Get access token from Redux store (in-memory)
+    const accessToken = selectAccessToken(store.getState());
+    if (accessToken && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -57,34 +59,57 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Handle 401 Unauthorized - attempt token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Skip refresh for auth endpoints to avoid infinite loops
+      if (originalRequest.url?.includes('/auth/login') || 
+          originalRequest.url?.includes('/auth/register') ||
+          originalRequest.url?.includes('/auth/refresh')) {
+        return Promise.reject(error);
+      }
+
+      // If already refreshing, queue the request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           refreshQueue.push({ resolve, reject });
-        }).then(() => apiClient(originalRequest));
+        })
+          .then(() => {
+            // Retry original request with new token from store
+            return apiClient(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        // Send empty body - backend will get refreshToken from httpOnly cookie
+        // Attempt to refresh access token using HttpOnly cookie
         const refreshResponse = await apiClient.post<{
           success: boolean;
           data: { accessToken: string; refreshToken?: string };
         }>('/auth/refresh', {});
 
-        // Save new access token
         const newAccessToken = refreshResponse.data.data.accessToken;
-        storage.set('accessToken', newAccessToken);
+        
+        // Update Redux store with new access token
+        store.dispatch(setAccessToken(newAccessToken));
 
+        // Process queued requests
         processQueue(null, newAccessToken);
+
+        // Retry the original request with new token
         return apiClient(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError as Error);
-        // Clear token and redirect to login
-        storage.remove('accessToken');
-        window.location.href = '/login';
+        // Refresh failed - logout user
+        processQueue(refreshError as Error, null);
+        
+        // Clear auth state and redirect to login
+        store.dispatch(logoutSucceeded());
+        window.location.href = ROUTE_PATHS.LOGIN;
+        
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
