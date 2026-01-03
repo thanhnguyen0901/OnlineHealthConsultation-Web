@@ -75,7 +75,7 @@ function* handleUpdateProfile(action: PayloadAction<Partial<PatientProfile>>) {
   }
 }
 
-function* handleRateConsultation(action: PayloadAction<{ consultationId: string; rating: number; comment?: string }>) {
+function* handleRateConsultation(action: PayloadAction<{ consultationId: string; doctorId: string; rating: number; comment?: string }>) {
   try {
     const rating: Rating = yield call(patientApi.rateConsultation, action.payload);
     yield put(rateConsultationSucceeded(rating));

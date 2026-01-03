@@ -50,7 +50,7 @@ interface AppointmentFormValues {
 }
 
 export const BookAppointmentPage: React.FC = () => {
-  const { t } = useTranslation('patient');
+  const { t, i18n } = useTranslation('patient');
   const dispatch = useAppDispatch();
   const specialties = useAppSelector(selectSpecialties);
   const doctors = useAppSelector(selectDoctors);
@@ -61,7 +61,10 @@ export const BookAppointmentPage: React.FC = () => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
 
-  const specialtyOptions = specialties.map((s) => ({ label: s.name, value: s.id }));
+  const specialtyOptions = specialties.map((s) => ({ 
+    label: i18n.language === 'vi' ? s.nameVi : s.nameEn, 
+    value: s.id 
+  }));
   const doctorOptions = doctors.map((d) => ({ label: d.name, value: d.id }));
 
   const handleSubmit = (values: AppointmentFormValues) => {
@@ -100,6 +103,7 @@ export const BookAppointmentPage: React.FC = () => {
                   name="specialtyId"
                   label={t('selectSpecialty')}
                   options={specialtyOptions}
+                  placeholder={t('selectSpecialty')}
                   onChange={(e) => {
                     setFieldValue('specialtyId', e.value);
                     setFieldValue('doctorId', '');
@@ -114,6 +118,7 @@ export const BookAppointmentPage: React.FC = () => {
                   name="doctorId"
                   label={t('selectDoctor')}
                   options={doctorOptions}
+                  placeholder={t('selectDoctor')}
                   disabled={!selectedSpecialtyId || doctors.length === 0}
                 />
                 </div>
@@ -130,6 +135,7 @@ export const BookAppointmentPage: React.FC = () => {
                     name="time"
                     label={t('appointmentTime')}
                     options={timeSlots}
+                    placeholder={t('appointmentTime')}
                   />
                 </div>
 

@@ -1,5 +1,6 @@
 {
   "dashboard": "Bảng điều khiển bác sĩ",
+  "dashboardContent": "Thống kê và tổng quan sẽ được hiển thị tại đây",
   "inbox": "Hộp thư câu hỏi",
   "schedule": "Lịch làm việc",
   "answerQuestion": "Trả lời câu hỏi",
@@ -15,6 +16,8 @@
   "actions": "Hành động",
   "answer": "Trả lời",
   "answered": "Đã trả lời",
+  "pending": "Chờ xử lý",
+  "moderated": "Đã kiểm duyệt",
   "noQuestions": "Không có câu hỏi nào",
   "enterAnswer": "Nhập câu trả lời của bạn...",
   "cancel": "Hủy",

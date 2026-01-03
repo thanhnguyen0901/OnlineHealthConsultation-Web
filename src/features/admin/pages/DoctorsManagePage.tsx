@@ -23,7 +23,7 @@ import {
 import type { Doctor } from '../types';
 
 export const DoctorsManagePage: React.FC = () => {
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation('admin');
   const dispatch = useAppDispatch();
   const doctors = useAppSelector(selectAdminDoctors);
   const specialties = useAppSelector(selectAdminSpecialties);
@@ -39,7 +39,10 @@ export const DoctorsManagePage: React.FC = () => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
 
-  const specialtyOptions = specialties.map((s) => ({ label: s.name, value: s.id }));
+  const specialtyOptions = specialties.map((s) => ({ 
+    label: i18n.language === 'vi' ? s.nameVi : s.nameEn, 
+    value: s.id 
+  }));
 
   const openNew = () => {
     setDoctor({});

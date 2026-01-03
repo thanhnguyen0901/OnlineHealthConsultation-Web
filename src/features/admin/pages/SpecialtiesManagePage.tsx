@@ -48,16 +48,27 @@ export const SpecialtiesManagePage: React.FC = () => {
 
   const saveSpecialty = () => {
     setSubmitted(true);
-    if (specialty.name?.trim() && specialty.description?.trim()) {
+    if (specialty.nameEn?.trim() && specialty.nameVi?.trim() && specialty.description?.trim()) {
+      // Auto-generate name from nameEn for backward compatibility
+      const dataToSave = {
+        ...specialty,
+        name: specialty.nameEn,
+      };
+      
       if (specialty.id) {
         dispatch(
           updateSpecialtyRequested({
             id: specialty.id,
-            data: { name: specialty.name, description: specialty.description },
+            data: { 
+              name: dataToSave.name,
+              nameEn: dataToSave.nameEn, 
+              nameVi: dataToSave.nameVi, 
+              description: dataToSave.description 
+            },
           })
         );
       } else {
-        dispatch(createSpecialtyRequested(specialty as Partial<Specialty>));
+        dispatch(createSpecialtyRequested(dataToSave as Partial<Specialty>));
       }
       setDialog(false);
       setSpecialty({});
@@ -136,7 +147,8 @@ export const SpecialtiesManagePage: React.FC = () => {
             emptyMessage={t('noSpecialties')}
             className="primereact-table"
           >
-            <Column field="name" header={t('name')} sortable style={{ width: '200px' }} />
+            <Column field="nameEn" header={t('nameEnglish')} sortable style={{ width: '180px' }} />
+            <Column field="nameVi" header={t('nameVietnamese')} sortable style={{ width: '200px' }} />
             <Column field="description" header={t('description')} sortable />
             <Column body={actionBodyTemplate} header={t('actions')} style={{ width: '140px' }} />
           </DataTable>
@@ -154,17 +166,33 @@ export const SpecialtiesManagePage: React.FC = () => {
           <div className="px-6 pt-2 pb-1 space-y-4">
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('name')}
+                {t('nameEnglish')} <span className="text-red-500">*</span>
               </label>
               <InputText
-                value={specialty.name || ''}
-                onChange={(e) => setSpecialty({ ...specialty, name: e.target.value })}
+                value={specialty.nameEn || ''}
+                onChange={(e) => setSpecialty({ ...specialty, nameEn: e.target.value })}
                 required
                 autoFocus
-                className={`w-full ${submitted && !specialty.name ? 'p-invalid' : ''}`}
+                className={`w-full ${submitted && !specialty.nameEn ? 'p-invalid' : ''}`}
+                placeholder="e.g., Cardiology"
               />
-              {submitted && !specialty.name && (
-                <small className="text-red-500 text-xs mt-1">{t('nameRequired')}</small>
+              {submitted && !specialty.nameEn && (
+                <small className="text-red-500 text-xs mt-1">{t('nameEnglishRequired')}</small>
+              )}
+            </div>
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('nameVietnamese')} <span className="text-red-500">*</span>
+              </label>
+              <InputText
+                value={specialty.nameVi || ''}
+                onChange={(e) => setSpecialty({ ...specialty, nameVi: e.target.value })}
+                required
+                className={`w-full ${submitted && !specialty.nameVi ? 'p-invalid' : ''}`}
+                placeholder="e.g., Tim mạch"
+              />
+              {submitted && !specialty.nameVi && (
+                <small className="text-red-500 text-xs mt-1">{t('nameVietnameseRequired')}</small>
               )}
             </div>
             <div>
@@ -196,7 +224,7 @@ export const SpecialtiesManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1">
-          <div className="flex items-center gap-3 gap-3">
+          <div className="flex items-center gap-3">
             <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
             {specialty && (
               <span className="text-gray-700 dark:text-gray-300 text-base">

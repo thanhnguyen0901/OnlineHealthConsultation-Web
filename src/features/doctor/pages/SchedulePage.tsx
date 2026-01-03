@@ -45,7 +45,7 @@ export const SchedulePage: React.FC = () => {
           emptyMessage={t('noSchedule')}
           sortField="date"
           sortOrder={1}
-          className="text-sm"
+          className="primereact-table"
         >
           <Column field="date" header={t('date')} body={dateTemplate} sortable style={{ width: '180px' }} />
           <Column field="startTime" header={t('startTime')} style={{ width: '140px' }} />

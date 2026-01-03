@@ -12,6 +12,16 @@
 .p-tooltip .p-tooltip-text {
   white-space: nowrap;
   max-width: none;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 0.375rem !important;
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  font-size: 0.875rem !important;
+}
+
+.dark .p-tooltip .p-tooltip-text {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
 }
 
 /* Dialog custom styling - add proper padding to header and content */
@@ -81,5 +91,36 @@
 
 .p-dropdown-panel .p-dropdown-items {
   padding: 0.25rem 0 !important;
+}
+
+/* Tag component styling - add proper padding for status badges */
+.p-tag {
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  min-width: 100px !important;
+  justify-content: center !important;
+}
+
+.p-tag .p-tag-value {
+  line-height: 1.5 !important;
+}
+
+/* Button tooltip hover - add proper background color and padding */
+.p-button.p-button-rounded.p-button-text {
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 0.5rem !important;
+}
+
+.p-button.p-button-rounded.p-button-text:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.dark .p-button.p-button-rounded.p-button-text:hover {
+  background-color: #334155 !important;
 }
 

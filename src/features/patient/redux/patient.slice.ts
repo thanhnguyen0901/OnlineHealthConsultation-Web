@@ -68,7 +68,7 @@ const patientSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    rateConsultationRequested: (state, _action: PayloadAction<{ consultationId: string; rating: number; comment?: string }>) => {
+    rateConsultationRequested: (state, _action: PayloadAction<{ consultationId: string; doctorId: string; rating: number; comment?: string }>) => {
       state.loading = true;
       state.error = null;
     },

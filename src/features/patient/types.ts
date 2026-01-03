@@ -4,6 +4,7 @@ export interface Question {
   id: Id;
   patientId: Id;
   doctorId?: Id;
+  doctorName?: string;
   question: string;
   answer?: string;
   status: 'pending' | 'answered';
@@ -22,6 +23,7 @@ export interface Appointment {
   time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   notes?: string;
+  hasRating?: boolean;
 }
 
 export interface ConsultationHistory {

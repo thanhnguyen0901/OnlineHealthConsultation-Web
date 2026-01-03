@@ -4,6 +4,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loadQuestionsRequested, answerQuestionRequested } from '../redux/doctor.slice';
@@ -60,6 +61,17 @@ export const InboxQuestionsPage: React.FC = () => {
     return new Date(rowData.createdAt).toLocaleDateString('vi-VN');
   };
 
+  const statusTemplate = (rowData: DoctorQuestion) => {
+    const statusMap: Record<string, { severity: 'success' | 'warning' | 'info', label: string }> = {
+      pending: { severity: 'warning', label: t('pending') },
+      answered: { severity: 'success', label: t('answered') },
+      moderated: { severity: 'info', label: t('moderated') },
+    };
+    
+    const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
+    return <Tag value={config.label} severity={config.severity} />;
+  };
+
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
@@ -72,12 +84,12 @@ export const InboxQuestionsPage: React.FC = () => {
           rows={10} 
           loading={loading} 
           emptyMessage={t('noQuestions')}
-          className="text-sm"
+          className="primereact-table"
         >
           <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
           <Column field="question" header={t('question')} />
           <Column field="createdAt" header={t('date')} body={dateTemplate} sortable style={{ width: '140px' }} />
-          <Column field="status" header={t('status')} sortable style={{ width: '120px' }} />
+          <Column field="status" header={t('status')} body={statusTemplate} sortable style={{ width: '140px' }} />
           <Column body={actionTemplate} header={t('actions')} style={{ width: '160px' }} />
         </DataTable>
       </div>

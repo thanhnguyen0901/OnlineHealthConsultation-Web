@@ -1,5 +1,6 @@
 {
   "dashboard": "Doctor Dashboard",
+  "dashboardContent": "Dashboard statistics and overview will be displayed here",
   "inbox": "Questions Inbox",
   "schedule": "Work Schedule",
   "answerQuestion": "Answer Question",
@@ -15,6 +16,8 @@
   "actions": "Actions",
   "answer": "Answer",
   "answered": "Answered",
+  "pending": "Pending",
+  "moderated": "Moderated",
   "noQuestions": "No questions available",
   "enterAnswer": "Enter your answer...",
   "cancel": "Cancel",

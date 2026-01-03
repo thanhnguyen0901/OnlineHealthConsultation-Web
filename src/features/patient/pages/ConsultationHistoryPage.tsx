@@ -5,11 +5,13 @@ import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
 import { Rating } from 'primereact/rating';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loadHistoryRequested, rateConsultationRequested } from '@/features/patient/redux/patient.slice';
 import { selectQuestions, selectAppointments, selectPatientLoading } from '@/features/patient/redux/patient.selectors';
-import type { Question } from '../types';
+import type { Question, Appointment } from '../types';
+import { useToast } from '@/hooks/useToast';
 
 export const ConsultationHistoryPage: React.FC = () => {
   const { t } = useTranslation('patient');
@@ -17,48 +19,112 @@ export const ConsultationHistoryPage: React.FC = () => {
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
   const loading = useAppSelector(selectPatientLoading);
+  const { showSuccess, showError } = useToast();
 
   const [ratingDialog, setRatingDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [ratingValue, setRatingValue] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     dispatch(loadHistoryRequested());
   }, [dispatch]);
 
-  const handleOpenRating = (question: Question) => {
-    setSelectedQuestion(question);
+  // Track rating submission completion
+  useEffect(() => {
+    if (isSubmitting && !loading) {
+      // Rating submission completed
+      showSuccess(t('ratingSubmitted') || 'Rating submitted successfully');
+      setRatingDialog(false);
+      setIsSubmitting(false);
+      // Reload history to get updated data
+      setTimeout(() => dispatch(loadHistoryRequested()), 500);
+    }
+  }, [loading, isSubmitting, showSuccess, dispatch, t]);
+
+  const handleOpenAppointmentRating = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setSelectedQuestion(null);
     setRatingValue(0);
     setComment('');
     setRatingDialog(true);
   };
 
   const handleSubmitRating = () => {
-    if (selectedQuestion && ratingValue > 0) {
+    if (ratingValue === 0) return;
+
+    setIsSubmitting(true);
+
+    if (selectedAppointment && selectedAppointment.doctorId) {
+      // Rating for appointment
       dispatch(
         rateConsultationRequested({
-          consultationId: selectedQuestion.id,
+          consultationId: selectedAppointment.id,
+          doctorId: selectedAppointment.doctorId,
           rating: ratingValue,
           comment: comment || undefined,
         })
       );
-      setRatingDialog(false);
+    } else if (selectedQuestion && selectedQuestion.doctorId) {
+      // Rating for question (currently not supported by backend)
+      dispatch(
+        rateConsultationRequested({
+          consultationId: selectedQuestion.id,
+          doctorId: selectedQuestion.doctorId,
+          rating: ratingValue,
+          comment: comment || undefined,
+        })
+      );
     }
   };
 
-  const actionTemplate = (rowData: Question) => {
-    if (rowData.status === 'answered') {
+  const dateTemplate = (rowData: Question) => {
+    return new Date(rowData.createdAt).toLocaleDateString('vi-VN');
+  };
+
+  const questionStatusTemplate = (rowData: Question) => {
+    const statusMap: Record<string, { severity: 'success' | 'warning' | 'info', label: string }> = {
+      pending: { severity: 'warning', label: t('pending') },
+      answered: { severity: 'success', label: t('answered') },
+      moderated: { severity: 'info', label: t('moderated') },
+    };
+    
+    const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
+    return <Tag value={config.label} severity={config.severity} />;
+  };
+
+  const appointmentDateTemplate = (rowData: any) => {
+    return new Date(rowData.date).toLocaleDateString('vi-VN');
+  };
+
+  const appointmentStatusTemplate = (rowData: any) => {
+    const statusMap: Record<string, { severity: 'success' | 'warning' | 'danger' | 'info', label: string }> = {
+      scheduled: { severity: 'info', label: t('scheduled') },
+      completed: { severity: 'success', label: t('completed') },
+      cancelled: { severity: 'danger', label: t('cancelled') },
+    };
+    
+    const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
+    return <Tag value={config.label} severity={config.severity} />;
+  };
+
+  const appointmentActionTemplate = (rowData: Appointment) => {
+    if (rowData.status === 'completed') {
+      if (rowData.hasRating) {
+        return <span className="text-green-600 dark:text-green-400 text-sm font-medium">{t('rated')}</span>;
+      }
       return (
         <Button
-          label={t('rateConsultation')}
+          label={t('rate')}
           icon="pi pi-star"
-          className="p-button-sm p-button-outlined"
-          onClick={() => handleOpenRating(rowData)}
+          size="sm"
+          onClick={() => handleOpenAppointmentRating(rowData)}
         />
       );
     }
-    return null;
+    return <span className="text-gray-400 text-sm italic">{t('notAvailable')}</span>;
   };
 
   return (
@@ -76,12 +142,11 @@ export const ConsultationHistoryPage: React.FC = () => {
             rows={10}
             loading={loading}
             emptyMessage={t('noQuestions')}
-            className="text-sm"
+            className="primereact-table"
           >
             <Column field="question" header={t('question')} sortable />
-            <Column field="status" header={t('status')} sortable style={{ width: '150px' }} />
-            <Column field="createdAt" header={t('date')} sortable style={{ width: '150px' }} />
-              <Column body={actionTemplate} header={t('actions')} style={{ width: '180px' }} />
+            <Column field="status" header={t('status')} body={questionStatusTemplate} sortable style={{ width: '150px' }} />
+            <Column field="createdAt" header={t('date')} body={dateTemplate} sortable style={{ width: '150px' }} />
             </DataTable>
           </div>
         </section>
@@ -95,11 +160,12 @@ export const ConsultationHistoryPage: React.FC = () => {
             rows={10}
             loading={loading}
             emptyMessage={t('noAppointments')}
-            className="text-sm"
+            className="primereact-table"
           >
             <Column field="doctorName" header={t('doctor')} sortable />
-            <Column field="date" header={t('date')} sortable style={{ width: '150px' }} />
-              <Column field="status" header={t('status')} sortable style={{ width: '150px' }} />
+            <Column field="date" header={t('date')} body={appointmentDateTemplate} sortable style={{ width: '150px' }} />
+              <Column field="status" header={t('status')} body={appointmentStatusTemplate} sortable style={{ width: '150px' }} />
+              <Column body={appointmentActionTemplate} header={t('actions')} style={{ width: '180px' }} />
             </DataTable>
           </div>
         </section>
@@ -112,6 +178,7 @@ export const ConsultationHistoryPage: React.FC = () => {
         style={{ width: '500px' }}
         onHide={() => setRatingDialog(false)}
         modal
+        className="p-dialog-custom"
       >
         <div className="p-6 space-y-5">
           <div>
