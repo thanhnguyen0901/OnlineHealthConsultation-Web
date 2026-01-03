@@ -1,8 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { HttpError } from './httpError';
+import { storage } from '@/utils/storage';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000',
+  baseURL: (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000') + '/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -26,6 +27,11 @@ const processQueue = (error: Error | null) => {
 // Request interceptor
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // Attach access token to Authorization header
+    const accessToken = storage.get<string>('accessToken');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
     return config;
   },
   (error: AxiosError) => {
@@ -56,12 +62,21 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await apiClient.post('/auth/refresh');
+        // Send empty body - backend will get refreshToken from httpOnly cookie
+        const refreshResponse = await apiClient.post<{
+          success: boolean;
+          data: { accessToken: string; refreshToken?: string };
+        }>('/auth/refresh', {});
+        
+        // Save new access token
+        storage.set('accessToken', refreshResponse.data.data.accessToken);
+        
         processQueue(null);
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as Error);
-        // Redirect to login or dispatch logout action
+        // Clear token and redirect to login
+        storage.remove('accessToken');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       } finally {

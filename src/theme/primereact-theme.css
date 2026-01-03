@@ -14,3 +14,72 @@
   max-width: none;
 }
 
+/* Dialog custom styling - add proper padding to header and content */
+.p-dialog-custom .p-dialog-header {
+  padding: 1.5rem 1.5rem 1.25rem 1.5rem !important;
+}
+
+.p-dialog-custom .p-dialog-content {
+  padding: 0 !important;
+}
+
+.p-dialog-custom .p-dialog-footer {
+  padding: 0 !important;
+}
+
+/* DataTable custom styling - better spacing and header background */
+.primereact-table {
+  font-size: 0.875rem;
+}
+
+.primereact-table .p-datatable-thead > tr > th {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  font-weight: 600 !important;
+  text-transform: capitalize !important;
+  padding: 1rem 0.75rem !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.dark .primereact-table .p-datatable-thead > tr > th {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-bottom: 2px solid #334155 !important;
+}
+
+.primereact-table .p-datatable-tbody > tr > td {
+  padding: 1rem 0.75rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.dark .primereact-table .p-datatable-tbody > tr > td {
+  border-bottom: 1px solid #334155 !important;
+}
+
+.primereact-table .p-datatable-tbody > tr:hover {
+  background-color: #f8fafc !important;
+}
+
+.dark .primereact-table .p-datatable-tbody > tr:hover {
+  background-color: #1e293b !important;
+}
+
+/* Dropdown styling - add proper spacing for menu items */
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+  padding: 0.75rem 1rem !important;
+  margin: 0 !important;
+  transition: background-color 0.2s;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.dark .p-dropdown-panel .p-dropdown-items .p-dropdown-item:hover {
+  background-color: #334155 !important;
+}
+
+.p-dropdown-panel .p-dropdown-items {
+  padding: 0.25rem 0 !important;
+}
+

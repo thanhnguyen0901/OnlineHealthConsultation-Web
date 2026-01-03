@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card } from 'primereact/card';
 import { Spinner } from '@/components/common/Spinner';
@@ -8,6 +9,7 @@ import { selectAdminStats, selectAdminLoading } from '../redux/admin.selectors';
 
 export const AdminDashboardPage: React.FC = () => {
   const { t } = useTranslation('admin');
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const stats = useAppSelector(selectAdminStats);
   const loading = useAppSelector(selectAdminLoading);
@@ -72,7 +74,7 @@ export const AdminDashboardPage: React.FC = () => {
             </h2>
             <div className="space-y-2">
               <button
-                onClick={() => (window.location.href = '/admin/users')}
+                onClick={() => navigate('/admin/users')}
                 className="w-full p-3 text-left hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg flex items-center transition group"
               >
                 <i className="pi pi-users mr-3 text-blue-500 text-xl"></i>
@@ -81,7 +83,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </span>
               </button>
               <button
-                onClick={() => (window.location.href = '/admin/doctors')}
+                onClick={() => navigate('/admin/doctors')}
                 className="w-full p-3 text-left hover:bg-green-50 dark:hover:bg-slate-800 rounded-lg flex items-center transition group"
               >
                 <i className="pi pi-user-plus mr-3 text-green-500 text-xl"></i>
@@ -90,7 +92,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </span>
               </button>
               <button
-                onClick={() => (window.location.href = '/admin/appointments')}
+                onClick={() => navigate('/admin/appointments')}
                 className="w-full p-3 text-left hover:bg-purple-50 dark:hover:bg-slate-800 rounded-lg flex items-center transition group"
               >
                 <i className="pi pi-calendar mr-3 text-purple-500 text-xl"></i>
@@ -99,7 +101,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </span>
               </button>
               <button
-                onClick={() => (window.location.href = '/admin/specialties')}
+                onClick={() => navigate('/admin/specialties')}
                 className="w-full p-3 text-left hover:bg-teal-50 dark:hover:bg-slate-800 rounded-lg flex items-center transition group"
               >
                 <i className="pi pi-tags mr-3 text-teal-500 text-xl"></i>

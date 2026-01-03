@@ -11,10 +11,11 @@ export interface FormikInputTextProps {
   disabled?: boolean;
   as?: string;
   rows?: number;
+  autoComplete?: string;
 }
 
 export const FormikInputText: React.FC<FormikInputTextProps> = memo(
-  ({ name, label, placeholder, type = 'text', disabled = false, as, rows }) => {
+  ({ name, label, placeholder, type = 'text', disabled = false, as, rows, autoComplete }) => {
     const [field, meta] = useField(name);
     const hasError = meta.touched && meta.error;
 
@@ -46,6 +47,7 @@ export const FormikInputText: React.FC<FormikInputTextProps> = memo(
             type={type}
             placeholder={placeholder}
             disabled={disabled}
+            autoComplete={autoComplete}
             className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
           />
         )}

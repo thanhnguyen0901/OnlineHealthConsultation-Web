@@ -52,6 +52,7 @@
   "description": "Mô tả",
   "descriptionPlaceholder": "Nhập mô tả",
   "descriptionRequired": "Mô tả là bắt buộc",
+  "status": "Trạng thái",
   "all": "Tất cả",
   "pending": "Đang chờ",
   "confirmed": "Đã xác nhận",

@@ -94,7 +94,7 @@ export const ModerationPage: React.FC = () => {
             rows={10}
             loading={loading}
             emptyMessage={t('noModerationItems')}
-            className="text-sm"
+            className="primereact-table"
           >
             <Column
               field="type"

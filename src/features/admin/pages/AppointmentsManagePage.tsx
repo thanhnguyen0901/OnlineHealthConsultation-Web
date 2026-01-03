@@ -75,6 +75,7 @@ export const AppointmentsManagePage: React.FC = () => {
                 value={statusFilter}
                 options={statusOptions}
                 onChange={(e) => setStatusFilter(e.value)}
+                placeholder={t('all')}
                 className="w-48"
               />
             </div>
@@ -88,6 +89,7 @@ export const AppointmentsManagePage: React.FC = () => {
                 selectionMode="range"
                 readOnlyInput
                 showIcon
+                placeholder="Select date range"
                 className="w-72"
               />
             </div>
@@ -112,9 +114,8 @@ export const AppointmentsManagePage: React.FC = () => {
             rows={10}
             loading={loading}
             emptyMessage={t('noAppointments')}
-            className="text-sm"
+            className="primereact-table"
           >
-            <Column field="id" header="ID" style={{ width: '80px' }} sortable />
             <Column field="patientName" header={t('patient')} sortable />
             <Column field="doctorName" header={t('doctor')} sortable />
             <Column

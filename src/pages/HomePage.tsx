@@ -25,8 +25,8 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchFeaturedDoctors = async () => {
       try {
-        const response = await apiClient.get<FeaturedDoctor[]>('/doctors/featured');
-        setDoctors(response.data);
+        const response = await apiClient.get<{ success: boolean; data: FeaturedDoctor[] }>('/doctors/featured');
+        setDoctors(response.data.data || []);
       } catch (error) {
         console.error('Failed to fetch featured doctors:', error);
         // Set empty array on error

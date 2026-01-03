@@ -52,6 +52,7 @@
   "description": "Description",
   "descriptionPlaceholder": "Enter description",
   "descriptionRequired": "Description is required",
+  "status": "Status",
   "all": "All",
   "pending": "Pending",
   "confirmed": "Confirmed",

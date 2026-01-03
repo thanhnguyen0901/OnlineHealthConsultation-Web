@@ -2,25 +2,52 @@ import apiClient from '@/apis/core/apiClient';
 import type { User, Id } from '@/types/common';
 import type { Doctor, Specialty, AdminStats } from '../types';
 
+interface BackendUser {
+  id: string;
+  fullName: string;
+  email: string;
+  role: 'PATIENT' | 'DOCTOR' | 'ADMIN';
+  phone?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
+}
+
+interface BackendDoctor extends BackendUser {
+  specialtyId: Id;
+  specialtyName: string;
+  bio?: string;
+}
+
+const normalizeUser = (backendUser: BackendUser): User => ({
+  ...backendUser,
+  name: backendUser.fullName,
+});
+
+const normalizeDoctor = (backendDoctor: BackendDoctor): Doctor => ({
+  ...backendDoctor,
+  name: backendDoctor.fullName,
+});
+
 export const getStats = async (): Promise<AdminStats> => {
-  const response = await apiClient.get<AdminStats>('/admin/stats');
-  return response.data;
+  const response = await apiClient.get<{ data: AdminStats }>('/admin/stats');
+  return response.data.data;
 };
 
 // Users API
 export const getUsers = async (): Promise<User[]> => {
-  const response = await apiClient.get<User[]>('/admin/users');
-  return response.data;
+  const response = await apiClient.get<{ data: BackendUser[] }>('/admin/users');
+  return response.data.data.map(normalizeUser);
 };
 
 export const createUser = async (data: Partial<User> & { password: string }): Promise<User> => {
-  const response = await apiClient.post<User>('/admin/users', data);
-  return response.data;
+  const response = await apiClient.post<{ data: BackendUser }>('/admin/users', data);
+  return normalizeUser(response.data.data);
 };
 
 export const updateUser = async (id: Id, data: Partial<User>): Promise<User> => {
-  const response = await apiClient.put<User>(`/admin/users/${id}`, data);
-  return response.data;
+  const response = await apiClient.put<{ data: BackendUser }>(`/admin/users/${id}`, data);
+  return normalizeUser(response.data.data);
 };
 
 export const deleteUser = async (id: Id): Promise<void> => {
@@ -29,20 +56,20 @@ export const deleteUser = async (id: Id): Promise<void> => {
 
 // Doctors API
 export const getDoctors = async (): Promise<Doctor[]> => {
-  const response = await apiClient.get<Doctor[]>('/admin/doctors');
-  return response.data;
+  const response = await apiClient.get<{ data: BackendDoctor[] }>('/admin/doctors');
+  return response.data.data.map(normalizeDoctor);
 };
 
 export const createDoctor = async (
   data: Partial<Doctor> & { password: string }
 ): Promise<Doctor> => {
-  const response = await apiClient.post<Doctor>('/admin/doctors', data);
-  return response.data;
+  const response = await apiClient.post<{ data: BackendDoctor }>('/admin/doctors', data);
+  return normalizeDoctor(response.data.data);
 };
 
 export const updateDoctor = async (id: Id, data: Partial<Doctor>): Promise<Doctor> => {
-  const response = await apiClient.put<Doctor>(`/admin/doctors/${id}`, data);
-  return response.data;
+  const response = await apiClient.put<{ data: BackendDoctor }>(`/admin/doctors/${id}`, data);
+  return normalizeDoctor(response.data.data);
 };
 
 export const deleteDoctor = async (id: Id): Promise<void> => {
@@ -51,18 +78,18 @@ export const deleteDoctor = async (id: Id): Promise<void> => {
 
 // Specialties API
 export const getSpecialties = async (): Promise<Specialty[]> => {
-  const response = await apiClient.get<Specialty[]>('/admin/specialties');
-  return response.data;
+  const response = await apiClient.get<{ data: Specialty[] }>('/admin/specialties');
+  return response.data.data;
 };
 
 export const createSpecialty = async (data: Partial<Specialty>): Promise<Specialty> => {
-  const response = await apiClient.post<Specialty>('/admin/specialties', data);
-  return response.data;
+  const response = await apiClient.post<{ data: Specialty }>('/admin/specialties', data);
+  return response.data.data;
 };
 
 export const updateSpecialty = async (id: Id, data: Partial<Specialty>): Promise<Specialty> => {
-  const response = await apiClient.put<Specialty>(`/admin/specialties/${id}`, data);
-  return response.data;
+  const response = await apiClient.put<{ data: Specialty }>(`/admin/specialties/${id}`, data);
+  return response.data.data;
 };
 
 export const deleteSpecialty = async (id: Id): Promise<void> => {
@@ -85,13 +112,13 @@ export interface Appointment {
 }
 
 export const getAppointments = async (): Promise<Appointment[]> => {
-  const response = await apiClient.get<Appointment[]>('/admin/appointments');
-  return response.data;
+  const response = await apiClient.get<{ data: Appointment[] }>('/admin/appointments');
+  return response.data.data;
 };
 
 export const updateAppointmentStatus = async (id: Id, status: string): Promise<Appointment> => {
-  const response = await apiClient.put<Appointment>(`/admin/appointments/${id}`, { status });
-  return response.data;
+  const response = await apiClient.put<{ data: Appointment }>(`/admin/appointments/${id}`, { status });
+  return response.data.data;
 };
 
 // Moderation API
@@ -106,8 +133,8 @@ export interface ModerationItem {
 }
 
 export const getModerationItems = async (): Promise<ModerationItem[]> => {
-  const response = await apiClient.get<ModerationItem[]>('/admin/moderation');
-  return response.data;
+  const response = await apiClient.get<{ data: ModerationItem[] }>('/admin/moderation');
+  return response.data.data;
 };
 
 export const approveModeration = async (id: Id): Promise<void> => {

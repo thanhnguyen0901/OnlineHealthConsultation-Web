@@ -102,14 +102,14 @@ export const SpecialtiesManagePage: React.FC = () => {
   };
 
   const dialogFooter = (
-    <div className="flex justify-end gap-2">
+    <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
       <Button label={t('cancel')} variant="secondary" onClick={hideDialog} />
       <Button label={t('save')} onClick={saveSpecialty} />
     </div>
   );
 
   const deleteDialogFooter = (
-    <div className="flex justify-end gap-2">
+    <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
       <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} />
       <Button label={t('yes')} variant="danger" onClick={deleteSpecialty} />
     </div>
@@ -134,9 +134,8 @@ export const SpecialtiesManagePage: React.FC = () => {
             rows={10}
             loading={loading}
             emptyMessage={t('noSpecialties')}
-            className="text-sm"
+            className="primereact-table"
           >
-            <Column field="id" header="ID" style={{ width: '100px' }} sortable />
             <Column field="name" header={t('name')} sortable style={{ width: '200px' }} />
             <Column field="description" header={t('description')} sortable />
             <Column body={actionBodyTemplate} header={t('actions')} style={{ width: '140px' }} />
@@ -145,13 +144,14 @@ export const SpecialtiesManagePage: React.FC = () => {
 
         <Dialog
           visible={dialog}
-          style={{ width: '550px' }}
+          style={{ width: '34rem' }}
           header={specialty.id ? t('editSpecialty') : t('addSpecialty')}
           modal
           footer={dialogFooter}
           onHide={hideDialog}
+          className="p-dialog-custom"
         >
-          <div className="p-6 space-y-5">
+          <div className="px-6 pt-2 pb-1 space-y-4">
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('name')}
@@ -188,19 +188,22 @@ export const SpecialtiesManagePage: React.FC = () => {
 
         <Dialog
           visible={deleteDialog}
-          style={{ width: '450px' }}
+          style={{ width: '28rem' }}
           header={t('confirm')}
           modal
           footer={deleteDialogFooter}
           onHide={hideDeleteDialog}
+          className="p-dialog-custom"
         >
-          <div className="flex items-center">
-            <i className="pi pi-exclamation-triangle mr-3 text-4xl text-red-500" />
+          <div className="px-6 pt-2 pb-1">
+          <div className="flex items-center gap-3 gap-3">
+            <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
             {specialty && (
-              <span className="text-gray-700 dark:text-gray-300">
+              <span className="text-gray-700 dark:text-gray-300 text-base">
                 {t('deleteSpecialtyConfirm', { name: specialty.name })}
               </span>
             )}
+          </div>
           </div>
         </Dialog>
       </div>

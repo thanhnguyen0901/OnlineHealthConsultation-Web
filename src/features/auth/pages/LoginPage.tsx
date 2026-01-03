@@ -39,8 +39,8 @@ export const LoginPage: React.FC = () => {
 
       <Formik
         initialValues={{
-          email: 'test@example.com', // Pre-filled for easy testing
-          password: '123456',
+          email: '',
+          password: '',
         }}
         validationSchema={loginSchema}
         onSubmit={(values) => {
@@ -53,12 +53,14 @@ export const LoginPage: React.FC = () => {
             label={t('common:email')}
             type="email"
             placeholder="you@example.com"
+            autoComplete="email"
           />
           <FormikInputText
             name="password"
             label={t('common:password')}
             type="password"
             placeholder="••••••••"
+            autoComplete="current-password"
           />
           <div className="pt-2">
             <Button type="submit" className="w-full" loading={loading}>
