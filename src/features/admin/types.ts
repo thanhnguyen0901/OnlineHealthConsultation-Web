@@ -8,7 +8,7 @@ export interface Doctor extends User {
 
 export interface Specialty {
   id: Id;
-  name: string;       // Kept for backward compatibility
+  name: string; // Kept for backward compatibility
   nameEn: string;
   nameVi: string;
   description?: string;

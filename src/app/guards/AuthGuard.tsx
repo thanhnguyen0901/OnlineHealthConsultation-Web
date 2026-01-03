@@ -1,24 +1,26 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ROUTE_PATHS } from '@/constants/routePaths';
+import { useAppSelector } from '@/state/hooks';
+import { selectAuthLoading } from '@/features/auth/redux/auth.selectors';
 import { Spinner } from '@/components/common/Spinner';
+import { ROUTE_PATHS } from '@/constants/routePaths';
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const loading = useAppSelector(selectAuthLoading);
 
-  // ===== HARD CODE FOR TESTING - BYPASS AUTH CHECK =====
-  // Uncomment dòng này để bypass hoàn toàn auth guard (test mà không cần login)
-  // return <>{children}</>;
-  // ===== END HARD CODE =====
-
-  // You could add loading state here for checking authentication
-  if (user === undefined) {
-    return <Spinner size="lg" />;
+  // Show loading spinner during auth check
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {

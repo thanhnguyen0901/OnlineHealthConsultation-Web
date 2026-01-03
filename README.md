@@ -1,9 +1,11 @@
 # Ứng dụng Tư vấn Sức khỏe Trực tuyến - Frontend
+
 ## Online Health Consultation System - Web Frontend
 
 Ứng dụng web React TypeScript cho Hệ thống Tư vấn Sức khỏe Trực tuyến.
 
 ### Thông tin Đề tài
+
 - **Đề tài số**: 8
 - **Học viện**: Công nghệ Bưu chính Viễn thông
 - **Khoa**: Công nghệ Thông tin
@@ -15,12 +17,14 @@
 ## ✨ Tính năng Chính
 
 ### 🔐 Xác thực & Phân quyền
+
 - Đăng ký, đăng nhập tài khoản
 - Phân quyền theo vai trò: Bệnh nhân, Bác sĩ, Quản trị viên
 - Bảo vệ route với AuthGuard và RoleGuard
 - Tự động làm mới token (refresh token)
 
 ### 🏥 Chức năng Bệnh nhân (Patient)
+
 - **Dashboard**: Tổng quan nhanh với các hành động chính
 - **Gửi câu hỏi**: Hỏi bác sĩ về vấn đề sức khỏe
 - **Đặt lịch hẹn**: Đặt lịch tư vấn với bác sĩ theo chuyên khoa
@@ -28,12 +32,14 @@
 - **Hồ sơ cá nhân**: Cập nhật thông tin sức khỏe
 
 ### 👨‍⚕️ Chức năng Bác sĩ (Doctor)
+
 - **Dashboard**: Thống kê nhanh về câu hỏi và lịch hẹn
 - **Hộp thư câu hỏi**: Xem danh sách câu hỏi từ bệnh nhân
 - **Trả lời câu hỏi**: Gửi hướng dẫn, tư vấn điều trị cho bệnh nhân
 - **Quản lý lịch làm việc**: Thiết lập thời gian có sẵn để tư vấn
 
 ### 👑 Chức năng Quản trị viên (Admin)
+
 - **Dashboard**: Thống kê tổng quan hệ thống
 - **Quản lý người dùng**: CRUD thông tin bệnh nhân
 - **Quản lý bác sĩ**: CRUD thông tin bác sĩ, chuyên khoa
@@ -42,6 +48,7 @@
 - **Báo cáo thống kê**: Biểu đồ số lượt tư vấn, người dùng hoạt động
 
 ### 📊 Tính năng Nâng cao
+
 - ✅ **Dark Mode**: Chế độ tối, lưu preference tự động
 - ✅ **Đa ngôn ngữ (i18n)**: Tiếng Việt & English
 - ✅ **Biểu đồ thống kê**: Visualize dữ liệu với Recharts
@@ -54,6 +61,7 @@
 ## 🛠 Công nghệ Sử dụng
 
 ### Frontend Stack
+
 - **Framework**: React 18.3.1 + TypeScript 5.6.2
 - **Build Tool**: Vite 5.4.8
 - **Routing**: React Router v6.26.2
@@ -68,10 +76,10 @@
 - **Utilities**: clsx 2.1.1
 
 ### Development Tools
+
 - **Linter**: ESLint 8.57.0 + TypeScript ESLint 7.18.0
 - **Formatter**: Prettier 3.3.3
 - **Type Checking**: TypeScript (strict mode)
-
 
 ---
 
@@ -268,7 +276,9 @@ OnlineHealthConsultation-Web/
 ### Giải thích Kiến trúc
 
 #### 🎯 Feature-based Architecture
+
 Dự án sử dụng kiến trúc **Feature-based** (domain-driven), mỗi feature là một module độc lập bao gồm:
+
 - **apis/**: API calls
 - **components/**: Components riêng của feature
 - **pages/**: Pages của feature
@@ -276,11 +286,13 @@ Dự án sử dụng kiến trúc **Feature-based** (domain-driven), mỗi featu
 - **types.ts**: TypeScript types
 
 #### 🔄 State Management Flow
+
 ```
 Component → Dispatch Action → Saga → API Call → Success/Error → Reducer → Update State → Re-render
 ```
 
 #### 🛡️ Authentication & Authorization
+
 - **AuthGuard**: Bảo vệ routes yêu cầu đăng nhập
 - **RoleGuard**: Bảo vệ routes theo vai trò (PATIENT, DOCTOR, ADMIN)
 - **Token Management**: Auto refresh token với axios interceptors
@@ -290,6 +302,7 @@ Component → Dispatch Action → Saga → API Call → Success/Error → Reduce
 ## 🚀 Bắt đầu
 
 ### Yêu cầu hệ thống
+
 - **Node.js**: >= 18.0.0
 - **npm**: >= 9.0.0 hoặc **yarn**: >= 1.22.0
 
@@ -353,6 +366,7 @@ VITE_ENABLE_I18N=true
 Backend API cần cung cấp các endpoints sau:
 
 #### Authentication
+
 ```
 POST   /auth/register      # Đăng ký tài khoản
 POST   /auth/login         # Đăng nhập
@@ -362,6 +376,7 @@ GET    /auth/me            # Lấy thông tin user hiện tại
 ```
 
 #### Patient
+
 ```
 GET    /patients/questions              # Lấy danh sách câu hỏi
 POST   /patients/questions              # Gửi câu hỏi mới
@@ -371,6 +386,7 @@ GET    /patients/history                # Lịch sử tư vấn
 ```
 
 #### Doctor
+
 ```
 GET    /doctors/inbox                   # Danh sách câu hỏi chưa trả lời
 POST   /doctors/answers                 # Trả lời câu hỏi
@@ -380,6 +396,7 @@ GET    /doctors/appointments            # Danh sách lịch hẹn
 ```
 
 #### Admin
+
 ```
 GET    /admin/users                     # Danh sách người dùng
 POST   /admin/users                     # Tạo người dùng
@@ -403,6 +420,7 @@ GET    /admin/stats                     # Thống kê tổng quan
 ```
 
 #### Reports
+
 ```
 GET    /reports/statistics              # Thống kê hệ thống
 GET    /reports/appointments-chart      # Dữ liệu biểu đồ lịch hẹn
@@ -414,29 +432,34 @@ GET    /reports/questions-chart         # Dữ liệu biểu đồ câu hỏi
 ## 🎨 Giao diện & Responsive
 
 ### Trang chủ
+
 - Giới thiệu ứng dụng
 - Danh sách bác sĩ nổi bật (theo chuyên khoa)
 - Call-to-action: Đăng ký/Đăng nhập
 
 ### Trang Bệnh nhân
+
 - Dashboard với quick actions
 - Form gửi câu hỏi với validation
 - Form đặt lịch tư vấn (chọn bác sĩ, ngày giờ)
 - Lịch sử tư vấn với filter & search
 
 ### Trang Bác sĩ
+
 - Dashboard thống kê
 - Danh sách câu hỏi chờ trả lời
 - Form trả lời câu hỏi
 - Quản lý lịch làm việc (calendar view)
 
 ### Trang Quản trị
+
 - Dashboard với biểu đồ thống kê
 - CRUD tables cho Users, Doctors, Specialties
 - Quản lý lịch hẹn với status tracking
 - Báo cáo chi tiết với export options
 
 ### Responsive Breakpoints
+
 - **Mobile**: < 640px
 - **Tablet**: 640px - 1024px
 - **Desktop**: > 1024px
@@ -446,16 +469,19 @@ GET    /reports/questions-chart         # Dữ liệu biểu đồ câu hỏi
 ## 🔒 Bảo mật
 
 ### Authentication
+
 - JWT-based authentication
 - HttpOnly cookies để lưu refresh token
 - Access token trong memory (không lưu localStorage)
 
 ### Authorization
+
 - Role-based access control (RBAC)
 - Route guards kiểm tra quyền truy cập
 - API endpoints được bảo vệ theo role
 
 ### Security Best Practices
+
 - XSS protection với React's built-in escaping
 - CSRF protection với SameSite cookies
 - Input validation với Yup schemas
@@ -466,6 +492,7 @@ GET    /reports/questions-chart         # Dữ liệu biểu đồ câu hỏi
 ## 📊 State Management
 
 ### Redux Toolkit
+
 ```typescript
 // Example: Dispatch action from component
 const dispatch = useAppDispatch();
@@ -476,6 +503,7 @@ const questions = useAppSelector(selectQuestions);
 ```
 
 ### Redux Saga
+
 ```typescript
 // Example: Saga flow
 function* fetchQuestionsSaga() {
@@ -493,17 +521,19 @@ function* fetchQuestionsSaga() {
 ## 🌐 Internationalization (i18n)
 
 ### Sử dụng trong Component
+
 ```typescript
 import { useTranslation } from 'react-i18next';
 
 function MyComponent() {
   const { t } = useTranslation('patient');
-  
+
   return <h1>{t('dashboard')}</h1>;
 }
 ```
 
 ### Thêm Translation Key
+
 1. Thêm key vào `src/i18n/en/<namespace>.json`
 2. Thêm key tương ứng vào `src/i18n/vi/<namespace>.json`
 
@@ -520,7 +550,7 @@ import { toggleDarkMode } from '@/redux/slices/ui.slice';
 function ThemeToggle() {
   const dispatch = useAppDispatch();
   const darkMode = useAppSelector(state => state.ui.darkMode);
-  
+
   return (
     <button onClick={() => dispatch(toggleDarkMode())}>
       {darkMode ? '☀️' : '🌙'}
@@ -549,6 +579,7 @@ npm run build
 ### Deploy Options
 
 #### 1. Static Hosting (Vercel, Netlify)
+
 ```bash
 # Deploy to Vercel
 npx vercel
@@ -558,6 +589,7 @@ npx netlify deploy --prod --dir=dist
 ```
 
 #### 2. Docker
+
 ```dockerfile
 FROM node:18-alpine as build
 WORKDIR /app
@@ -573,6 +605,7 @@ CMD ["nginx", "-g", "daemon off;"]
 ```
 
 #### 3. CI/CD với GitHub Actions
+
 ```yaml
 name: Deploy
 on:
@@ -613,24 +646,28 @@ npm run test:coverage
 ## 📝 Coding Standards
 
 ### TypeScript
+
 - Sử dụng strict mode
 - Định nghĩa types rõ ràng, tránh `any`
 - Prefer interfaces cho object types
 - Use type aliases cho unions/primitives
 
 ### React
+
 - Functional components với hooks
 - Custom hooks cho logic tái sử dụng
 - Lazy loading cho pages
 - Memoization khi cần (useMemo, useCallback)
 
 ### CSS
+
 - Tailwind utility classes
 - BEM naming cho custom CSS
 - Dark mode với `dark:` prefix
 - Responsive với mobile-first approach
 
 ### Git Commit Messages
+
 ```
 feat: thêm tính năng đặt lịch hẹn
 fix: sửa lỗi hiển thị dark mode

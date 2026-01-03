@@ -25,11 +25,12 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchFeaturedDoctors = async () => {
       try {
-        const response = await apiClient.get<{ success: boolean; data: FeaturedDoctor[] }>('/doctors/featured');
+        const response = await apiClient.get<{ success: boolean; data: FeaturedDoctor[] }>(
+          '/doctors/featured'
+        );
         setDoctors(response.data.data || []);
       } catch (error) {
-        console.error('Failed to fetch featured doctors:', error);
-        // Set empty array on error
+        // Silently fail - featured doctors are optional on home page
         setDoctors([]);
       } finally {
         setLoading(false);
@@ -51,10 +52,7 @@ export const HomePage: React.FC = () => {
             {t('home.heroSubtitle')}
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Button
-              onClick={() => navigate(ROUTE_PATHS.LOGIN)}
-              className="px-8 py-3 text-lg"
-            >
+            <Button onClick={() => navigate(ROUTE_PATHS.LOGIN)} className="px-8 py-3 text-lg">
               {t('login')}
             </Button>
             <Button
@@ -83,9 +81,7 @@ export const HomePage: React.FC = () => {
                 <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   {t('home.feature1Title')}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {t('home.feature1Desc')}
-                </p>
+                <p className="text-gray-600 dark:text-gray-300">{t('home.feature1Desc')}</p>
               </div>
             </Card>
 
@@ -97,9 +93,7 @@ export const HomePage: React.FC = () => {
                 <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   {t('home.feature2Title')}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {t('home.feature2Desc')}
-                </p>
+                <p className="text-gray-600 dark:text-gray-300">{t('home.feature2Desc')}</p>
               </div>
             </Card>
 
@@ -111,9 +105,7 @@ export const HomePage: React.FC = () => {
                 <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   {t('home.feature3Title')}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {t('home.feature3Desc')}
-                </p>
+                <p className="text-gray-600 dark:text-gray-300">{t('home.feature3Desc')}</p>
               </div>
             </Card>
           </div>
@@ -126,7 +118,7 @@ export const HomePage: React.FC = () => {
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
             {t('home.featuredDoctors')}
           </h2>
-          
+
           {loading ? (
             <div className="flex justify-center py-12">
               <Spinner size="lg" />
@@ -160,9 +152,7 @@ export const HomePage: React.FC = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                       {doctor.experienceYears} {t('home.yearsExperience')}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      {doctor.bio}
-                    </p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{doctor.bio}</p>
                   </div>
                 </Card>
               ))}
@@ -174,12 +164,8 @@ export const HomePage: React.FC = () => {
       {/* Call to Action Section */}
       <section className="py-16 px-4 bg-blue-600 dark:bg-blue-800">
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4 text-white">
-            {t('home.ctaTitle')}
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            {t('home.ctaSubtitle')}
-          </p>
+          <h2 className="text-3xl font-bold mb-4 text-white">{t('home.ctaTitle')}</h2>
+          <p className="text-xl text-blue-100 mb-8">{t('home.ctaSubtitle')}</p>
           <Button
             onClick={() => navigate(ROUTE_PATHS.REGISTER)}
             className="px-8 py-3 text-lg bg-white text-blue-600 hover:bg-gray-100"
@@ -201,9 +187,7 @@ export const NotFoundPage: React.FC = () => {
       <div className="text-center">
         <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">404</h1>
         <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">{t('pageNotFound')}</p>
-        <Button onClick={() => navigate(ROUTE_PATHS.HOME)}>
-          {t('backToHome')}
-        </Button>
+        <Button onClick={() => navigate(ROUTE_PATHS.HOME)}>{t('backToHome')}</Button>
       </div>
     </div>
   );

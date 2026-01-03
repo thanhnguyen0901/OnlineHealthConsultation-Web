@@ -1,14 +1,19 @@
-export const exportToCSV = <T extends Record<string, unknown>>(data: T[], filename: string): void => {
+export const exportToCSV = <T extends Record<string, unknown>>(
+  data: T[],
+  filename: string
+): void => {
   if (data.length === 0) return;
 
   const headers = Object.keys(data[0]);
   const csvContent = [
     headers.join(','),
     ...data.map((row) =>
-      headers.map((header) => {
-        const value = row[header];
-        return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
-      }).join(',')
+      headers
+        .map((header) => {
+          const value = row[header];
+          return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
+        })
+        .join(',')
     ),
   ].join('\n');
 

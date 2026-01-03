@@ -15,6 +15,7 @@ import {
 } from './auth.slice';
 import * as authApi from '../apis/auth.api';
 import type { User } from '@/types/common';
+import { storage } from '@/utils/storage';
 
 function* handleLogin(action: PayloadAction<{ email: string; password: string }>) {
   try {
@@ -37,9 +38,12 @@ function* handleRegister(action: PayloadAction<{ email: string; password: string
 function* handleLogout() {
   try {
     yield call(authApi.logout);
-    yield put(logoutSucceeded());
   } catch (error) {
-    yield put(logoutSucceeded()); // Logout anyway on error
+    // Ignore logout API errors - always clear local state
+  } finally {
+    // Always clear access token from localStorage
+    storage.remove('accessToken');
+    yield put(logoutSucceeded());
   }
 }
 

@@ -15,6 +15,7 @@ import {
 } from '../redux/admin.slice';
 import { selectAdminUsers, selectAdminLoading } from '../redux/admin.selectors';
 import type { User } from '@/types/common';
+import { ROLES } from '@/constants/roles';
 
 export const UsersManagePage: React.FC = () => {
   const { t } = useTranslation('admin');
@@ -28,9 +29,9 @@ export const UsersManagePage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const roleOptions = [
-    { label: 'Patient', value: 'PATIENT' },
-    { label: 'Doctor', value: 'DOCTOR' },
-    { label: 'Admin', value: 'ADMIN' },
+    { label: 'Patient', value: ROLES.PATIENT },
+    { label: 'Doctor', value: ROLES.DOCTOR },
+    { label: 'Admin', value: ROLES.ADMIN },
   ];
 
   useEffect(() => {
@@ -236,14 +237,14 @@ export const UsersManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1">
-          <div className="flex items-center gap-3">
-            <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
-            {user && (
-              <span className="text-gray-700 dark:text-gray-300 text-base">
-                {t('deleteUserConfirm', { name: user.name })}
-              </span>
-            )}
-          </div>
+            <div className="flex items-center gap-3">
+              <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
+              {user && (
+                <span className="text-gray-700 dark:text-gray-300 text-base">
+                  {t('deleteUserConfirm', { name: user.name })}
+                </span>
+              )}
+            </div>
           </div>
         </Dialog>
       </div>

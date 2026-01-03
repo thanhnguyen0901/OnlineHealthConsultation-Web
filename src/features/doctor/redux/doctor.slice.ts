@@ -17,7 +17,10 @@ const doctorSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    answerQuestionRequested: (state, _action: PayloadAction<{ questionId: string; answer: string }>) => {
+    answerQuestionRequested: (
+      state,
+      _action: PayloadAction<{ questionId: string; answer: string }>
+    ) => {
       state.loading = true;
     },
     answerQuestionSucceeded: (state, action: PayloadAction<{ questionId: string }>) => {

@@ -117,7 +117,9 @@ export const getAppointments = async (): Promise<Appointment[]> => {
 };
 
 export const updateAppointmentStatus = async (id: Id, status: string): Promise<Appointment> => {
-  const response = await apiClient.put<{ data: Appointment }>(`/admin/appointments/${id}`, { status });
+  const response = await apiClient.put<{ data: Appointment }>(`/admin/appointments/${id}`, {
+    status,
+  });
   return response.data.data;
 };
 

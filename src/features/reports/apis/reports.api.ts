@@ -1,7 +1,10 @@
 import apiClient from '@/apis/core/apiClient';
 import type { ReportData, Statistics, ChartData } from '../types';
 
-export const getReports = async (params: { startDate?: string; endDate?: string }): Promise<ReportData[]> => {
+export const getReports = async (params: {
+  startDate?: string;
+  endDate?: string;
+}): Promise<ReportData[]> => {
   const response = await apiClient.get<{ data: ReportData[] }>('/reports', { params });
   return response.data.data;
 };

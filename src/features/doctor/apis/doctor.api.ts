@@ -6,7 +6,10 @@ export const getQuestions = async (): Promise<DoctorQuestion[]> => {
   return response.data.data;
 };
 
-export const answerQuestion = async (data: { questionId: string; answer: string }): Promise<void> => {
+export const answerQuestion = async (data: {
+  questionId: string;
+  answer: string;
+}): Promise<void> => {
   await apiClient.post(`/doctor/questions/${data.questionId}/answer`, { answer: data.answer });
 };
 

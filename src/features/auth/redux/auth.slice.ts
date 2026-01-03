@@ -21,7 +21,10 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.isAuthenticated = false;
     },
-    registerRequested: (state, _action: PayloadAction<{ email: string; password: string; name: string }>) => {
+    registerRequested: (
+      state,
+      _action: PayloadAction<{ email: string; password: string; name: string }>
+    ) => {
       state.loading = true;
       state.error = null;
     },

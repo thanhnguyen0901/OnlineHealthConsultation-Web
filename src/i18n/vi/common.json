@@ -1,5 +1,6 @@
 {
   "appName": "Tư Vấn Sức Khỏe Trực Tuyến",
+  "appTitle": "Ứng Dụng Sức Khỏe",
   "welcome": "Chào mừng",
   "login": "Đăng nhập",
   "logout": "Đăng xuất",
@@ -46,5 +47,10 @@
   "totalAppointments": "Tổng lịch hẹn",
   "totalQuestions": "Tổng câu hỏi",
   "questionsDistribution": "Phân bố câu hỏi",
-  "appointmentsTrends": "Xu hướng lịch hẹn"
+  "appointmentsTrends": "Xu hướng lịch hẹn",
+  "roles": {
+    "patient": "Bệnh nhân",
+    "doctor": "Bác sĩ",
+    "admin": "Quản trị viên"
+  }
 }

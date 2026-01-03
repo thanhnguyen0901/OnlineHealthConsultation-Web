@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { toggleDarkMode } from '@/redux/slices/ui.slice';
 import { logoutRequested } from '@/features/auth/redux/auth.slice';
 import { ROUTE_PATHS } from '@/constants/routePaths';
+import { ROLES } from '@/constants/roles';
 
 export const MainLayout: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -35,15 +36,15 @@ export const MainLayout: React.FC = () => {
         label: t('common:dashboard'),
         icon: 'pi pi-home',
         path:
-          user.role === 'PATIENT'
+          user.role === ROLES.PATIENT
             ? ROUTE_PATHS.PATIENT_DASHBOARD
-            : user.role === 'DOCTOR'
+            : user.role === ROLES.DOCTOR
               ? ROUTE_PATHS.DOCTOR_DASHBOARD
               : ROUTE_PATHS.ADMIN_DASHBOARD,
       },
     ];
 
-    if (user.role === 'PATIENT') {
+    if (user.role === ROLES.PATIENT) {
       return [
         ...baseItems,
         {
@@ -69,7 +70,7 @@ export const MainLayout: React.FC = () => {
       ];
     }
 
-    if (user.role === 'DOCTOR') {
+    if (user.role === ROLES.DOCTOR) {
       return [
         ...baseItems,
         {
@@ -85,7 +86,7 @@ export const MainLayout: React.FC = () => {
       ];
     }
 
-    if (user.role === 'ADMIN') {
+    if (user.role === ROLES.ADMIN) {
       return [
         ...baseItems,
         {
@@ -141,7 +142,7 @@ export const MainLayout: React.FC = () => {
           {sidebarOpen && (
             <div className="flex items-center gap-2">
               <i className="pi pi-heart-fill text-2xl text-blue-600" />
-              <span className="font-bold text-lg text-gray-900 dark:text-white">Health App</span>
+              <span className="font-bold text-lg text-gray-900 dark:text-white">{t('common:appTitle')}</span>
             </div>
           )}
           {!sidebarOpen && <i className="pi pi-heart-fill text-2xl text-blue-600 mx-auto" />}

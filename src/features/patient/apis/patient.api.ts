@@ -19,18 +19,31 @@ const normalizeDoctor = (backendDoctor: BackendDoctor): Doctor => ({
   name: backendDoctor.fullName,
 });
 
-export const askQuestion = async (data: { question: string; specialtyId?: string }): Promise<Question> => {
+export const askQuestion = async (data: {
+  question: string;
+  specialtyId?: string;
+}): Promise<Question> => {
   const response = await apiClient.post<{ data: Question }>('/patient/questions', data);
   return response.data.data;
 };
 
-export const bookAppointment = async (data: { doctorId: string; date: string; time: string; notes?: string }): Promise<Appointment> => {
+export const bookAppointment = async (data: {
+  doctorId: string;
+  date: string;
+  time: string;
+  notes?: string;
+}): Promise<Appointment> => {
   const response = await apiClient.post<{ data: Appointment }>('/patient/appointments', data);
   return response.data.data;
 };
 
-export const getHistory = async (): Promise<{ questions: Question[]; appointments: Appointment[] }> => {
-  const response = await apiClient.get<{ data: { questions: Question[]; appointments: Appointment[] } }>('/patient/history');
+export const getHistory = async (): Promise<{
+  questions: Question[];
+  appointments: Appointment[];
+}> => {
+  const response = await apiClient.get<{
+    data: { questions: Question[]; appointments: Appointment[] };
+  }>('/patient/history');
   return response.data.data;
 };
 
@@ -44,7 +57,12 @@ export const updateProfile = async (data: Partial<PatientProfile>): Promise<Pati
   return response.data.data;
 };
 
-export const rateConsultation = async (data: { consultationId: string; doctorId: string; rating: number; comment?: string }): Promise<Rating> => {
+export const rateConsultation = async (data: {
+  consultationId: string;
+  doctorId: string;
+  rating: number;
+  comment?: string;
+}): Promise<Rating> => {
   const response = await apiClient.post<{ data: Rating }>('/patient/ratings', data);
   return response.data.data;
 };
@@ -60,6 +78,8 @@ export const getSpecialties = async (): Promise<Specialty[]> => {
 };
 
 export const getDoctorsBySpecialty = async (specialtyId: string): Promise<Doctor[]> => {
-  const response = await apiClient.get<{ data: BackendDoctor[] }>(`/patient/doctors?specialtyId=${specialtyId}`);
+  const response = await apiClient.get<{ data: BackendDoctor[] }>(
+    `/patient/doctors?specialtyId=${specialtyId}`
+  );
   return response.data.data.map(normalizeDoctor);
 };

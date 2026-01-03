@@ -1,5 +1,6 @@
 {
   "appName": "Online Health Consultation",
+  "appTitle": "Health App",
   "welcome": "Welcome",
   "login": "Login",
   "logout": "Logout",
@@ -46,5 +47,10 @@
   "totalAppointments": "Total Appointments",
   "totalQuestions": "Total Questions",
   "questionsDistribution": "Questions Distribution",
-  "appointmentsTrends": "Appointments Trends"
+  "appointmentsTrends": "Appointments Trends",
+  "roles": {
+    "patient": "Patient",
+    "doctor": "Doctor",
+    "admin": "Admin"
+  }
 }

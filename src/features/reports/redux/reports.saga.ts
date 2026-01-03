@@ -17,7 +17,9 @@ import {
 import * as reportsApi from '../apis/reports.api';
 import type { ReportData, Statistics, ChartData } from '../types';
 
-function* handleLoadReports(action: PayloadAction<{ startDate?: string; endDate?: string }>): Generator<any, void, any> {
+function* handleLoadReports(
+  action: PayloadAction<{ startDate?: string; endDate?: string }>
+): Generator<any, void, any> {
   try {
     const data: ReportData[] = yield call(reportsApi.getReports, action.payload);
     yield put(loadReportsSucceeded(data));

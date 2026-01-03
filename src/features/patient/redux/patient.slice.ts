@@ -7,7 +7,10 @@ const patientSlice = createSlice({
   name: 'patient',
   initialState: initialPatientState,
   reducers: {
-    askQuestionRequested: (state, _action: PayloadAction<{ question: string; specialtyId?: string }>) => {
+    askQuestionRequested: (
+      state,
+      _action: PayloadAction<{ question: string; specialtyId?: string }>
+    ) => {
       state.loading = true;
       state.error = null;
     },
@@ -19,7 +22,10 @@ const patientSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    bookAppointmentRequested: (state, _action: PayloadAction<{ doctorId: string; date: string; time: string; notes?: string }>) => {
+    bookAppointmentRequested: (
+      state,
+      _action: PayloadAction<{ doctorId: string; date: string; time: string; notes?: string }>
+    ) => {
       state.loading = true;
       state.error = null;
     },
@@ -35,7 +41,10 @@ const patientSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    loadHistorySucceeded: (state, action: PayloadAction<{ questions: Question[]; appointments: Appointment[] }>) => {
+    loadHistorySucceeded: (
+      state,
+      action: PayloadAction<{ questions: Question[]; appointments: Appointment[] }>
+    ) => {
       state.loading = false;
       state.questions = action.payload.questions;
       state.appointments = action.payload.appointments;
@@ -68,7 +77,15 @@ const patientSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    rateConsultationRequested: (state, _action: PayloadAction<{ consultationId: string; doctorId: string; rating: number; comment?: string }>) => {
+    rateConsultationRequested: (
+      state,
+      _action: PayloadAction<{
+        consultationId: string;
+        doctorId: string;
+        rating: number;
+        comment?: string;
+      }>
+    ) => {
       state.loading = true;
       state.error = null;
     },

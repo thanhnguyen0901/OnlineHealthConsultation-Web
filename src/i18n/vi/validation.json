@@ -1,0 +1,16 @@
+{
+  "required": "Trường này là bắt buộc",
+  "invalidEmail": "Email không hợp lệ",
+  "emailRequired": "Email là bắt buộc",
+  "passwordRequired": "Mật khẩu là bắt buộc",
+  "passwordMin": "Mật khẩu phải có ít nhất {{min}} ký tự",
+  "nameRequired": "Tên là bắt buộc",
+  "questionMin": "Câu hỏi phải có ít nhất {{min}} ký tự",
+  "questionRequired": "Câu hỏi là bắt buộc",
+  "stringMin": "Phải có ít nhất {{min}} ký tự",
+  "specialtyRequired": "Chuyên khoa là bắt buộc",
+  "doctorRequired": "Bác sĩ là bắt buộc",
+  "dateRequired": "Ngày là bắt buộc",
+  "timeRequired": "Thời gian là bắt buộc",
+  "fullNameRequired": "Họ và tên là bắt buộc"
+}

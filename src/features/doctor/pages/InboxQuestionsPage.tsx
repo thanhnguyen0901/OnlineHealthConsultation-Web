@@ -62,12 +62,12 @@ export const InboxQuestionsPage: React.FC = () => {
   };
 
   const statusTemplate = (rowData: DoctorQuestion) => {
-    const statusMap: Record<string, { severity: 'success' | 'warning' | 'info', label: string }> = {
+    const statusMap: Record<string, { severity: 'success' | 'warning' | 'info'; label: string }> = {
       pending: { severity: 'warning', label: t('pending') },
       answered: { severity: 'success', label: t('answered') },
       moderated: { severity: 'info', label: t('moderated') },
     };
-    
+
     const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
     return <Tag value={config.label} severity={config.severity} />;
   };
@@ -75,24 +75,38 @@ export const InboxQuestionsPage: React.FC = () => {
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
-        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('inbox')}</h1>
-        
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+          {t('inbox')}
+        </h1>
+
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
-          <DataTable 
-          value={questions} 
-          paginator 
-          rows={10} 
-          loading={loading} 
-          emptyMessage={t('noQuestions')}
-          className="primereact-table"
-        >
-          <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
-          <Column field="question" header={t('question')} />
-          <Column field="createdAt" header={t('date')} body={dateTemplate} sortable style={{ width: '140px' }} />
-          <Column field="status" header={t('status')} body={statusTemplate} sortable style={{ width: '140px' }} />
-          <Column body={actionTemplate} header={t('actions')} style={{ width: '160px' }} />
-        </DataTable>
-      </div>
+          <DataTable
+            value={questions}
+            paginator
+            rows={10}
+            loading={loading}
+            emptyMessage={t('noQuestions')}
+            className="primereact-table"
+          >
+            <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
+            <Column field="question" header={t('question')} />
+            <Column
+              field="createdAt"
+              header={t('date')}
+              body={dateTemplate}
+              sortable
+              style={{ width: '140px' }}
+            />
+            <Column
+              field="status"
+              header={t('status')}
+              body={statusTemplate}
+              sortable
+              style={{ width: '140px' }}
+            />
+            <Column body={actionTemplate} header={t('actions')} style={{ width: '160px' }} />
+          </DataTable>
+        </div>
       </div>
 
       <Dialog
@@ -105,14 +119,18 @@ export const InboxQuestionsPage: React.FC = () => {
         <div className="p-6 space-y-5">
           {selectedQuestion && (
             <div className="pb-2">
-              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('question')}:</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('question')}:
+              </label>
               <div className="text-gray-800 dark:text-gray-200 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
                 {selectedQuestion.question}
               </div>
             </div>
           )}
           <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('yourAnswer')}</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('yourAnswer')}
+            </label>
             <InputTextarea
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
@@ -125,11 +143,7 @@ export const InboxQuestionsPage: React.FC = () => {
             <Button variant="secondary" onClick={() => setAnswerDialog(false)}>
               {t('cancel')}
             </Button>
-            <Button
-              onClick={handleSubmitAnswer}
-              disabled={!answerText.trim()}
-              loading={loading}
-            >
+            <Button onClick={handleSubmitAnswer} disabled={!answerText.trim()} loading={loading}>
               {t('submit')}
             </Button>
           </div>

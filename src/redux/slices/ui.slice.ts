@@ -5,7 +5,12 @@ import { USER_KEYS } from '@/constants/userKeys';
 interface UIState {
   darkMode: boolean;
   sidebarOpen: boolean;
-  toasts: Array<{ id: string; severity: 'success' | 'info' | 'warn' | 'error'; summary: string; detail?: string }>;
+  toasts: Array<{
+    id: string;
+    severity: 'success' | 'info' | 'warn' | 'error';
+    summary: string;
+    detail?: string;
+  }>;
 }
 
 const initialDarkMode = storage.get<boolean>(USER_KEYS.DARK_MODE) ?? false;
@@ -27,7 +32,7 @@ const uiSlice = createSlice({
     toggleDarkMode: (state) => {
       state.darkMode = !state.darkMode;
       storage.set(USER_KEYS.DARK_MODE, state.darkMode);
-      
+
       if (state.darkMode) {
         document.documentElement.classList.add('dark');
       } else {
@@ -37,7 +42,7 @@ const uiSlice = createSlice({
     setDarkMode: (state, action: PayloadAction<boolean>) => {
       state.darkMode = action.payload;
       storage.set(USER_KEYS.DARK_MODE, state.darkMode);
-      
+
       if (state.darkMode) {
         document.documentElement.classList.add('dark');
       } else {
@@ -59,5 +64,6 @@ const uiSlice = createSlice({
   },
 });
 
-export const { toggleDarkMode, setDarkMode, toggleSidebar, addToast, removeToast } = uiSlice.actions;
+export const { toggleDarkMode, setDarkMode, toggleSidebar, addToast, removeToast } =
+  uiSlice.actions;
 export default uiSlice.reducer;

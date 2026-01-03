@@ -6,7 +6,10 @@ const reportsSlice = createSlice({
   name: 'reports',
   initialState: initialReportsState,
   reducers: {
-    loadReportsRequested: (state, _action: PayloadAction<{ startDate?: string; endDate?: string }>) => {
+    loadReportsRequested: (
+      state,
+      _action: PayloadAction<{ startDate?: string; endDate?: string }>
+    ) => {
       state.loading = true;
       state.error = null;
     },

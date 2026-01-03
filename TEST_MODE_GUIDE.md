@@ -7,17 +7,20 @@
 ## 📝 Các thay đổi
 
 ### 1. `src/features/auth/redux/auth.saga.ts`
-- ✅ Comment API call `authApi.login()` 
+
+- ✅ Comment API call `authApi.login()`
 - ✅ Hard code 3 options user: PATIENT, DOCTOR, ADMIN
 - ✅ Comment API call `authApi.register()`
 - ✅ Comment API call `authApi.logout()`
 
 ### 2. `src/features/auth/pages/LoginPage.tsx`
+
 - ✅ Pre-filled email & password (test@example.com / 123456)
 - ✅ Thêm warning banner hiển thị TEST MODE
 - ✅ Hướng dẫn đổi role trong banner
 
 ### 3. `src/app/guards/AuthGuard.tsx`
+
 - ✅ Thêm option để bypass auth guard hoàn toàn (commented)
 
 ## 🎯 Cách sử dụng
@@ -27,6 +30,7 @@
 Mở file `src/features/auth/redux/auth.saga.ts` và uncomment role bạn muốn test:
 
 #### Option 1: Test PATIENT
+
 ```typescript
 // ĐANG BẬT (default)
 const user: User = {
@@ -38,6 +42,7 @@ const user: User = {
 ```
 
 #### Option 2: Test DOCTOR
+
 ```typescript
 // Comment Option 1, uncomment Option 2
 const user: User = {
@@ -49,6 +54,7 @@ const user: User = {
 ```
 
 #### Option 3: Test ADMIN
+
 ```typescript
 // Comment Option 1, uncomment Option 3
 const user: User = {
@@ -88,7 +94,7 @@ Nếu muốn mock tất cả APIs:
 
 1. **Option 1: Mock từng API**
    - Vào các file `*.saga.ts` trong từng feature
-   - Comment `yield call(api.xxx)` 
+   - Comment `yield call(api.xxx)`
    - Return mock data
 
 2. **Option 2: Mock Axios globally**
@@ -109,6 +115,7 @@ Khi cần connect backend thật:
 4. Xóa pre-filled values trong LoginPage
 
 Hoặc dùng Git:
+
 ```bash
 git checkout src/features/auth/redux/auth.saga.ts
 git checkout src/features/auth/pages/LoginPage.tsx

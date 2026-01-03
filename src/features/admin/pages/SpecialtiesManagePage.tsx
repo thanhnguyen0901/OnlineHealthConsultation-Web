@@ -54,16 +54,16 @@ export const SpecialtiesManagePage: React.FC = () => {
         ...specialty,
         name: specialty.nameEn,
       };
-      
+
       if (specialty.id) {
         dispatch(
           updateSpecialtyRequested({
             id: specialty.id,
-            data: { 
+            data: {
               name: dataToSave.name,
-              nameEn: dataToSave.nameEn, 
-              nameVi: dataToSave.nameVi, 
-              description: dataToSave.description 
+              nameEn: dataToSave.nameEn,
+              nameVi: dataToSave.nameVi,
+              description: dataToSave.description,
             },
           })
         );
@@ -148,7 +148,12 @@ export const SpecialtiesManagePage: React.FC = () => {
             className="primereact-table"
           >
             <Column field="nameEn" header={t('nameEnglish')} sortable style={{ width: '180px' }} />
-            <Column field="nameVi" header={t('nameVietnamese')} sortable style={{ width: '200px' }} />
+            <Column
+              field="nameVi"
+              header={t('nameVietnamese')}
+              sortable
+              style={{ width: '200px' }}
+            />
             <Column field="description" header={t('description')} sortable />
             <Column body={actionBodyTemplate} header={t('actions')} style={{ width: '140px' }} />
           </DataTable>
@@ -224,14 +229,14 @@ export const SpecialtiesManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1">
-          <div className="flex items-center gap-3">
-            <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
-            {specialty && (
-              <span className="text-gray-700 dark:text-gray-300 text-base">
-                {t('deleteSpecialtyConfirm', { name: specialty.name })}
-              </span>
-            )}
-          </div>
+            <div className="flex items-center gap-3">
+              <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
+              {specialty && (
+                <span className="text-gray-700 dark:text-gray-300 text-base">
+                  {t('deleteSpecialtyConfirm', { name: specialty.name })}
+                </span>
+              )}
+            </div>
           </div>
         </Dialog>
       </div>

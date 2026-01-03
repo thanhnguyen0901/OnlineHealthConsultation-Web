@@ -34,10 +34,10 @@ const timeSlots = [
 ];
 
 const appointmentSchema = Yup.object().shape({
-  specialtyId: Yup.string().required('Specialty is required'),
-  doctorId: Yup.string().required('Doctor is required'),
-  date: Yup.date().required('Date is required').nullable(),
-  time: Yup.string().required('Time is required'),
+  specialtyId: Yup.string().required(),
+  doctorId: Yup.string().required(),
+  date: Yup.date().required().nullable(),
+  time: Yup.string().required(),
   notes: Yup.string(),
 });
 
@@ -61,9 +61,9 @@ export const BookAppointmentPage: React.FC = () => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
 
-  const specialtyOptions = specialties.map((s) => ({ 
-    label: i18n.language === 'vi' ? s.nameVi : s.nameEn, 
-    value: s.id 
+  const specialtyOptions = specialties.map((s) => ({
+    label: i18n.language === 'vi' ? s.nameVi : s.nameEn,
+    value: s.id,
   }));
   const doctorOptions = doctors.map((d) => ({ label: d.name, value: d.id }));
 
@@ -82,8 +82,10 @@ export const BookAppointmentPage: React.FC = () => {
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
-        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('bookAppointment')}</h1>
-        
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+          {t('bookAppointment')}
+        </h1>
+
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik
             initialValues={{
@@ -99,28 +101,28 @@ export const BookAppointmentPage: React.FC = () => {
             {({ setFieldValue }) => (
               <Form className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormikDropdown
-                  name="specialtyId"
-                  label={t('selectSpecialty')}
-                  options={specialtyOptions}
-                  placeholder={t('selectSpecialty')}
-                  onChange={(e) => {
-                    setFieldValue('specialtyId', e.value);
-                    setFieldValue('doctorId', '');
-                    setSelectedSpecialtyId(e.value);
-                    if (e.value) {
-                      dispatch(loadDoctorsBySpecialtyRequested(e.value));
-                    }
-                  }}
-                />
+                  <FormikDropdown
+                    name="specialtyId"
+                    label={t('selectSpecialty')}
+                    options={specialtyOptions}
+                    placeholder={t('selectSpecialty')}
+                    onChange={(e) => {
+                      setFieldValue('specialtyId', e.value);
+                      setFieldValue('doctorId', '');
+                      setSelectedSpecialtyId(e.value);
+                      if (e.value) {
+                        dispatch(loadDoctorsBySpecialtyRequested(e.value));
+                      }
+                    }}
+                  />
 
-                <FormikDropdown
-                  name="doctorId"
-                  label={t('selectDoctor')}
-                  options={doctorOptions}
-                  placeholder={t('selectDoctor')}
-                  disabled={!selectedSpecialtyId || doctors.length === 0}
-                />
+                  <FormikDropdown
+                    name="doctorId"
+                    label={t('selectDoctor')}
+                    options={doctorOptions}
+                    placeholder={t('selectDoctor')}
+                    disabled={!selectedSpecialtyId || doctors.length === 0}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -140,12 +142,7 @@ export const BookAppointmentPage: React.FC = () => {
                 </div>
 
                 <div className="mt-2">
-                  <FormikInputText
-                    name="notes"
-                    label={t('notes')}
-                    as="textarea"
-                    rows={4}
-                  />
+                  <FormikInputText name="notes" label={t('notes')} as="textarea" rows={4} />
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">

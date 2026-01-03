@@ -8,8 +8,15 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import { loadHistoryRequested, rateConsultationRequested } from '@/features/patient/redux/patient.slice';
-import { selectQuestions, selectAppointments, selectPatientLoading } from '@/features/patient/redux/patient.selectors';
+import {
+  loadHistoryRequested,
+  rateConsultationRequested,
+} from '@/features/patient/redux/patient.slice';
+import {
+  selectQuestions,
+  selectAppointments,
+  selectPatientLoading,
+} from '@/features/patient/redux/patient.selectors';
 import type { Question, Appointment } from '../types';
 import { useToast } from '@/hooks/useToast';
 
@@ -19,7 +26,7 @@ export const ConsultationHistoryPage: React.FC = () => {
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
   const loading = useAppSelector(selectPatientLoading);
-  const { showSuccess, showError } = useToast();
+  const { showSuccess } = useToast();
 
   const [ratingDialog, setRatingDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
@@ -85,12 +92,12 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   const questionStatusTemplate = (rowData: Question) => {
-    const statusMap: Record<string, { severity: 'success' | 'warning' | 'info', label: string }> = {
+    const statusMap: Record<string, { severity: 'success' | 'warning' | 'info'; label: string }> = {
       pending: { severity: 'warning', label: t('pending') },
       answered: { severity: 'success', label: t('answered') },
       moderated: { severity: 'info', label: t('moderated') },
     };
-    
+
     const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
     return <Tag value={config.label} severity={config.severity} />;
   };
@@ -100,12 +107,15 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   const appointmentStatusTemplate = (rowData: any) => {
-    const statusMap: Record<string, { severity: 'success' | 'warning' | 'danger' | 'info', label: string }> = {
+    const statusMap: Record<
+      string,
+      { severity: 'success' | 'warning' | 'danger' | 'info'; label: string }
+    > = {
       scheduled: { severity: 'info', label: t('scheduled') },
       completed: { severity: 'success', label: t('completed') },
       cancelled: { severity: 'danger', label: t('cancelled') },
     };
-    
+
     const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
     return <Tag value={config.label} severity={config.severity} />;
   };
@@ -113,7 +123,11 @@ export const ConsultationHistoryPage: React.FC = () => {
   const appointmentActionTemplate = (rowData: Appointment) => {
     if (rowData.status === 'completed') {
       if (rowData.hasRating) {
-        return <span className="text-green-600 dark:text-green-400 text-sm font-medium">{t('rated')}</span>;
+        return (
+          <span className="text-green-600 dark:text-green-400 text-sm font-medium">
+            {t('rated')}
+          </span>
+        );
       }
       return (
         <Button
@@ -130,46 +144,80 @@ export const ConsultationHistoryPage: React.FC = () => {
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
-        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">{t('consultationHistory')}</h1>
-        
+        <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+          {t('consultationHistory')}
+        </h1>
+
         <div className="space-y-8">
           <section>
-            <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">{t('questions')}</h2>
+            <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+              {t('questions')}
+            </h2>
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
-              <DataTable 
-            value={questions} 
-            paginator 
-            rows={10}
-            loading={loading}
-            emptyMessage={t('noQuestions')}
-            className="primereact-table"
-          >
-            <Column field="question" header={t('question')} sortable />
-            <Column field="status" header={t('status')} body={questionStatusTemplate} sortable style={{ width: '150px' }} />
-            <Column field="createdAt" header={t('date')} body={dateTemplate} sortable style={{ width: '150px' }} />
-            </DataTable>
-          </div>
-        </section>
+              <DataTable
+                value={questions}
+                paginator
+                rows={10}
+                loading={loading}
+                emptyMessage={t('noQuestions')}
+                className="primereact-table"
+              >
+                <Column field="question" header={t('question')} sortable />
+                <Column
+                  field="status"
+                  header={t('status')}
+                  body={questionStatusTemplate}
+                  sortable
+                  style={{ width: '150px' }}
+                />
+                <Column
+                  field="createdAt"
+                  header={t('date')}
+                  body={dateTemplate}
+                  sortable
+                  style={{ width: '150px' }}
+                />
+              </DataTable>
+            </div>
+          </section>
 
-        <section>
-          <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">{t('appointments')}</h2>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
-            <DataTable 
-            value={appointments} 
-            paginator 
-            rows={10}
-            loading={loading}
-            emptyMessage={t('noAppointments')}
-            className="primereact-table"
-          >
-            <Column field="doctorName" header={t('doctor')} sortable />
-            <Column field="date" header={t('date')} body={appointmentDateTemplate} sortable style={{ width: '150px' }} />
-              <Column field="status" header={t('status')} body={appointmentStatusTemplate} sortable style={{ width: '150px' }} />
-              <Column body={appointmentActionTemplate} header={t('actions')} style={{ width: '180px' }} />
-            </DataTable>
-          </div>
-        </section>
-      </div>
+          <section>
+            <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+              {t('appointments')}
+            </h2>
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
+              <DataTable
+                value={appointments}
+                paginator
+                rows={10}
+                loading={loading}
+                emptyMessage={t('noAppointments')}
+                className="primereact-table"
+              >
+                <Column field="doctorName" header={t('doctor')} sortable />
+                <Column
+                  field="date"
+                  header={t('date')}
+                  body={appointmentDateTemplate}
+                  sortable
+                  style={{ width: '150px' }}
+                />
+                <Column
+                  field="status"
+                  header={t('status')}
+                  body={appointmentStatusTemplate}
+                  sortable
+                  style={{ width: '150px' }}
+                />
+                <Column
+                  body={appointmentActionTemplate}
+                  header={t('actions')}
+                  style={{ width: '180px' }}
+                />
+              </DataTable>
+            </div>
+          </section>
+        </div>
       </div>
 
       <Dialog
@@ -182,17 +230,21 @@ export const ConsultationHistoryPage: React.FC = () => {
       >
         <div className="p-6 space-y-5">
           <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('rating')}</label>
-            <Rating 
-              value={ratingValue} 
-              onChange={(e) => setRatingValue(e.value ?? 0)} 
-              stars={5} 
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('rating')}
+            </label>
+            <Rating
+              value={ratingValue}
+              onChange={(e) => setRatingValue(e.value ?? 0)}
+              stars={5}
               cancel={false}
               className="text-yellow-500"
             />
           </div>
           <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('comment')}</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('comment')}
+            </label>
             <InputTextarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -202,17 +254,10 @@ export const ConsultationHistoryPage: React.FC = () => {
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button 
-              variant="secondary" 
-              onClick={() => setRatingDialog(false)}
-            >
+            <Button variant="secondary" onClick={() => setRatingDialog(false)}>
               {t('cancel')}
             </Button>
-            <Button
-              onClick={handleSubmitRating}
-              disabled={ratingValue === 0}
-              loading={loading}
-            >
+            <Button onClick={handleSubmitRating} disabled={ratingValue === 0} loading={loading}>
               {t('submit')}
             </Button>
           </div>

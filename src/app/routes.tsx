@@ -6,6 +6,7 @@ import { MainLayout } from '@/layouts/MainLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { Spinner } from '@/components/common/Spinner';
 import { ROUTE_PATHS } from '@/constants/routePaths';
+import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { HomePage } from '@/pages/HomePage';
 
@@ -90,9 +91,9 @@ const HomeRedirect: React.FC = () => {
   if (!user) return <HomePage />;
 
   // If logged in, redirect to role-based dashboard
-  if (user.role === 'PATIENT') return <Navigate to={ROUTE_PATHS.PATIENT_DASHBOARD} replace />;
-  if (user.role === 'DOCTOR') return <Navigate to={ROUTE_PATHS.DOCTOR_DASHBOARD} replace />;
-  if (user.role === 'ADMIN') return <Navigate to={ROUTE_PATHS.ADMIN_DASHBOARD} replace />;
+  if (user.role === ROLES.PATIENT) return <Navigate to={ROUTE_PATHS.PATIENT_DASHBOARD} replace />;
+  if (user.role === ROLES.DOCTOR) return <Navigate to={ROUTE_PATHS.DOCTOR_DASHBOARD} replace />;
+  if (user.role === ROLES.ADMIN) return <Navigate to={ROUTE_PATHS.ADMIN_DASHBOARD} replace />;
 
   return <Navigate to={ROUTE_PATHS.LOGIN} replace />;
 };

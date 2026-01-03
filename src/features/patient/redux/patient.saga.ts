@@ -39,7 +39,9 @@ function* handleAskQuestion(action: PayloadAction<{ question: string; specialtyI
   }
 }
 
-function* handleBookAppointment(action: PayloadAction<{ doctorId: string; date: string; time: string; notes?: string }>) {
+function* handleBookAppointment(
+  action: PayloadAction<{ doctorId: string; date: string; time: string; notes?: string }>
+) {
   try {
     const appointment: Appointment = yield call(patientApi.bookAppointment, action.payload);
     yield put(bookAppointmentSucceeded(appointment));
@@ -50,7 +52,9 @@ function* handleBookAppointment(action: PayloadAction<{ doctorId: string; date: 
 
 function* handleLoadHistory() {
   try {
-    const history: { questions: Question[]; appointments: Appointment[] } = yield call(patientApi.getHistory);
+    const history: { questions: Question[]; appointments: Appointment[] } = yield call(
+      patientApi.getHistory
+    );
     yield put(loadHistorySucceeded(history));
   } catch (error) {
     yield put(loadHistoryFailed((error as Error).message));
@@ -75,7 +79,14 @@ function* handleUpdateProfile(action: PayloadAction<Partial<PatientProfile>>) {
   }
 }
 
-function* handleRateConsultation(action: PayloadAction<{ consultationId: string; doctorId: string; rating: number; comment?: string }>) {
+function* handleRateConsultation(
+  action: PayloadAction<{
+    consultationId: string;
+    doctorId: string;
+    rating: number;
+    comment?: string;
+  }>
+) {
   try {
     const rating: Rating = yield call(patientApi.rateConsultation, action.payload);
     yield put(rateConsultationSucceeded(rating));

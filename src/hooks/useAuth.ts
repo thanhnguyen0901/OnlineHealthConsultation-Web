@@ -1,5 +1,6 @@
 import { useAppSelector } from '@/state/hooks';
 import { selectUser, selectIsAuthenticated } from '@/features/auth/redux/auth.selectors';
+import { ROLES } from '@/constants/roles';
 
 export const useAuth = () => {
   const user = useAppSelector(selectUser);
@@ -8,8 +9,8 @@ export const useAuth = () => {
   return {
     user,
     isAuthenticated,
-    isPatient: user?.role === 'PATIENT',
-    isDoctor: user?.role === 'DOCTOR',
-    isAdmin: user?.role === 'ADMIN',
+    isPatient: user?.role === ROLES.PATIENT,
+    isDoctor: user?.role === ROLES.DOCTOR,
+    isAdmin: user?.role === ROLES.ADMIN,
   };
 };

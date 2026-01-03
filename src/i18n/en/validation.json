@@ -1,0 +1,16 @@
+{
+  "required": "This field is required",
+  "invalidEmail": "Invalid email address",
+  "emailRequired": "Email is required",
+  "passwordRequired": "Password is required",
+  "passwordMin": "Password must be at least {{min}} characters",
+  "nameRequired": "Name is required",
+  "questionMin": "Question must be at least {{min}} characters",
+  "questionRequired": "Question is required",
+  "stringMin": "Must be at least {{min}} characters",
+  "specialtyRequired": "Specialty is required",
+  "doctorRequired": "Doctor is required",
+  "dateRequired": "Date is required",
+  "timeRequired": "Time is required",
+  "fullNameRequired": "Full name is required"
+}

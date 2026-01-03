@@ -11,11 +11,9 @@ import { selectAuthLoading } from '@/features/auth/redux/auth.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 const registerSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  password: Yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
+  name: Yup.string().required(),
+  email: Yup.string().email().required(),
+  password: Yup.string().min(6).required(),
 });
 
 export const RegisterPage: React.FC = () => {
@@ -61,7 +59,7 @@ export const RegisterPage: React.FC = () => {
       </Formik>
 
       <div className="mt-6 text-center">
-        <span className="text-gray-600 dark:text-gray-400 text-sm">Already have an account? </span>
+        <span className="text-gray-600 dark:text-gray-400 text-sm">{t('auth:haveAccount')} </span>
         <Link
           to={ROUTE_PATHS.LOGIN}
           className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm hover:underline"

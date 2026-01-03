@@ -7,6 +7,7 @@ Hướng dẫn nhanh để chạy **frontend** và kết nối với backend.
 ## ⚠️ YÊU CẦU
 
 Đảm bảo **backend đã chạy** trước khi start frontend:
+
 ```bash
 # Trong terminal khác, cd vào thư mục backend
 cd ..\OnlineHealthConsultation-Service
@@ -31,6 +32,7 @@ npm install
 ### Bước 2: Kiểm tra cấu hình API
 
 File `.env` đã có sẵn với cấu hình:
+
 ```env
 VITE_API_BASE_URL=http://localhost:4000
 ```
@@ -48,6 +50,7 @@ npm run dev
 ```
 
 **Kết quả mong đợi:**
+
 ```
   VITE v5.x.x  ready in xxx ms
 
@@ -65,15 +68,17 @@ Mở trình duyệt: **http://localhost:5173**
 ## 👤 TÀI KHOẢN TEST (từ Backend Seed Data)
 
 ### Admin
+
 - Email: `admin@healthcare.com`
 - Password: `Admin@123`
 
 ### Bác sĩ (Doctors)
+
 1. **Tim mạch**
    - Email: `nguyen.van.hung@healthcare.com`
    - Password: `Doctor@123`
 
-2. **Da liễu** 
+2. **Da liễu**
    - Email: `tran.thi.lan@healthcare.com`
    - Password: `Doctor@123`
 
@@ -86,6 +91,7 @@ Mở trình duyệt: **http://localhost:5173**
    - Password: `Doctor@123`
 
 ### Bệnh nhân (Patients)
+
 1. Email: `vo.van.nam@gmail.com` - Password: `Patient@123`
 2. Email: `hoang.thi.thao@gmail.com` - Password: `Patient@123`
 3. Email: `nguyen.van.khanh@gmail.com` - Password: `Patient@123`
@@ -118,7 +124,7 @@ npm run format
 Frontend tự động kết nối với backend API:
 
 - **Base URL:** http://localhost:4000/api
-- **Auth:** http://localhost:4000/api/auth/*
+- **Auth:** http://localhost:4000/api/auth/\*
 - **Health Check:** http://localhost:4000/api/health
 
 **Lưu ý:** File `.env` chỉ cần `VITE_API_BASE_URL=http://localhost:4000`, code tự động thêm `/api`
@@ -130,6 +136,7 @@ Frontend tự động kết nối với backend API:
 Sau khi login, bạn có thể test các tính năng với data có sẵn:
 
 ### Admin Dashboard
+
 - ✅ 8 users (1 admin, 4 doctors, 3 patients)
 - ✅ 5 specialties
 - ✅ 6 questions (nhiều trạng thái khác nhau)
@@ -137,11 +144,13 @@ Sau khi login, bạn có thể test các tính năng với data có sẵn:
 - ✅ 3 ratings (visible và hidden)
 
 ### Doctor Features
+
 - ✅ Trả lời câu hỏi (có câu pending chờ trả lời)
 - ✅ Quản lý lịch hẹn
 - ✅ Xem ratings của mình
 
-### Patient Features  
+### Patient Features
+
 - ✅ Đặt câu hỏi mới
 - ✅ Đặt lịch hẹn với bác sĩ
 - ✅ Đánh giá sau khi khám (có appointment completed)
@@ -156,7 +165,9 @@ Sau khi login, bạn có thể test các tính năng với data có sẵn:
 **Nguyên nhân:** Backend chưa chạy hoặc sai port
 
 **Giải pháp:**
+
 1. Kiểm tra backend đang chạy:
+
    ```bash
    # Mở terminal khác
    cd ..\OnlineHealthConsultation-Service
@@ -164,6 +175,7 @@ Sau khi login, bạn có thể test các tính năng với data có sẵn:
    ```
 
 2. Kiểm tra port trong `.env`:
+
    ```env
    VITE_API_BASE_URL=http://localhost:4000
    ```

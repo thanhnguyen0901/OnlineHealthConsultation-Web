@@ -39,9 +39,9 @@ export const DoctorsManagePage: React.FC = () => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
 
-  const specialtyOptions = specialties.map((s) => ({ 
-    label: i18n.language === 'vi' ? s.nameVi : s.nameEn, 
-    value: s.id 
+  const specialtyOptions = specialties.map((s) => ({
+    label: i18n.language === 'vi' ? s.nameVi : s.nameEn,
+    value: s.id,
   }));
 
   const openNew = () => {
@@ -265,14 +265,14 @@ export const DoctorsManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1">
-          <div className="flex items-center gap-3">
-            <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
-            {doctor && (
-              <span className="text-gray-700 dark:text-gray-300 text-base">
-                {t('deleteDoctorConfirm', { name: doctor.name })}
-              </span>
-            )}
-          </div>
+            <div className="flex items-center gap-3">
+              <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
+              {doctor && (
+                <span className="text-gray-700 dark:text-gray-300 text-base">
+                  {t('deleteDoctorConfirm', { name: doctor.name })}
+                </span>
+              )}
+            </div>
           </div>
         </Dialog>
       </div>
