@@ -189,9 +189,9 @@ function* handleDeleteSpecialty(action: PayloadAction<string>) {
 }
 
 // Appointments Sagas
-function* handleLoadAppointments() {
+function* handleLoadAppointments(action: PayloadAction<{ status?: string; startDate?: string; endDate?: string } | undefined>) {
   try {
-    const appointments: any[] = yield call(adminApi.getAppointments);
+    const appointments: any[] = yield call(adminApi.getAppointments, action.payload);
     yield put(loadAppointmentsSucceeded(appointments));
   } catch (error) {
     yield put(loadAppointmentsFailed((error as Error).message));

@@ -111,8 +111,18 @@ export interface Appointment {
   notes?: string;
 }
 
-export const getAppointments = async (): Promise<Appointment[]> => {
-  const response = await apiClient.get<{ data: Appointment[] }>('/admin/appointments');
+export interface AppointmentFilters {
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export const getAppointments = async (filters?: AppointmentFilters): Promise<Appointment[]> => {
+  const params: Record<string, string> = {};
+  if (filters?.status) params.status = filters.status;
+  if (filters?.startDate) params.startDate = filters.startDate;
+  if (filters?.endDate) params.endDate = filters.endDate;
+  const response = await apiClient.get<{ data: Appointment[] }>('/admin/appointments', { params });
   return response.data.data;
 };
 

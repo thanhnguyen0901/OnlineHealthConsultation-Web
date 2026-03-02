@@ -167,7 +167,7 @@ const adminSlice = createSlice({
     },
 
     // Appointments
-    loadAppointmentsRequested: (state) => {
+    loadAppointmentsRequested: (state, _action: PayloadAction<{ status?: string; startDate?: string; endDate?: string } | undefined>) => {
       state.loading = true;
       state.error = null;
     },

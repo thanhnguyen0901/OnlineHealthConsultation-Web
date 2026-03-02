@@ -19,8 +19,15 @@ export const AppointmentsManagePage: React.FC = () => {
   const [dateRange, setDateRange] = useState<Date[]>([]);
 
   useEffect(() => {
-    dispatch(loadAppointmentsRequested());
-  }, [dispatch]);
+    const filters: { status?: string; startDate?: string; endDate?: string } = {};
+    // statusFilter is a string; only add when it's a non-empty string (not 'All')
+    if (statusFilter && typeof statusFilter === 'string') filters.status = statusFilter;
+    if (dateRange.length === 2 && dateRange[0] && dateRange[1]) {
+      filters.startDate = dateRange[0].toISOString();
+      filters.endDate = dateRange[1].toISOString();
+    }
+    dispatch(loadAppointmentsRequested(Object.keys(filters).length ? filters : undefined));
+  }, [dispatch, statusFilter, dateRange]);
 
   const statusOptions = [
     { label: t('all'), value: '' },
@@ -30,14 +37,8 @@ export const AppointmentsManagePage: React.FC = () => {
     { label: t('cancelled'), value: 'cancelled' },
   ];
 
-  const filteredAppointments = appointments.filter((apt) => {
-    if (statusFilter && apt.status !== statusFilter) return false;
-    if (dateRange.length === 2) {
-      const aptDate = new Date(apt.date);
-      if (aptDate < dateRange[0] || aptDate > dateRange[1]) return false;
-    }
-    return true;
-  });
+  // All filtering is now API-driven; no client-side filtering needed
+  const filteredAppointments = appointments;
 
   const handleStatusChange = (appointmentId: string, newStatus: string) => {
     dispatch(updateAppointmentStatusRequested({ id: appointmentId, status: newStatus }));
@@ -74,7 +75,9 @@ export const AppointmentsManagePage: React.FC = () => {
               <Dropdown
                 value={statusFilter}
                 options={statusOptions}
-                onChange={(e) => setStatusFilter(e.value)}
+                optionLabel="label"
+                optionValue="value"
+                onChange={(e) => setStatusFilter(e.value as string)}
                 placeholder={t('all')}
                 className="w-48"
               />
