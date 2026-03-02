@@ -33,7 +33,8 @@ export interface ConsultationHistory {
 
 export interface PatientProfile {
   id: Id;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other';
   phone?: string;

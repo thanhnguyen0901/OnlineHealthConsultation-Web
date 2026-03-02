@@ -16,7 +16,8 @@ import { selectProfile, selectPatientLoading } from '@/features/patient/redux/pa
 import type { PatientProfile } from '@/features/patient/types';
 
 const profileSchema = Yup.object({
-  fullName: Yup.string().required(),
+  firstName: Yup.string().required(),
+  lastName: Yup.string().required(),
   dateOfBirth: Yup.date().nullable(),
   gender: Yup.string().oneOf(['male', 'female', 'other']),
   phone: Yup.string().matches(/^[0-9]{10,11}$/),
@@ -60,7 +61,8 @@ export const PatientProfilePage: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik
             initialValues={{
-              fullName: profile?.fullName || '',
+              firstName: profile?.firstName || '',
+              lastName: profile?.lastName || '',
               dateOfBirth: profile?.dateOfBirth ? new Date(profile.dateOfBirth) : null,
               gender: profile?.gender || '',
               phone: profile?.phone || '',
@@ -73,7 +75,8 @@ export const PatientProfilePage: React.FC = () => {
             enableReinitialize
             onSubmit={(values) => {
               const profileData: Partial<PatientProfile> = {
-                fullName: values.fullName,
+                firstName: values.firstName,
+                lastName: values.lastName,
                 dateOfBirth: values.dateOfBirth
                   ? values.dateOfBirth.toISOString().split('T')[0]
                   : undefined,
@@ -96,10 +99,17 @@ export const PatientProfilePage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormikInputText
-                      name="fullName"
-                      label={t('patient:fullName')}
-                      placeholder={t('patient:fullNamePlaceholder')}
+                      name="firstName"
+                      label={t('patient:firstName')}
+                      placeholder={t('patient:firstNamePlaceholder')}
                     />
+                    <FormikInputText
+                      name="lastName"
+                      label={t('patient:lastName')}
+                      placeholder={t('patient:lastNamePlaceholder')}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormikInputText
                       name="phone"
                       label={t('patient:phone')}

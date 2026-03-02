@@ -17,7 +17,10 @@ export interface Option {
 export interface User {
   id: Id;
   role: Role;
+  /** Computed display name: `${firstName} ${lastName}` */
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 

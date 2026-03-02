@@ -4,7 +4,8 @@ import type { Doctor, Specialty, AdminStats } from '../types';
 
 interface BackendUser {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   phone?: string;
@@ -21,12 +22,12 @@ interface BackendDoctor extends BackendUser {
 
 const normalizeUser = (backendUser: BackendUser): User => ({
   ...backendUser,
-  name: backendUser.fullName,
+  name: `${backendUser.firstName} ${backendUser.lastName}`.trim(),
 });
 
 const normalizeDoctor = (backendDoctor: BackendDoctor): Doctor => ({
   ...backendDoctor,
-  name: backendDoctor.fullName,
+  name: `${backendDoctor.firstName} ${backendDoctor.lastName}`.trim(),
 });
 
 export const getStats = async (): Promise<AdminStats> => {

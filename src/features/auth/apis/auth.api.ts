@@ -4,7 +4,8 @@ import type { User } from '@/types/common';
 interface BackendUser {
   id: string;
   email: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   role: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   isActive?: boolean;
   patientProfile?: any;
@@ -35,7 +36,9 @@ export interface AuthResult {
 const normalizeUser = (backendUser: BackendUser): User => ({
   id: backendUser.id,
   email: backendUser.email,
-  name: backendUser.fullName,
+  firstName: backendUser.firstName,
+  lastName: backendUser.lastName,
+  name: `${backendUser.firstName} ${backendUser.lastName}`.trim(),
   role: backendUser.role,
 });
 
@@ -53,7 +56,8 @@ export const login = async (credentials: {
 export const register = async (data: {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
 }): Promise<AuthResult> => {
   const response = await apiClient.post<AuthResponse>('/auth/register', data);
   return {

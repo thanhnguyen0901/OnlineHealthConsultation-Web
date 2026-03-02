@@ -5,7 +5,8 @@ import type { Id } from '@/types/common';
 
 interface BackendDoctor {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: 'DOCTOR';
   specialtyId: Id;
@@ -16,7 +17,7 @@ interface BackendDoctor {
 
 const normalizeDoctor = (backendDoctor: BackendDoctor): Doctor => ({
   ...backendDoctor,
-  name: backendDoctor.fullName,
+  name: `${backendDoctor.firstName} ${backendDoctor.lastName}`.trim(),
 });
 
 export const askQuestion = async (data: {

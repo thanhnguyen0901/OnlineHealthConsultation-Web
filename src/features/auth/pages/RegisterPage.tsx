@@ -11,7 +11,8 @@ import { selectAuthLoading } from '@/features/auth/redux/auth.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 const registerSchema = Yup.object({
-  name: Yup.string().required(),
+  firstName: Yup.string().required(),
+  lastName: Yup.string().required(),
   email: Yup.string().email().required(),
   password: Yup.string().min(6).required(),
 });
@@ -29,7 +30,7 @@ export const RegisterPage: React.FC = () => {
       </h2>
 
       <Formik
-        initialValues={{ name: '', email: '', password: '' }}
+        initialValues={{ firstName: '', lastName: '', email: '', password: '' }}
         validationSchema={registerSchema}
         onSubmit={(values) => {
           dispatch(registerRequested(values));
@@ -37,7 +38,10 @@ export const RegisterPage: React.FC = () => {
         }}
       >
         <Form className="space-y-4">
-          <FormikInputText name="name" label={t('common:name')} placeholder="John Doe" />
+          <div className="grid grid-cols-2 gap-3">
+            <FormikInputText name="firstName" label={t('common:firstName')} placeholder="John" />
+            <FormikInputText name="lastName" label={t('common:lastName')} placeholder="Doe" />
+          </div>
           <FormikInputText
             name="email"
             label={t('common:email')}

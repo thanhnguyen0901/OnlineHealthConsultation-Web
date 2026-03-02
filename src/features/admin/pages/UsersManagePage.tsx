@@ -55,12 +55,12 @@ export const UsersManagePage: React.FC = () => {
 
   const saveUser = () => {
     setSubmitted(true);
-    if (user.name?.trim() && user.email?.trim()) {
+    if (user.firstName?.trim() && user.lastName?.trim() && user.email?.trim()) {
       if (user.id) {
         dispatch(
           updateUserRequested({
             id: user.id,
-            data: { name: user.name, email: user.email, role: user.role },
+            data: { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role },
           })
         );
       } else {
@@ -166,20 +166,36 @@ export const UsersManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1 space-y-4">
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('name')}
-              </label>
-              <InputText
-                value={user.name || ''}
-                onChange={(e) => setUser({ ...user, name: e.target.value })}
-                required
-                autoFocus
-                className={`w-full ${submitted && !user.name ? 'p-invalid' : ''}`}
-              />
-              {submitted && !user.name && (
-                <small className="text-red-500 text-xs mt-1">{t('nameRequired')}</small>
-              )}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('firstName')}
+                </label>
+                <InputText
+                  value={user.firstName || ''}
+                  onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+                  required
+                  autoFocus
+                  className={`w-full ${submitted && !user.firstName ? 'p-invalid' : ''}`}
+                />
+                {submitted && !user.firstName && (
+                  <small className="text-red-500 text-xs mt-1">{t('firstNameRequired')}</small>
+                )}
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('lastName')}
+                </label>
+                <InputText
+                  value={user.lastName || ''}
+                  onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+                  required
+                  className={`w-full ${submitted && !user.lastName ? 'p-invalid' : ''}`}
+                />
+                {submitted && !user.lastName && (
+                  <small className="text-red-500 text-xs mt-1">{t('lastNameRequired')}</small>
+                )}
+              </div>
             </div>
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -241,7 +257,7 @@ export const UsersManagePage: React.FC = () => {
               <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
               {user && (
                 <span className="text-gray-700 dark:text-gray-300 text-base">
-                  {t('deleteUserConfirm', { name: user.name })}
+                  {t('deleteUserConfirm', { name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() })}
                 </span>
               )}
             </div>

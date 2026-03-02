@@ -29,7 +29,7 @@ const authSlice = createSlice({
     },
     registerRequested: (
       state,
-      _action: PayloadAction<{ email: string; password: string; name: string }>
+      _action: PayloadAction<{ email: string; password: string; firstName: string; lastName: string }>
     ) => {
       state.loading = true;
       state.error = null;
