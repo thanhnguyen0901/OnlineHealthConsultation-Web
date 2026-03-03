@@ -120,9 +120,7 @@ const patientSlice = createSlice({
       state.ratings.unshift(action.payload);
       // Mark the matching appointment as rated so the "Rate" button
       // is replaced by "Rated" immediately without waiting for a refetch.
-      // The Rating type uses consultationId (FE alias for appointmentId).
-      const apptId = (action.payload as any).appointmentId ?? action.payload.consultationId;
-      const apptIdx = state.appointments.findIndex((a) => a.id === apptId);
+      const apptIdx = state.appointments.findIndex((a) => a.id === action.payload.appointmentId);
       if (apptIdx !== -1) {
         state.appointments[apptIdx] = { ...state.appointments[apptIdx], hasRating: true };
       }
