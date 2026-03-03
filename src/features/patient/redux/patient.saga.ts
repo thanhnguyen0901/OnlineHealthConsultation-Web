@@ -48,7 +48,7 @@ function* handleAskQuestion(action: PayloadAction<{ question: string; specialtyI
 }
 
 function* handleBookAppointment(
-  action: PayloadAction<{ doctorId: string; date: string; time: string; reason: string; notes?: string }>
+  action: PayloadAction<{ doctorId: string; scheduledAt: string; reason: string; notes?: string }>
 ) {
   try {
     const appointment: Appointment = yield call(patientApi.bookAppointment, action.payload);

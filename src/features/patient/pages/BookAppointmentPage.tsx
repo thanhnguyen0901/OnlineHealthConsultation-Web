@@ -99,13 +99,21 @@ export const BookAppointmentPage: React.FC = () => {
 
   const handleSubmit = (values: AppointmentFormValues) => {
     if (!values.date) return;
+    // Build a Date from the user's LOCAL calendar date + clock time (no trailing Z
+    // so the JS engine interprets it in the browser's local timezone), then convert
+    // to a UTC ISO string for transport. This ensures the stored scheduledAt instant
+    // exactly represents what the patient selected on-screen.
+    //
+    // Example (UTC+7 browser):
+    //   formatLocalDate(values.date) = "2026-03-15"
+    //   values.time                  = "08:00"
+    //   new Date("2026-03-15T08:00:00") → 2026-03-15T01:00:00.000Z  ✓
+    const localDateTimeStr = `${formatLocalDate(values.date)}T${values.time}:00`;
+    const scheduledAt = new Date(localDateTimeStr).toISOString();
     dispatch(
       bookAppointmentRequested({
         doctorId: values.doctorId,
-        // Use local-calendar date, NOT toISOString() which converts to UTC and
-        // can shift the date backward by up to 23 h in UTC+ timezones.
-        date: formatLocalDate(values.date),
-        time: values.time,
+        scheduledAt,
         reason: values.reason,
         notes: values.notes,
       })
