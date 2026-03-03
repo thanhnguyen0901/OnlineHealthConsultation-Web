@@ -31,7 +31,8 @@ const normalizeDoctor = (backendDoctor: BackendDoctor): Doctor => ({
 });
 
 export const getStats = async (): Promise<AdminStats> => {
-  const response = await apiClient.get<{ data: AdminStats }>('/admin/stats');
+  // AUDIT-08: canonical stats endpoint is /reports/stats; /admin/stats was removed.
+  const response = await apiClient.get<{ data: AdminStats }>('/reports/stats');
   return response.data.data;
 };
 
