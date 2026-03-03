@@ -5,20 +5,24 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from '@/components/common/Button';
+import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   askQuestionRequested,
   clearQuestionSubmitted,
+  loadSpecialtiesRequested,
 } from '@/features/patient/redux/patient.slice';
 import {
   selectPatientLoading,
   selectPatientError,
   selectQuestionSubmitted,
+  selectSpecialties,
 } from '@/features/patient/redux/patient.selectors';
 import { useToast } from '@/hooks/useToast';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 const questionSchema = Yup.object({
+  specialtyId: Yup.string().required('Specialty is required'),
   question: Yup.string()
     .min(10, 'Question must be at least 10 characters')
     .required('Question is required'),
@@ -55,13 +59,24 @@ const FormikTextArea: React.FC<{ name: string; label: string; rows?: number }> =
 };
 
 export const AskQuestionPage: React.FC = () => {
-  const { t } = useTranslation('patient');
+  const { t, i18n } = useTranslation('patient');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const loading = useAppSelector(selectPatientLoading);
   const patientError = useAppSelector(selectPatientError);
   const questionSubmitted = useAppSelector(selectQuestionSubmitted);
+  const specialties = useAppSelector(selectSpecialties);
   const { showError } = useToast();
+
+  // Load specialties for the dropdown on mount
+  React.useEffect(() => {
+    dispatch(loadSpecialtiesRequested());
+  }, [dispatch]);
+
+  const specialtyOptions = specialties.map((s) => ({
+    label: i18n.language === 'vi' ? s.nameVi : s.nameEn,
+    value: s.id as string,
+  }));
 
   // On success: navigate to history. The success toast is already fired by
   // patient.saga.ts → handleAskQuestion. Clear the flag so it doesn't fire
@@ -87,17 +102,24 @@ export const AskQuestionPage: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik
-            initialValues={{ question: '' }}
+            initialValues={{ specialtyId: '', question: '' }}
             validationSchema={questionSchema}
             onSubmit={(values) => {
               // Do NOT resetForm here — it fires before the saga completes.
               // On success the page navigates away; on error the form stays
               // populated so the user can correct and retry.
-              dispatch(askQuestionRequested(values));
+              dispatch(askQuestionRequested({ question: values.question, specialtyId: values.specialtyId }));
             }}
           >
             {({ isSubmitting: _unused }) => (
               <Form className="space-y-5" noValidate>
+                <FormikDropdown
+                  name="specialtyId"
+                  label={t('selectSpecialty')}
+                  placeholder={t('selectSpecialty')}
+                  options={specialtyOptions}
+                />
+
                 <div>
                   <label
                     htmlFor="question"
