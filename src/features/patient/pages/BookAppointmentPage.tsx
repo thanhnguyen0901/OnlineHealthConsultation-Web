@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
@@ -11,8 +12,19 @@ import {
   loadSpecialtiesRequested,
   loadDoctorsBySpecialtyRequested,
   bookAppointmentRequested,
+  clearAppointmentSubmitted,
 } from '../redux/patient.slice';
-import { selectSpecialties, selectDoctors, selectPatientLoading } from '../redux/patient.selectors';
+import { selectSpecialties, selectDoctors, selectPatientLoading, selectPatientError, selectAppointmentSubmitted } from '../redux/patient.selectors';
+import { ROUTE_PATHS } from '@/constants/routePaths';
+import { useToast } from '@/hooks/useToast';
+
+/** Format a JS Date to "YYYY-MM-DD" using LOCAL calendar date (not UTC). */
+const formatLocalDate = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
 
 const timeSlots = [
   { label: '08:00', value: '08:00' },
@@ -38,6 +50,7 @@ const appointmentSchema = Yup.object().shape({
   doctorId: Yup.string().required(),
   date: Yup.date().required().nullable(),
   time: Yup.string().required(),
+  reason: Yup.string().required(),
   notes: Yup.string(),
 });
 
@@ -46,20 +59,37 @@ interface AppointmentFormValues {
   doctorId: string;
   date: Date | null;
   time: string;
+  reason: string;
   notes: string;
 }
 
 export const BookAppointmentPage: React.FC = () => {
   const { t, i18n } = useTranslation('patient');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const specialties = useAppSelector(selectSpecialties);
   const doctors = useAppSelector(selectDoctors);
   const loading = useAppSelector(selectPatientLoading);
+  const patientError = useAppSelector(selectPatientError);
+  const appointmentSubmitted = useAppSelector(selectAppointmentSubmitted);
+  const { showError } = useToast();
   const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>('');
 
   useEffect(() => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (patientError) showError(patientError);
+  }, [patientError, showError]);
+
+  // Navigate to history page after successful booking
+  useEffect(() => {
+    if (appointmentSubmitted) {
+      dispatch(clearAppointmentSubmitted());
+      navigate(ROUTE_PATHS.CONSULTATION_HISTORY);
+    }
+  }, [appointmentSubmitted, dispatch, navigate]);
 
   const specialtyOptions = specialties.map((s) => ({
     label: i18n.language === 'vi' ? s.nameVi : s.nameEn,
@@ -72,8 +102,11 @@ export const BookAppointmentPage: React.FC = () => {
     dispatch(
       bookAppointmentRequested({
         doctorId: values.doctorId,
-        date: values.date.toISOString().split('T')[0],
+        // Use local-calendar date, NOT toISOString() which converts to UTC and
+        // can shift the date backward by up to 23 h in UTC+ timezones.
+        date: formatLocalDate(values.date),
         time: values.time,
+        reason: values.reason,
         notes: values.notes,
       })
     );
@@ -93,6 +126,7 @@ export const BookAppointmentPage: React.FC = () => {
               doctorId: '',
               date: null,
               time: '',
+              reason: '',
               notes: '',
             }}
             validationSchema={appointmentSchema}
@@ -138,6 +172,16 @@ export const BookAppointmentPage: React.FC = () => {
                     label={t('appointmentTime')}
                     options={timeSlots}
                     placeholder={t('appointmentTime')}
+                  />
+                </div>
+
+                <div className="mt-2">
+                  <FormikInputText
+                    name="reason"
+                    label={t('reason')}
+                    placeholder={t('reasonPlaceholder')}
+                    as="textarea"
+                    rows={3}
                   />
                 </div>
 

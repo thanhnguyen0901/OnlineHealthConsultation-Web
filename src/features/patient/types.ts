@@ -35,13 +35,13 @@ export interface PatientProfile {
   id: Id;
   firstName: string;
   lastName: string;
+  email?: string;
   dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other';
   phone?: string;
   address?: string;
+  /** Free-text medical history stored in PatientProfile.medicalHistory */
   medicalHistory?: string;
-  allergies?: string;
-  chronicDiseases?: string;
 }
 
 export interface Rating {

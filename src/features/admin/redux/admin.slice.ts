@@ -217,9 +217,14 @@ const adminSlice = createSlice({
     },
     approveModerationSucceeded: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      const index = state.moderationItems.findIndex((item) => item.id === action.payload.id);
-      if (index !== -1) {
-        state.moderationItems[index] = action.payload;
+      // approveModeration API returns void — action.payload is undefined.
+      // The saga already dispatches loadModerationItemsRequested() which will
+      // replace the full list.  Guard here so we don't corrupt the array.
+      if (action.payload != null) {
+        const index = state.moderationItems.findIndex((item) => item.id === action.payload.id);
+        if (index !== -1) {
+          state.moderationItems[index] = action.payload;
+        }
       }
     },
     approveModerationFailed: (state, action: PayloadAction<string>) => {
@@ -232,9 +237,12 @@ const adminSlice = createSlice({
     },
     rejectModerationSucceeded: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      const index = state.moderationItems.findIndex((item) => item.id === action.payload.id);
-      if (index !== -1) {
-        state.moderationItems[index] = action.payload;
+      // rejectModeration API returns void — guard same as approve.
+      if (action.payload != null) {
+        const index = state.moderationItems.findIndex((item) => item.id === action.payload.id);
+        if (index !== -1) {
+          state.moderationItems[index] = action.payload;
+        }
       }
     },
     rejectModerationFailed: (state, action: PayloadAction<string>) => {

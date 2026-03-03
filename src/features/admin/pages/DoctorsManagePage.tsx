@@ -19,7 +19,9 @@ import {
   selectAdminDoctors,
   selectAdminSpecialties,
   selectAdminLoading,
+  selectAdminError,
 } from '../redux/admin.selectors';
+import { useToast } from '@/hooks/useToast';
 import type { Doctor } from '../types';
 
 export const DoctorsManagePage: React.FC = () => {
@@ -28,16 +30,34 @@ export const DoctorsManagePage: React.FC = () => {
   const doctors = useAppSelector(selectAdminDoctors);
   const specialties = useAppSelector(selectAdminSpecialties);
   const loading = useAppSelector(selectAdminLoading);
+  const adminError = useAppSelector(selectAdminError);
+  const { showError, showSuccess } = useToast();
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [doctor, setDoctor] = useState<Partial<Doctor> & { password?: string }>({});
   const [submitted, setSubmitted] = useState(false);
+  // Track previous doctor count to detect a successful create (list grew).
+  const [prevCount, setPrevCount] = useState<number | null>(null);
 
   useEffect(() => {
     dispatch(loadDoctorsRequested());
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
+
+  // Show backend error messages as toast notifications.
+  useEffect(() => {
+    if (adminError) showError(adminError);
+  }, [adminError, showError]);
+
+  // Detect successful create: doctor list grew after a save attempt.
+  useEffect(() => {
+    if (prevCount !== null && doctors.length > prevCount) {
+      showSuccess(t('doctorSavedSuccess', { defaultValue: 'Doctor saved successfully' }));
+    }
+    setPrevCount(doctors.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doctors.length]);
 
   const specialtyOptions = specialties.map((s) => ({
     label: i18n.language === 'vi' ? s.nameVi : s.nameEn,
@@ -61,32 +81,41 @@ export const DoctorsManagePage: React.FC = () => {
 
   const saveDoctor = () => {
     setSubmitted(true);
-    if (doctor.firstName?.trim() && doctor.lastName?.trim() && doctor.email?.trim() && doctor.specialtyId) {
-      if (doctor.id) {
-        dispatch(
-          updateDoctorRequested({
-            id: doctor.id,
-            data: {
-              firstName: doctor.firstName,
-              lastName: doctor.lastName,
-              email: doctor.email,
-              specialtyId: doctor.specialtyId,
-              bio: doctor.bio,
-            },
-          })
-        );
-      } else {
-        if (doctor.password) {
-          dispatch(
-            createDoctorRequested({ ...doctor, password: doctor.password } as Partial<Doctor> & {
-              password: string;
-            })
-          );
-        }
-      }
-      setDialog(false);
-      setDoctor({});
+    const isCreate = !doctor.id;
+    // Validate all required fields; for new doctors password is also required.
+    const valid =
+      !!doctor.firstName?.trim() &&
+      !!doctor.lastName?.trim() &&
+      !!doctor.email?.trim() &&
+      !!doctor.specialtyId &&
+      (!isCreate || !!doctor.password?.trim());
+    if (!valid) return; // keep dialog open so user sees the error hints
+
+    if (isCreate) {
+      // role: 'DOCTOR' is required by the BE createUserSchema.
+      dispatch(
+        createDoctorRequested({
+          ...doctor,
+          role: 'DOCTOR',
+          password: doctor.password!,
+        } as Partial<Doctor> & { password: string })
+      );
+    } else {
+      dispatch(
+        updateDoctorRequested({
+          id: doctor.id!,
+          data: {
+            firstName: doctor.firstName,
+            lastName: doctor.lastName,
+            email: doctor.email,
+            specialtyId: doctor.specialtyId,
+            bio: doctor.bio,
+          },
+        })
+      );
     }
+    setDialog(false);
+    setDoctor({});
   };
 
   const editDoctor = (doctor: Doctor) => {

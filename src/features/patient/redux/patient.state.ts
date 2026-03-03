@@ -10,6 +10,10 @@ export interface PatientState {
   doctors: Doctor[];
   loading: boolean;
   error: string | null;
+  /** Set to true by askQuestionSucceeded; cleared by clearQuestionSubmitted. */
+  questionSubmitted: boolean;
+  /** Set to true by bookAppointmentSucceeded; cleared by clearAppointmentSubmitted. */
+  appointmentSubmitted: boolean;
 }
 
 export const initialPatientState: PatientState = {
@@ -21,4 +25,6 @@ export const initialPatientState: PatientState = {
   doctors: [],
   loading: false,
   error: null,
+  questionSubmitted: false,
+  appointmentSubmitted: false,
 };

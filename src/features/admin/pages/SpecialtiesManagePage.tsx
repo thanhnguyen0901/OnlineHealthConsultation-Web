@@ -13,7 +13,8 @@ import {
   updateSpecialtyRequested,
   deleteSpecialtyRequested,
 } from '../redux/admin.slice';
-import { selectAdminSpecialties, selectAdminLoading } from '../redux/admin.selectors';
+import { selectAdminSpecialties, selectAdminLoading, selectAdminError } from '../redux/admin.selectors';
+import { useToast } from '@/hooks/useToast';
 import type { Specialty } from '../types';
 
 export const SpecialtiesManagePage: React.FC = () => {
@@ -21,6 +22,8 @@ export const SpecialtiesManagePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const specialties = useAppSelector(selectAdminSpecialties);
   const loading = useAppSelector(selectAdminLoading);
+  const adminError = useAppSelector(selectAdminError);
+  const { showError, showSuccess } = useToast();
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -30,6 +33,21 @@ export const SpecialtiesManagePage: React.FC = () => {
   useEffect(() => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
+
+  // Show backend error messages as toast notifications.
+  useEffect(() => {
+    if (adminError) showError(adminError);
+  }, [adminError, showError]);
+
+  // Detect successful save: dispatch succeeded if specialties list changed.
+  const [prevCount, setPrevCount] = React.useState<number | null>(null);
+  useEffect(() => {
+    if (prevCount !== null && specialties.length !== prevCount) {
+      showSuccess(t('specialtySavedSuccess', { defaultValue: 'Specialty saved successfully' }));
+    }
+    setPrevCount(specialties.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [specialties.length]);
 
   const openNew = () => {
     setSpecialty({});
@@ -48,7 +66,8 @@ export const SpecialtiesManagePage: React.FC = () => {
 
   const saveSpecialty = () => {
     setSubmitted(true);
-    if (specialty.nameEn?.trim() && specialty.nameVi?.trim() && specialty.description?.trim()) {
+    // description is optional on the BE — only nameEn and nameVi are required.
+    if (specialty.nameEn?.trim() && specialty.nameVi?.trim()) {
       // Auto-generate name from nameEn for backward compatibility
       const dataToSave = {
         ...specialty,

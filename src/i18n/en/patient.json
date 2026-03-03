@@ -37,6 +37,8 @@
   "chronicDiseasesPlaceholder": "Enter any chronic diseases",
   "profileUpdated": "Profile updated successfully",
   "updateProfile": "Update Profile",
+  "reason": "Reason for Visit",
+  "reasonPlaceholder": "Describe the reason for your appointment...",
   "notes": "Notes",
   "rateConsultation": "Rate Consultation",
   "rate": "Rate",

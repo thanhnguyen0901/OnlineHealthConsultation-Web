@@ -59,13 +59,15 @@ import {
 import * as adminApi from '../apis/admin.api';
 import type { User } from '@/types/common';
 import type { Doctor, Specialty, AdminStats } from '../types';
+import { addToast } from '@/redux/slices/ui.slice';
+import { extractErrorMessage } from '@/utils/errorMessage';
 
 function* handleLoadStats() {
   try {
     const stats: AdminStats = yield call(adminApi.getStats);
     yield put(loadStatsSucceeded(stats));
   } catch (error) {
-    yield put(loadStatsFailed((error as Error).message));
+    yield put(loadStatsFailed(extractErrorMessage(error)));
   }
 }
 
@@ -74,7 +76,7 @@ function* handleLoadUsers() {
     const users: User[] = yield call(adminApi.getUsers);
     yield put(loadUsersSucceeded(users));
   } catch (error) {
-    yield put(loadUsersFailed((error as Error).message));
+    yield put(loadUsersFailed(extractErrorMessage(error)));
   }
 }
 
@@ -83,7 +85,7 @@ function* handleLoadDoctors() {
     const doctors: Doctor[] = yield call(adminApi.getDoctors);
     yield put(loadDoctorsSucceeded(doctors));
   } catch (error) {
-    yield put(loadDoctorsFailed((error as Error).message));
+    yield put(loadDoctorsFailed(extractErrorMessage(error)));
   }
 }
 
@@ -92,7 +94,7 @@ function* handleLoadSpecialties() {
     const specialties: Specialty[] = yield call(adminApi.getSpecialties);
     yield put(loadSpecialtiesSucceeded(specialties));
   } catch (error) {
-    yield put(loadSpecialtiesFailed((error as Error).message));
+    yield put(loadSpecialtiesFailed(extractErrorMessage(error)));
   }
 }
 
@@ -101,8 +103,11 @@ function* handleCreateUser(action: PayloadAction<Partial<User> & { password: str
   try {
     const user: User = yield call(adminApi.createUser, action.payload);
     yield put(createUserSucceeded(user));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'User created successfully' }));
   } catch (error) {
-    yield put(createUserFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(createUserFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -110,8 +115,11 @@ function* handleUpdateUser(action: PayloadAction<{ id: string; data: Partial<Use
   try {
     const user: User = yield call(adminApi.updateUser, action.payload.id, action.payload.data);
     yield put(updateUserSucceeded(user));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'User updated successfully' }));
   } catch (error) {
-    yield put(updateUserFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(updateUserFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -119,8 +127,11 @@ function* handleDeleteUser(action: PayloadAction<string>) {
   try {
     yield call(adminApi.deleteUser, action.payload);
     yield put(deleteUserSucceeded(action.payload));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'User deleted successfully' }));
   } catch (error) {
-    yield put(deleteUserFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(deleteUserFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -129,8 +140,11 @@ function* handleCreateDoctor(action: PayloadAction<Partial<Doctor> & { password:
   try {
     const doctor: Doctor = yield call(adminApi.createDoctor, action.payload);
     yield put(createDoctorSucceeded(doctor));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Doctor created successfully' }));
   } catch (error) {
-    yield put(createDoctorFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(createDoctorFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -142,8 +156,11 @@ function* handleUpdateDoctor(action: PayloadAction<{ id: string; data: Partial<D
       action.payload.data
     );
     yield put(updateDoctorSucceeded(doctor));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Doctor updated successfully' }));
   } catch (error) {
-    yield put(updateDoctorFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(updateDoctorFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -151,8 +168,11 @@ function* handleDeleteDoctor(action: PayloadAction<string>) {
   try {
     yield call(adminApi.deleteDoctor, action.payload);
     yield put(deleteDoctorSucceeded(action.payload));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Doctor deleted successfully' }));
   } catch (error) {
-    yield put(deleteDoctorFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(deleteDoctorFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -161,8 +181,11 @@ function* handleCreateSpecialty(action: PayloadAction<Partial<Specialty>>) {
   try {
     const specialty: Specialty = yield call(adminApi.createSpecialty, action.payload);
     yield put(createSpecialtySucceeded(specialty));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Specialty created successfully' }));
   } catch (error) {
-    yield put(createSpecialtyFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(createSpecialtyFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -174,8 +197,11 @@ function* handleUpdateSpecialty(action: PayloadAction<{ id: string; data: Partia
       action.payload.data
     );
     yield put(updateSpecialtySucceeded(specialty));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Specialty updated successfully' }));
   } catch (error) {
-    yield put(updateSpecialtyFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(updateSpecialtyFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -183,8 +209,11 @@ function* handleDeleteSpecialty(action: PayloadAction<string>) {
   try {
     yield call(adminApi.deleteSpecialty, action.payload);
     yield put(deleteSpecialtySucceeded(action.payload));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Specialty deleted successfully' }));
   } catch (error) {
-    yield put(deleteSpecialtyFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(deleteSpecialtyFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -194,7 +223,7 @@ function* handleLoadAppointments(action: PayloadAction<{ status?: string; startD
     const appointments: any[] = yield call(adminApi.getAppointments, action.payload);
     yield put(loadAppointmentsSucceeded(appointments));
   } catch (error) {
-    yield put(loadAppointmentsFailed((error as Error).message));
+    yield put(loadAppointmentsFailed(extractErrorMessage(error)));
   }
 }
 
@@ -208,8 +237,11 @@ function* handleUpdateAppointmentStatus(
       action.payload.status
     );
     yield put(updateAppointmentStatusSucceeded(appointment));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Appointment status updated' }));
   } catch (error) {
-    yield put(updateAppointmentStatusFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(updateAppointmentStatusFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -219,7 +251,7 @@ function* handleLoadModerationItems() {
     const items: any[] = yield call(adminApi.getModerationItems);
     yield put(loadModerationItemsSucceeded(items));
   } catch (error) {
-    yield put(loadModerationItemsFailed((error as Error).message));
+    yield put(loadModerationItemsFailed(extractErrorMessage(error)));
   }
 }
 
@@ -228,8 +260,11 @@ function* handleApproveModeration(action: PayloadAction<string>): Generator<any,
     const item: any = yield call(adminApi.approveModeration, action.payload);
     yield put(approveModerationSucceeded(item));
     yield put(loadModerationItemsRequested());
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Item approved successfully' }));
   } catch (error) {
-    yield put(approveModerationFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(approveModerationFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -238,8 +273,11 @@ function* handleRejectModeration(action: PayloadAction<string>): Generator<any, 
     const item: any = yield call(adminApi.rejectModeration, action.payload);
     yield put(rejectModerationSucceeded(item));
     yield put(loadModerationItemsRequested());
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Item rejected' }));
   } catch (error) {
-    yield put(rejectModerationFailed((error as Error).message));
+    const msg = extractErrorMessage(error);
+    yield put(rejectModerationFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 

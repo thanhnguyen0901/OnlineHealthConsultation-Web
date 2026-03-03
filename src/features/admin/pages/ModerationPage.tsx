@@ -34,9 +34,10 @@ export const ModerationPage: React.FC = () => {
   };
 
   const snippetBodyTemplate = (rowData: any) => {
+    const preview = rowData.contentPreview || rowData.content || '';
     return (
       <div className="max-w-md truncate" title={rowData.content}>
-        {rowData.content?.substring(0, 100)}...
+        {preview.substring(0, 100)}{preview.length > 100 ? '...' : ''}
       </div>
     );
   };
@@ -46,20 +47,22 @@ export const ModerationPage: React.FC = () => {
   };
 
   const statusBodyTemplate = (rowData: any) => {
-    const statusColors: Record<string, string> = {
-      pending: 'text-yellow-600',
-      approved: 'text-green-600',
-      rejected: 'text-red-600',
-    };
+    // BE sends uppercase status; normalize for display
+    const s = (rowData.status || '').toUpperCase();
+    const isApproved  = s === 'ANSWERED' || s === 'APPROVED' || s === 'VISIBLE';
+    const isRejected  = s === 'MODERATED' || s === 'HIDDEN';
+    const colorClass  = isApproved ? 'text-green-600' : isRejected ? 'text-red-600' : 'text-yellow-600';
     return (
-      <span className={`font-semibold ${statusColors[rowData.status] || ''}`}>
-        {t(rowData.status)}
+      <span className={`font-semibold ${colorClass}`}>
+        {rowData.status}
       </span>
     );
   };
 
   const actionsBodyTemplate = (rowData: any) => {
-    if (rowData.status !== 'pending') return null;
+    const s = (rowData.status || '').toUpperCase();
+    const isPending = s === 'PENDING';
+    if (!isPending) return null;
     return (
       <div className="flex gap-2">
         <Button
@@ -104,7 +107,7 @@ export const ModerationPage: React.FC = () => {
               sortable
             />
             <Column field="content" header={t('snippet')} body={snippetBodyTemplate} />
-            <Column field="userName" header={t('user')} sortable style={{ width: '150px' }} />
+            <Column field="author" header={t('user')} sortable style={{ width: '150px' }} />
             <Column
               field="createdAt"
               header={t('createdAt')}

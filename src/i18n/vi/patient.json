@@ -37,6 +37,8 @@
   "chronicDiseasesPlaceholder": "Nhập bệnh mãn tính",
   "profileUpdated": "Cập nhật hồ sơ thành công",
   "updateProfile": "Cập nhật hồ sơ",
+  "reason": "Lý do khám",
+  "reasonPlaceholder": "Mô tả lý do đặt lịch khám của bạn...",
   "notes": "Ghi chú",
   "rateConsultation": "Đánh giá tư vấn",
   "rate": "Đánh giá",

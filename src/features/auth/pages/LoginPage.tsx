@@ -7,8 +7,9 @@ import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loginRequested } from '@/features/auth/redux/auth.slice';
-import { selectAuthLoading, selectIsAuthenticated } from '@/features/auth/redux/auth.selectors';
+import { selectAuthLoading, selectIsAuthenticated, selectUser } from '@/features/auth/redux/auth.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
+import { ROLES } from '@/constants/roles';
 import { useEffect } from 'react';
 
 const loginSchema = Yup.object({
@@ -22,12 +23,15 @@ export const LoginPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const loading = useAppSelector(selectAuthLoading);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const user = useAppSelector(selectUser);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(ROUTE_PATHS.PATIENT_DASHBOARD);
+    if (isAuthenticated && user) {
+      if (user.role === ROLES.ADMIN) navigate(ROUTE_PATHS.ADMIN_DASHBOARD);
+      else if (user.role === ROLES.DOCTOR) navigate(ROUTE_PATHS.DOCTOR_DASHBOARD);
+      else navigate(ROUTE_PATHS.PATIENT_DASHBOARD);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   return (
     <div>

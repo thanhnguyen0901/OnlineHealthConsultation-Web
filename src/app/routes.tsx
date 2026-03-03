@@ -53,6 +53,11 @@ const InboxQuestionsPage = lazy(() =>
 const SchedulePage = lazy(() =>
   import('@/features/doctor/pages/SchedulePage').then((m) => ({ default: m.SchedulePage }))
 );
+const DoctorAppointmentsPage = lazy(() =>
+  import('@/features/doctor/pages/DoctorAppointmentsPage').then((m) => ({
+    default: m.DoctorAppointmentsPage,
+  }))
+);
 const AdminDashboardPage = lazy(() =>
   import('@/features/admin/pages/AdminDashboardPage').then((m) => ({
     default: m.AdminDashboardPage,
@@ -189,6 +194,14 @@ export const RoutesConfig: React.FC = () => {
             element={
               <RoleGuard roles={['DOCTOR']}>
                 <SchedulePage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_APPOINTMENTS}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <DoctorAppointmentsPage />
               </RoleGuard>
             }
           />

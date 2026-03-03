@@ -13,7 +13,8 @@ import {
   updateUserRequested,
   deleteUserRequested,
 } from '../redux/admin.slice';
-import { selectAdminUsers, selectAdminLoading } from '../redux/admin.selectors';
+import { selectAdminUsers, selectAdminLoading, selectAdminError } from '../redux/admin.selectors';
+import { useToast } from '@/hooks/useToast';
 import type { User } from '@/types/common';
 import { ROLES } from '@/constants/roles';
 
@@ -22,6 +23,12 @@ export const UsersManagePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAdminUsers);
   const loading = useAppSelector(selectAdminLoading);
+  const adminError = useAppSelector(selectAdminError);
+  const { showError } = useToast();
+
+  useEffect(() => {
+    if (adminError) showError(adminError);
+  }, [adminError, showError]);
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -55,26 +62,29 @@ export const UsersManagePage: React.FC = () => {
 
   const saveUser = () => {
     setSubmitted(true);
-    if (user.firstName?.trim() && user.lastName?.trim() && user.email?.trim()) {
-      if (user.id) {
-        dispatch(
-          updateUserRequested({
-            id: user.id,
-            data: { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role },
-          })
-        );
-      } else {
-        if (user.password) {
-          dispatch(
-            createUserRequested({ ...user, password: user.password } as Partial<User> & {
-              password: string;
-            })
-          );
-        }
-      }
-      setDialog(false);
-      setUser({});
+    const isCreate = !user.id;
+    const valid =
+      !!user.firstName?.trim() &&
+      !!user.lastName?.trim() &&
+      !!user.email?.trim() &&
+      (!isCreate || !!user.password?.trim());
+    if (!valid) return;
+    if (isCreate) {
+      dispatch(
+        createUserRequested({ ...user, role: user.role || ROLES.PATIENT, password: user.password! } as Partial<User> & {
+          password: string;
+        })
+      );
+    } else {
+      dispatch(
+        updateUserRequested({
+          id: user.id!,
+          data: { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role },
+        })
+      );
     }
+    setDialog(false);
+    setUser({});
   };
 
   const editUser = (user: User) => {

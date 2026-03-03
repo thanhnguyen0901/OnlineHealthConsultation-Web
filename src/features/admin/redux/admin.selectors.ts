@@ -8,3 +8,4 @@ export const selectAdminSpecialties = (state: RootState) => state.admin.specialt
 export const selectAdminAppointments = (state: RootState) => state.admin.appointments;
 export const selectAdminModerationItems = (state: RootState) => state.admin.moderationItems;
 export const selectAdminLoading = (state: RootState) => state.admin.loading;
+export const selectAdminError   = (state: RootState) => state.admin.error;

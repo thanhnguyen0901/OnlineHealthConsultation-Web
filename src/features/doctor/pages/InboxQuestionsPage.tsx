@@ -7,8 +7,9 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import { loadQuestionsRequested, answerQuestionRequested } from '../redux/doctor.slice';
-import { selectQuestions, selectDoctorLoading } from '../redux/doctor.selectors';
+import { loadQuestionsRequested, answerQuestionRequested, clearAnswerSubmitted } from '../redux/doctor.slice';
+import { selectQuestions, selectDoctorLoading, selectDoctorError, selectAnswerSubmitted } from '../redux/doctor.selectors';
+import { useToast } from '@/hooks/useToast';
 import type { DoctorQuestion } from '../types';
 
 export const InboxQuestionsPage: React.FC = () => {
@@ -16,6 +17,9 @@ export const InboxQuestionsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const questions = useAppSelector(selectQuestions);
   const loading = useAppSelector(selectDoctorLoading);
+  const doctorError = useAppSelector(selectDoctorError);
+  const answerSubmitted = useAppSelector(selectAnswerSubmitted);
+  const { showError } = useToast();
 
   const [answerDialog, setAnswerDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<DoctorQuestion | null>(null);
@@ -24,6 +28,20 @@ export const InboxQuestionsPage: React.FC = () => {
   useEffect(() => {
     dispatch(loadQuestionsRequested());
   }, [dispatch]);
+
+  // Show BE error as toast
+  useEffect(() => {
+    if (doctorError) showError(doctorError);
+  }, [doctorError, showError]);
+
+  // Close answer dialog when saga confirms success
+  useEffect(() => {
+    if (answerSubmitted) {
+      setAnswerDialog(false);
+      setAnswerText('');
+      dispatch(clearAnswerSubmitted());
+    }
+  }, [answerSubmitted, dispatch]);
 
   const handleOpenAnswer = (question: DoctorQuestion) => {
     setSelectedQuestion(question);
@@ -39,7 +57,7 @@ export const InboxQuestionsPage: React.FC = () => {
           answer: answerText,
         })
       );
-      setAnswerDialog(false);
+      // Dialog will close when answerSubmitted becomes true (set by saga success)
     }
   };
 

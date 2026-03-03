@@ -136,14 +136,25 @@ export const updateAppointmentStatus = async (id: Id, status: string): Promise<A
 };
 
 // Moderation API
+/**
+ * BE returns a composite id "QUESTION_<uuid>" | "ANSWER_<uuid>" | "RATING_<uuid>".
+ * `approve` and `reject` endpoints expect this composite id as-is.
+ */
 export interface ModerationItem {
-  id: Id;
-  type: 'question' | 'answer';
+  /** Composite id e.g. "QUESTION_<uuid>". Pass as-is to approve/reject endpoints. */
+  id: string;
+  type: 'QUESTION' | 'ANSWER' | 'RATING';
+  /** Short preview of the content */
+  contentPreview: string;
   content: string;
+  /** Display name of the author */
+  author: string;
   authorId: Id;
-  authorName: string;
   createdAt: string;
-  status: 'pending' | 'approved' | 'rejected';
+  /** QUESTION: "PENDING"|"ANSWERED"|"MODERATED" | ANSWER: "PENDING"|"APPROVED" | RATING: "VISIBLE"|"HIDDEN" */
+  status: string;
+  /** Bare entity UUID (question/answer/rating id) */
+  entityId: Id;
 }
 
 export const getModerationItems = async (): Promise<ModerationItem[]> => {

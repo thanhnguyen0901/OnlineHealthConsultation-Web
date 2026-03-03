@@ -23,8 +23,6 @@ const profileSchema = Yup.object({
   phone: Yup.string().matches(/^[0-9]{10,11}$/),
   address: Yup.string(),
   medicalHistory: Yup.string(),
-  allergies: Yup.string(),
-  chronicDiseases: Yup.string(),
 });
 
 export const PatientProfilePage: React.FC = () => {
@@ -68,8 +66,6 @@ export const PatientProfilePage: React.FC = () => {
               phone: profile?.phone || '',
               address: profile?.address || '',
               medicalHistory: profile?.medicalHistory || '',
-              allergies: profile?.allergies || '',
-              chronicDiseases: profile?.chronicDiseases || '',
             }}
             validationSchema={profileSchema}
             enableReinitialize
@@ -84,8 +80,6 @@ export const PatientProfilePage: React.FC = () => {
                 phone: values.phone,
                 address: values.address,
                 medicalHistory: values.medicalHistory,
-                allergies: values.allergies,
-                chronicDiseases: values.chronicDiseases,
               };
               dispatch(updateProfileRequested(profileData));
             }}
@@ -151,22 +145,6 @@ export const PatientProfilePage: React.FC = () => {
                     placeholder={t('patient:medicalHistoryPlaceholder')}
                     as="textarea"
                     rows={3}
-                  />
-
-                  <FormikInputText
-                    name="allergies"
-                    label={t('patient:allergies')}
-                    placeholder={t('patient:allergiesPlaceholder')}
-                    as="textarea"
-                    rows={2}
-                  />
-
-                  <FormikInputText
-                    name="chronicDiseases"
-                    label={t('patient:chronicDiseases')}
-                    placeholder={t('patient:chronicDiseasesPlaceholder')}
-                    as="textarea"
-                    rows={2}
                   />
                 </div>
               </section>

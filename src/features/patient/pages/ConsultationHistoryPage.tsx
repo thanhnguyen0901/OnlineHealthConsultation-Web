@@ -11,11 +11,13 @@ import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadHistoryRequested,
   rateConsultationRequested,
+  cancelAppointmentRequested,
 } from '@/features/patient/redux/patient.slice';
 import {
   selectQuestions,
   selectAppointments,
   selectPatientLoading,
+  selectPatientError,
 } from '@/features/patient/redux/patient.selectors';
 import type { Question, Appointment } from '../types';
 import { useToast } from '@/hooks/useToast';
@@ -26,30 +28,36 @@ export const ConsultationHistoryPage: React.FC = () => {
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
   const loading = useAppSelector(selectPatientLoading);
-  const { showSuccess } = useToast();
+  const patientError = useAppSelector(selectPatientError);
+  const { showSuccess, showError } = useToast();
+  // Use a ref to track the ratings array length so we can detect a new entry.
+  const ratingsRef = React.useRef<number | null>(null);
+  const ratings = useAppSelector((s) => s.patient.ratings);
 
   const [ratingDialog, setRatingDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [ratingValue, setRatingValue] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     dispatch(loadHistoryRequested());
   }, [dispatch]);
 
-  // Track rating submission completion
+  // Show any backend error as a toast.
   useEffect(() => {
-    if (isSubmitting && !loading) {
-      // Rating submission completed
-      showSuccess(t('ratingSubmitted') || 'Rating submitted successfully');
+    if (patientError) showError(patientError);
+  }, [patientError, showError]);
+
+  // Close dialog and show success toast when a new rating is added to state.
+  // rateConsultationSucceeded unshifts the new rating, so length grows by 1.
+  useEffect(() => {
+    if (ratingsRef.current !== null && ratings.length > ratingsRef.current) {
       setRatingDialog(false);
-      setIsSubmitting(false);
-      // Reload history to get updated data
-      setTimeout(() => dispatch(loadHistoryRequested()), 500);
+      showSuccess(t('ratingSubmitted') || 'Rating submitted successfully');
     }
-  }, [loading, isSubmitting, showSuccess, dispatch, t]);
+    ratingsRef.current = ratings.length;
+  }, [ratings.length, showSuccess, t]);
 
   const handleOpenAppointmentRating = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
@@ -61,8 +69,6 @@ export const ConsultationHistoryPage: React.FC = () => {
 
   const handleSubmitRating = () => {
     if (ratingValue === 0) return;
-
-    setIsSubmitting(true);
 
     if (selectedAppointment && selectedAppointment.doctorId) {
       // Rating for appointment
@@ -111,9 +117,11 @@ export const ConsultationHistoryPage: React.FC = () => {
       string,
       { severity: 'success' | 'warning' | 'danger' | 'info'; label: string }
     > = {
-      scheduled: { severity: 'info', label: t('scheduled') },
+      // BE /patients/history returns status in lowercase matching AppointmentStatus enum
+      pending:   { severity: 'warning', label: t('pending') },
+      confirmed: { severity: 'info',    label: t('confirmed') },
       completed: { severity: 'success', label: t('completed') },
-      cancelled: { severity: 'danger', label: t('cancelled') },
+      cancelled: { severity: 'danger',  label: t('cancelled') },
     };
 
     const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
@@ -135,6 +143,17 @@ export const ConsultationHistoryPage: React.FC = () => {
           icon="pi pi-star"
           size="sm"
           onClick={() => handleOpenAppointmentRating(rowData)}
+        />
+      );
+    }
+    if (rowData.status === 'pending' || rowData.status === 'confirmed') {
+      return (
+        <Button
+          label={t('cancel')}
+          icon="pi pi-times"
+          size="sm"
+          variant="danger"
+          onClick={() => dispatch(cancelAppointmentRequested(rowData.id))}
         />
       );
     }
@@ -163,6 +182,17 @@ export const ConsultationHistoryPage: React.FC = () => {
                 className="primereact-table"
               >
                 <Column field="question" header={t('question')} sortable />
+                <Column
+                  field="answer"
+                  header={t('answer')}
+                  body={(rowData: Question) =>
+                    rowData.answer ? (
+                      <span className="text-gray-800 dark:text-gray-200">{rowData.answer}</span>
+                    ) : (
+                      <span className="text-gray-400 italic text-sm">—</span>
+                    )
+                  }
+                />
                 <Column
                   field="status"
                   header={t('status')}
