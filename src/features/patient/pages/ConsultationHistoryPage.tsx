@@ -39,6 +39,8 @@ export const ConsultationHistoryPage: React.FC = () => {
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [ratingValue, setRatingValue] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
+  const [detailDialog, setDetailDialog] = useState(false);
+  const [detailAppointment, setDetailAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     dispatch(loadHistoryRequested());
@@ -58,6 +60,11 @@ export const ConsultationHistoryPage: React.FC = () => {
     }
     ratingsRef.current = ratings.length;
   }, [ratings.length, showSuccess, t]);
+
+  const handleOpenDetail = (appointment: Appointment) => {
+    setDetailAppointment(appointment);
+    setDetailDialog(true);
+  };
 
   const handleOpenAppointmentRating = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
@@ -129,15 +136,22 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   const appointmentActionTemplate = (rowData: Appointment) => {
+    const detailBtn = (
+      <Button
+        icon="pi pi-info-circle"
+        size="sm"
+        variant="secondary"
+        onClick={() => handleOpenDetail(rowData)}
+        title={t('viewDetail')}
+      />
+    );
+
     if (rowData.status === 'completed') {
-      if (rowData.hasRating) {
-        return (
-          <span className="text-green-600 dark:text-green-400 text-sm font-medium">
-            {t('rated')}
-          </span>
-        );
-      }
-      return (
+      const actionBtn = rowData.hasRating ? (
+        <span className="text-green-600 dark:text-green-400 text-sm font-medium">
+          {t('rated')}
+        </span>
+      ) : (
         <Button
           label={t('rate')}
           icon="pi pi-star"
@@ -145,19 +159,28 @@ export const ConsultationHistoryPage: React.FC = () => {
           onClick={() => handleOpenAppointmentRating(rowData)}
         />
       );
+      return <div className="flex items-center gap-2">{actionBtn}{detailBtn}</div>;
     }
     if (rowData.status === 'pending' || rowData.status === 'confirmed') {
       return (
-        <Button
-          label={t('cancel')}
-          icon="pi pi-times"
-          size="sm"
-          variant="danger"
-          onClick={() => dispatch(cancelAppointmentRequested(rowData.id))}
-        />
+        <div className="flex items-center gap-2">
+          <Button
+            label={t('cancel')}
+            icon="pi pi-times"
+            size="sm"
+            variant="danger"
+            onClick={() => dispatch(cancelAppointmentRequested(rowData.id))}
+          />
+          {detailBtn}
+        </div>
       );
     }
-    return <span className="text-gray-400 text-sm italic">{t('notAvailable')}</span>;
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-gray-400 text-sm italic">{t('notAvailable')}</span>
+        {detailBtn}
+      </div>
+    );
   };
 
   return (
@@ -233,6 +256,22 @@ export const ConsultationHistoryPage: React.FC = () => {
                   style={{ width: '150px' }}
                 />
                 <Column
+                  field="reason"
+                  header={t('reason')}
+                  body={(rowData: Appointment) =>
+                    rowData.reason ? (
+                      <span
+                        className="text-gray-800 dark:text-gray-200 block max-w-[220px] truncate"
+                        title={rowData.reason}
+                      >
+                        {rowData.reason}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 italic text-sm">—</span>
+                    )
+                  }
+                />
+                <Column
                   field="status"
                   header={t('status')}
                   body={appointmentStatusTemplate}
@@ -242,13 +281,56 @@ export const ConsultationHistoryPage: React.FC = () => {
                 <Column
                   body={appointmentActionTemplate}
                   header={t('actions')}
-                  style={{ width: '180px' }}
+                  style={{ width: '200px' }}
                 />
               </DataTable>
             </div>
           </section>
         </div>
       </div>
+
+      <Dialog
+        header={t('appointmentDetails')}
+        visible={detailDialog}
+        style={{ width: '480px' }}
+        onHide={() => setDetailDialog(false)}
+        modal
+        className="p-dialog-custom"
+      >
+        {detailAppointment && (
+          <div className="p-6 space-y-4">
+            <div className="grid grid-cols-[140px_1fr] gap-y-3 text-sm">
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('doctor')}</span>
+              <span className="text-gray-900 dark:text-gray-100">{detailAppointment.doctorName ?? '—'}</span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('date')}</span>
+              <span className="text-gray-900 dark:text-gray-100">
+                {new Date(detailAppointment.date).toLocaleString()}
+              </span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('status')}</span>
+              <span>{appointmentStatusTemplate(detailAppointment as any)}</span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('reason')}</span>
+              <span className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                {detailAppointment.reason || '—'}
+              </span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('notes')}</span>
+              <span className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                {detailAppointment.notes
+                  ? detailAppointment.notes
+                  : <span className="text-gray-400 italic">{t('noNotes')}</span>}
+              </span>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button variant="secondary" onClick={() => setDetailDialog(false)}>
+                {t('cancel')}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
 
       <Dialog
         header={t('rateConsultation')}
