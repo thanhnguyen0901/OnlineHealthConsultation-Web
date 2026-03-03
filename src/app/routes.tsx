@@ -58,6 +58,16 @@ const DoctorAppointmentsPage = lazy(() =>
     default: m.DoctorAppointmentsPage,
   }))
 );
+const DoctorRatingsPage = lazy(() =>
+  import('@/features/doctor/pages/DoctorRatingsPage').then((m) => ({
+    default: m.DoctorRatingsPage,
+  }))
+);
+const DoctorProfilePage = lazy(() =>
+  import('@/features/doctor/pages/DoctorProfilePage').then((m) => ({
+    default: m.DoctorProfilePage,
+  }))
+);
 const AdminDashboardPage = lazy(() =>
   import('@/features/admin/pages/AdminDashboardPage').then((m) => ({
     default: m.AdminDashboardPage,
@@ -202,6 +212,22 @@ export const RoutesConfig: React.FC = () => {
             element={
               <RoleGuard roles={['DOCTOR']}>
                 <DoctorAppointmentsPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_RATINGS}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <DoctorRatingsPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_PROFILE}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <DoctorProfilePage />
               </RoleGuard>
             }
           />

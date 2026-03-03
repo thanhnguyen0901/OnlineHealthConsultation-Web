@@ -15,6 +15,8 @@ export const ROUTE_PATHS = {
   INBOX_QUESTIONS: '/doctor/inbox',
   DOCTOR_APPOINTMENTS: '/doctor/appointments',
   SCHEDULE: '/doctor/schedule',
+  DOCTOR_RATINGS: '/doctor/ratings',
+  DOCTOR_PROFILE: '/doctor/profile',
 
   // Admin routes
   ADMIN_DASHBOARD: '/admin',

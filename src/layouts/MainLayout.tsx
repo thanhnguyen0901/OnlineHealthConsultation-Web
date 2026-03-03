@@ -88,6 +88,16 @@ export const MainLayout: React.FC = () => {
           icon: 'pi pi-calendar',
           path: ROUTE_PATHS.SCHEDULE,
         },
+        {
+          label: t('doctor:ratings'),
+          icon: 'pi pi-star',
+          path: ROUTE_PATHS.DOCTOR_RATINGS,
+        },
+        {
+          label: t('doctor:myProfile'),
+          icon: 'pi pi-user-edit',
+          path: ROUTE_PATHS.DOCTOR_PROFILE,
+        },
       ];
     }
 

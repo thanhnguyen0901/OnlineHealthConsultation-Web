@@ -14,11 +14,9 @@ import {
 } from '@/features/patient/redux/patient.slice';
 import {
   selectPatientLoading,
-  selectPatientError,
   selectQuestionSubmitted,
   selectSpecialties,
 } from '@/features/patient/redux/patient.selectors';
-import { useToast } from '@/hooks/useToast';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 const questionSchema = Yup.object({
@@ -63,10 +61,8 @@ export const AskQuestionPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const loading = useAppSelector(selectPatientLoading);
-  const patientError = useAppSelector(selectPatientError);
   const questionSubmitted = useAppSelector(selectQuestionSubmitted);
   const specialties = useAppSelector(selectSpecialties);
-  const { showError } = useToast();
 
   // Load specialties for the dropdown on mount
   React.useEffect(() => {
@@ -78,20 +74,15 @@ export const AskQuestionPage: React.FC = () => {
     value: s.id as string,
   }));
 
-  // On success: navigate to history. The success toast is already fired by
-  // patient.saga.ts → handleAskQuestion. Clear the flag so it doesn't fire
-  // again if the user navigates back.
+  // On success: navigate to history.
+  // Success/error toasts are dispatched by patient.saga.ts → no toast here.
+  // Clear the flag so re-visiting this page doesn't re-trigger navigation.
   React.useEffect(() => {
     if (questionSubmitted) {
       dispatch(clearQuestionSubmitted());
       navigate(ROUTE_PATHS.CONSULTATION_HISTORY);
     }
   }, [questionSubmitted, dispatch, navigate]);
-
-  // Show backend error as toast; the form stays open so the user can retry.
-  React.useEffect(() => {
-    if (patientError) showError(patientError);
-  }, [patientError, showError]);
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">

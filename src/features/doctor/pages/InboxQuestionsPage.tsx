@@ -8,8 +8,7 @@ import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loadQuestionsRequested, answerQuestionRequested, clearAnswerSubmitted } from '../redux/doctor.slice';
-import { selectQuestions, selectDoctorLoading, selectDoctorError, selectAnswerSubmitted } from '../redux/doctor.selectors';
-import { useToast } from '@/hooks/useToast';
+import { selectQuestions, selectDoctorLoading, selectAnswerSubmitted } from '../redux/doctor.selectors';
 import type { DoctorQuestion } from '../types';
 
 export const InboxQuestionsPage: React.FC = () => {
@@ -17,9 +16,7 @@ export const InboxQuestionsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const questions = useAppSelector(selectQuestions);
   const loading = useAppSelector(selectDoctorLoading);
-  const doctorError = useAppSelector(selectDoctorError);
   const answerSubmitted = useAppSelector(selectAnswerSubmitted);
-  const { showError } = useToast();
 
   const [answerDialog, setAnswerDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<DoctorQuestion | null>(null);
@@ -28,11 +25,6 @@ export const InboxQuestionsPage: React.FC = () => {
   useEffect(() => {
     dispatch(loadQuestionsRequested());
   }, [dispatch]);
-
-  // Show BE error as toast
-  useEffect(() => {
-    if (doctorError) showError(doctorError);
-  }, [doctorError, showError]);
 
   // Close answer dialog when saga confirms success
   useEffect(() => {
@@ -145,6 +137,18 @@ export const InboxQuestionsPage: React.FC = () => {
               </div>
             </div>
           )}
+
+          {selectedQuestion?.patientMedicalHistory && (
+            <details className="rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 overflow-hidden">
+              <summary className="cursor-pointer px-4 py-2 text-sm font-medium text-amber-800 dark:text-amber-300 select-none hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors">
+                {t('patientMedicalHistory', 'Patient Medical History')}
+              </summary>
+              <div className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap border-t border-amber-200 dark:border-amber-700">
+                {selectedQuestion.patientMedicalHistory}
+              </div>
+            </details>
+          )}
+
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               {t('yourAnswer')}

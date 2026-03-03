@@ -24,6 +24,7 @@ interface RefreshResponse {
   data: {
     accessToken: string;
     refreshToken?: string;
+    user?: BackendUser;
   };
 }
 
@@ -80,16 +81,21 @@ export const me = async (): Promise<AuthResult> => {
 };
 
 export const refresh = async (): Promise<AuthResult> => {
+  // POST /auth/refresh now returns { accessToken, user } in addition to setting
+  // the rotated refreshToken in an httpOnly cookie.
+  // We do NOT make a second GET /auth/me call — that was the source of the
+  // double-refresh race that caused TOKEN_REUSE_DETECTED on page reload.
   const response = await apiClient.post<RefreshResponse>('/auth/refresh', {});
-  // Backend should also return user data or we need to call /auth/me after refresh
-  // For now, we'll call /auth/me to get user data
-  const meResponse = await apiClient.get<{ data: BackendUser }>('/auth/me', {
-    headers: {
-      Authorization: `Bearer ${response.data.data.accessToken}`,
-    },
-  });
-  return {
-    user: normalizeUser(meResponse.data.data),
-    accessToken: response.data.data.accessToken,
-  };
+  const { accessToken, user } = response.data.data;
+
+  if (!user) {
+    // Graceful fallback: if the server somehow omits user data (old BE version),
+    // fetch it explicitly. This path should never be hit with the current BE.
+    const meResponse = await apiClient.get<{ data: BackendUser }>('/auth/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return { user: normalizeUser(meResponse.data.data), accessToken };
+  }
+
+  return { user: normalizeUser(user), accessToken };
 };

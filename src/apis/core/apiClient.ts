@@ -61,10 +61,14 @@ apiClient.interceptors.response.use(
 
     // Handle 401 Unauthorized - attempt token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Skip refresh for auth endpoints to avoid infinite loops
-      if (originalRequest.url?.includes('/auth/login') || 
-          originalRequest.url?.includes('/auth/register') ||
-          originalRequest.url?.includes('/auth/refresh')) {
+      // Skip refresh for auth endpoints (and /auth/me used by the bootstrap
+      // fallback) to avoid infinite retry loops.
+      if (
+        originalRequest.url?.includes('/auth/login') ||
+        originalRequest.url?.includes('/auth/register') ||
+        originalRequest.url?.includes('/auth/refresh') ||
+        originalRequest.url?.includes('/auth/me')
+      ) {
         return Promise.reject(error);
       }
 

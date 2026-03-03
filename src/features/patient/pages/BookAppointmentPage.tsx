@@ -14,9 +14,8 @@ import {
   bookAppointmentRequested,
   clearAppointmentSubmitted,
 } from '../redux/patient.slice';
-import { selectSpecialties, selectDoctors, selectPatientLoading, selectPatientError, selectAppointmentSubmitted } from '../redux/patient.selectors';
+import { selectSpecialties, selectDoctors, selectPatientLoading, selectAppointmentSubmitted } from '../redux/patient.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
-import { useToast } from '@/hooks/useToast';
 
 /** Format a JS Date to "YYYY-MM-DD" using LOCAL calendar date (not UTC). */
 const formatLocalDate = (d: Date): string => {
@@ -70,20 +69,15 @@ export const BookAppointmentPage: React.FC = () => {
   const specialties = useAppSelector(selectSpecialties);
   const doctors = useAppSelector(selectDoctors);
   const loading = useAppSelector(selectPatientLoading);
-  const patientError = useAppSelector(selectPatientError);
   const appointmentSubmitted = useAppSelector(selectAppointmentSubmitted);
-  const { showError } = useToast();
   const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>('');
 
   useEffect(() => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (patientError) showError(patientError);
-  }, [patientError, showError]);
-
-  // Navigate to history page after successful booking
+  // Navigate to history page after successful booking.
+  // Success/error toasts are dispatched by patient.saga.ts → no toast here.
   useEffect(() => {
     if (appointmentSubmitted) {
       dispatch(clearAppointmentSubmitted());

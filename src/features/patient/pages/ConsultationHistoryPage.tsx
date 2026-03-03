@@ -17,10 +17,8 @@ import {
   selectQuestions,
   selectAppointments,
   selectPatientLoading,
-  selectPatientError,
 } from '@/features/patient/redux/patient.selectors';
 import type { Question, Appointment } from '../types';
-import { useToast } from '@/hooks/useToast';
 
 export const ConsultationHistoryPage: React.FC = () => {
   const { t } = useTranslation('patient');
@@ -28,8 +26,6 @@ export const ConsultationHistoryPage: React.FC = () => {
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
   const loading = useAppSelector(selectPatientLoading);
-  const patientError = useAppSelector(selectPatientError);
-  const { showSuccess, showError } = useToast();
   // Use a ref to track the ratings array length so we can detect a new entry.
   const ratingsRef = React.useRef<number | null>(null);
   const ratings = useAppSelector((s) => s.patient.ratings);
@@ -46,20 +42,14 @@ export const ConsultationHistoryPage: React.FC = () => {
     dispatch(loadHistoryRequested());
   }, [dispatch]);
 
-  // Show any backend error as a toast.
-  useEffect(() => {
-    if (patientError) showError(patientError);
-  }, [patientError, showError]);
-
-  // Close dialog and show success toast when a new rating is added to state.
-  // rateConsultationSucceeded unshifts the new rating, so length grows by 1.
+  // Close the rating dialog when a new rating arrives in state.
+  // The saga already dispatches addToast for success/error — no toast here.
   useEffect(() => {
     if (ratingsRef.current !== null && ratings.length > ratingsRef.current) {
       setRatingDialog(false);
-      showSuccess(t('ratingSubmitted') || 'Rating submitted successfully');
     }
     ratingsRef.current = ratings.length;
-  }, [ratings.length, showSuccess, t]);
+  }, [ratings.length]);
 
   const handleOpenDetail = (appointment: Appointment) => {
     setDetailAppointment(appointment);
