@@ -29,7 +29,7 @@ function* handleLogin(action: PayloadAction<{ email: string; password: string }>
   }
 }
 
-function* handleRegister(action: PayloadAction<{ email: string; password: string; firstName: string; lastName: string }>) {
+function* handleRegister(action: PayloadAction<{ email: string; password: string; firstName: string; lastName: string; role: 'PATIENT' | 'DOCTOR' }>) {
   try {
     const result: AuthResult = yield call(authApi.register, action.payload);
     yield put(registerSucceeded(result));

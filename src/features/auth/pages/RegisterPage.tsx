@@ -6,8 +6,16 @@ import { useTranslation } from 'react-i18next';
 import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import { registerRequested } from '@/features/auth/redux/auth.slice';
-import { selectAuthLoading } from '@/features/auth/redux/auth.selectors';
+import {
+  registerRequested,
+  clearRegisterCompleted,
+} from '@/features/auth/redux/auth.slice';
+import {
+  selectAuthLoading,
+  selectAuthError,
+  selectRegisterCompleted,
+} from '@/features/auth/redux/auth.selectors';
+import { useToast } from '@/hooks/useToast';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 const registerSchema = Yup.object({
@@ -22,6 +30,23 @@ export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const loading = useAppSelector(selectAuthLoading);
+  const authError = useAppSelector(selectAuthError);
+  const registerCompleted = useAppSelector(selectRegisterCompleted);
+  const { showError } = useToast();
+
+  // On successful registration: clear the flag and redirect to login.
+  // The success toast is already dispatched by auth.saga.ts → handleRegister.
+  React.useEffect(() => {
+    if (registerCompleted) {
+      dispatch(clearRegisterCompleted());
+      navigate(ROUTE_PATHS.LOGIN);
+    }
+  }, [registerCompleted, dispatch, navigate]);
+
+  // Show server-side error as a toast so the user can read and retry.
+  React.useEffect(() => {
+    if (authError) showError(authError);
+  }, [authError, showError]);
 
   return (
     <div>
@@ -33,8 +58,10 @@ export const RegisterPage: React.FC = () => {
         initialValues={{ firstName: '', lastName: '', email: '', password: '' }}
         validationSchema={registerSchema}
         onSubmit={(values) => {
-          dispatch(registerRequested(values));
-          navigate(ROUTE_PATHS.LOGIN);
+          // role is fixed to 'PATIENT' for the public registration form.
+          // Admin can create DOCTOR accounts through the admin panel.
+          dispatch(registerRequested({ ...values, role: 'PATIENT' }));
+          // Do NOT navigate here — wait for registerCompleted flag (see useEffect above).
         }}
       >
         <Form className="space-y-4">
@@ -55,7 +82,7 @@ export const RegisterPage: React.FC = () => {
             placeholder="••••••••"
           />
           <div className="pt-2">
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button type="submit" className="w-full" loading={loading} disabled={loading}>
               {t('common:register')}
             </Button>
           </div>

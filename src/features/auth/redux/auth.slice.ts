@@ -29,21 +29,33 @@ const authSlice = createSlice({
     },
     registerRequested: (
       state,
-      _action: PayloadAction<{ email: string; password: string; firstName: string; lastName: string }>
+      _action: PayloadAction<{
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+        role: 'PATIENT' | 'DOCTOR';
+      }>
     ) => {
       state.loading = true;
       state.error = null;
+      state.registerCompleted = false;
     },
-    registerSucceeded: (state, action: PayloadAction<AuthSuccessPayload>) => {
+    registerSucceeded: (state, _action: PayloadAction<AuthSuccessPayload>) => {
+      // Intentionally do NOT set user/accessToken/isAuthenticated here.
+      // After registering, the user is redirected to /login and must log in
+      // explicitly — this prevents the HomeRedirect from skipping /login.
       state.loading = false;
-      state.user = action.payload.user;
-      state.accessToken = action.payload.accessToken;
-      state.isAuthenticated = true;
+      state.registerCompleted = true;
       state.error = null;
     },
     registerFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
+      state.registerCompleted = false;
+    },
+    clearRegisterCompleted: (state) => {
+      state.registerCompleted = false;
     },
     logoutRequested: (state) => {
       state.loading = true;
@@ -85,6 +97,7 @@ export const {
   registerRequested,
   registerSucceeded,
   registerFailed,
+  clearRegisterCompleted,
   logoutRequested,
   logoutSucceeded,
   meRequested,

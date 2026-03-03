@@ -7,6 +7,8 @@ export interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
   isBootstrapping: boolean;
+  /** Set to true when registration API call succeeds; cleared by clearRegisterCompleted. */
+  registerCompleted: boolean;
 }
 
 export const initialAuthState: AuthState = {
@@ -16,4 +18,5 @@ export const initialAuthState: AuthState = {
   error: null,
   isAuthenticated: false,
   isBootstrapping: true,
+  registerCompleted: false,
 };
