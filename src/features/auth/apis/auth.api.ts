@@ -73,6 +73,24 @@ export const me = async (): Promise<AuthResult> => {
   };
 };
 
+/**
+ * Bootstrap helper: call GET /auth/me with an explicitly provided access token.
+ *
+ * Used during app init when a valid token was found in sessionStorage — avoids
+ * an unnecessary POST /auth/refresh call.  The Authorization header is passed
+ * directly so the apiClient interceptor (which reads from the Redux store, which
+ * is still empty at this point) does not need to have the token pre-loaded.
+ */
+export const meWithToken = async (accessToken: string): Promise<AuthResult> => {
+  const response = await apiClient.get<{ data: BackendUser }>('/auth/me', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  return {
+    user: normalizeUser(response.data.data),
+    accessToken, // carry the same token forward into Redux
+  };
+};
+
 export const refresh = async (): Promise<AuthResult> => {
   // Delegate to the shared single-flight refresh manager.
   // If the Axios 401 interceptor is already running a refresh at this moment,

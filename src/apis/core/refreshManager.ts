@@ -24,6 +24,7 @@ import axios from 'axios';
 import { API_CONFIG } from '@/config/api.config';
 import { store } from '@/state/store';
 import { setAccessToken } from '@/features/auth/redux/auth.slice';
+import { saveAuthToStorage } from '@/utils/authStorage';
 import type { User } from '@/types/common';
 
 // ---------------------------------------------------------------------------
@@ -139,7 +140,11 @@ async function executeRefresh(): Promise<AuthPayload> {
   // Axios request interceptor attaches it to any retried requests.
   store.dispatch(setAccessToken(accessToken));
 
-  debugLog('refresh succeeded, new accessToken dispatched to store');
+  // Keep sessionStorage in sync so the *next* reload can use this fresh token
+  // directly instead of triggering another POST /api/auth/refresh.
+  saveAuthToStorage(accessToken);
+
+  debugLog('refresh succeeded, new accessToken dispatched to store and saved to sessionStorage');
 
   return { accessToken, user: normalizeUser(user) };
 }
