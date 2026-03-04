@@ -76,6 +76,9 @@ const AdminDashboardPage = lazy(() =>
 const UsersManagePage = lazy(() =>
   import('@/features/admin/pages/UsersManagePage').then((m) => ({ default: m.UsersManagePage }))
 );
+const PatientsManagePage = lazy(() =>
+  import('@/features/admin/pages/PatientsManagePage').then((m) => ({ default: m.PatientsManagePage }))
+);
 const DoctorsManagePage = lazy(() =>
   import('@/features/admin/pages/DoctorsManagePage').then((m) => ({ default: m.DoctorsManagePage }))
 );
@@ -246,6 +249,14 @@ export const RoutesConfig: React.FC = () => {
             element={
               <RoleGuard roles={['ADMIN']}>
                 <UsersManagePage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.MANAGE_PATIENTS}
+            element={
+              <RoleGuard roles={['ADMIN']}>
+                <PatientsManagePage />
               </RoleGuard>
             }
           />

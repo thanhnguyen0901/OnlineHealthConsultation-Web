@@ -19,9 +19,8 @@ import {
   selectAdminDoctors,
   selectAdminSpecialties,
   selectAdminLoading,
-  selectAdminError,
+  selectAdminDoctorsPagination,
 } from '../redux/admin.selectors';
-import { useToast } from '@/hooks/useToast';
 import type { Doctor } from '../types';
 
 export const DoctorsManagePage: React.FC = () => {
@@ -30,34 +29,24 @@ export const DoctorsManagePage: React.FC = () => {
   const doctors = useAppSelector(selectAdminDoctors);
   const specialties = useAppSelector(selectAdminSpecialties);
   const loading = useAppSelector(selectAdminLoading);
-  const adminError = useAppSelector(selectAdminError);
-  const { showError, showSuccess } = useToast();
+  const doctorsPagination = useAppSelector(selectAdminDoctorsPagination);
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [doctor, setDoctor] = useState<Partial<Doctor> & { password?: string }>({});
   const [submitted, setSubmitted] = useState(false);
-  // Track previous doctor count to detect a successful create (list grew).
-  const [prevCount, setPrevCount] = useState<number | null>(null);
+  const [first, setFirst] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [revision, setRevision] = useState(0);
 
   useEffect(() => {
-    dispatch(loadDoctorsRequested());
+    const page = Math.floor(first / pageSize) + 1;
+    dispatch(loadDoctorsRequested({ page, limit: pageSize }));
+  }, [dispatch, first, pageSize, revision]);
+
+  useEffect(() => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
-
-  // Show backend error messages as toast notifications.
-  useEffect(() => {
-    if (adminError) showError(adminError);
-  }, [adminError, showError]);
-
-  // Detect successful create: doctor list grew after a save attempt.
-  useEffect(() => {
-    if (prevCount !== null && doctors.length > prevCount) {
-      showSuccess(t('doctorSavedSuccess', { defaultValue: 'Doctor saved successfully' }));
-    }
-    setPrevCount(doctors.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [doctors.length]);
 
   const specialtyOptions = specialties.map((s) => ({
     label: i18n.language === 'vi' ? s.nameVi : s.nameEn,
@@ -100,6 +89,8 @@ export const DoctorsManagePage: React.FC = () => {
           password: doctor.password!,
         } as Partial<Doctor> & { password: string })
       );
+      setFirst(0);
+      setRevision((r) => r + 1);
     } else {
       dispatch(
         updateDoctorRequested({
@@ -134,6 +125,7 @@ export const DoctorsManagePage: React.FC = () => {
     }
     setDeleteDialog(false);
     setDoctor({});
+    setRevision((r) => r + 1);
   };
 
   const actionBodyTemplate = (rowData: Doctor) => {
@@ -184,8 +176,13 @@ export const DoctorsManagePage: React.FC = () => {
           </div>
           <DataTable
             value={doctors}
+            lazy
             paginator
-            rows={10}
+            rows={pageSize}
+            rowsPerPageOptions={[10, 20, 50]}
+            first={first}
+            totalRecords={doctorsPagination?.total ?? 0}
+            onPage={(e: any) => { setFirst(e.first); setPageSize(e.rows); }}
             loading={loading}
             emptyMessage={t('noDoctors')}
             className="primereact-table"

@@ -21,6 +21,7 @@ export const ROUTE_PATHS = {
   // Admin routes
   ADMIN_DASHBOARD: '/admin',
   MANAGE_USERS: '/admin/users',
+  MANAGE_PATIENTS: '/admin/patients',
   MANAGE_DOCTORS: '/admin/doctors',
   MANAGE_SPECIALTIES: '/admin/specialties',
   MANAGE_APPOINTMENTS: '/admin/appointments',

@@ -13,8 +13,7 @@ import {
   updateUserRequested,
   deleteUserRequested,
 } from '../redux/admin.slice';
-import { selectAdminUsers, selectAdminLoading, selectAdminError } from '../redux/admin.selectors';
-import { useToast } from '@/hooks/useToast';
+import { selectAdminUsers, selectAdminLoading, selectAdminUsersPagination } from '../redux/admin.selectors';
 import type { User } from '@/types/common';
 import { ROLES } from '@/constants/roles';
 
@@ -23,12 +22,11 @@ export const UsersManagePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAdminUsers);
   const loading = useAppSelector(selectAdminLoading);
-  const adminError = useAppSelector(selectAdminError);
-  const { showError } = useToast();
+  const usersPagination = useAppSelector(selectAdminUsersPagination);
 
-  useEffect(() => {
-    if (adminError) showError(adminError);
-  }, [adminError, showError]);
+  const [first, setFirst] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [revision, setRevision] = useState(0);
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -42,8 +40,9 @@ export const UsersManagePage: React.FC = () => {
   ];
 
   useEffect(() => {
-    dispatch(loadUsersRequested());
-  }, [dispatch]);
+    const page = Math.floor(first / pageSize) + 1;
+    dispatch(loadUsersRequested({ page, limit: pageSize }));
+  }, [dispatch, first, pageSize, revision]);
 
   const openNew = () => {
     setUser({});
@@ -75,6 +74,8 @@ export const UsersManagePage: React.FC = () => {
           password: string;
         })
       );
+      setFirst(0);
+      setRevision((r) => r + 1);
     } else {
       dispatch(
         updateUserRequested({
@@ -103,6 +104,7 @@ export const UsersManagePage: React.FC = () => {
     }
     setDeleteDialog(false);
     setUser({});
+    setRevision((r) => r + 1);
   };
 
   const actionBodyTemplate = (rowData: User) => {
@@ -153,8 +155,13 @@ export const UsersManagePage: React.FC = () => {
           </div>
           <DataTable
             value={users}
+            lazy
             paginator
-            rows={10}
+            rows={pageSize}
+            rowsPerPageOptions={[10, 20, 50]}
+            first={first}
+            totalRecords={usersPagination?.total ?? 0}
+            onPage={(e: any) => { setFirst(e.first); setPageSize(e.rows); }}
             loading={loading}
             emptyMessage={t('noUsers')}
             className="primereact-table"

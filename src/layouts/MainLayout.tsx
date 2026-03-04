@@ -110,6 +110,11 @@ export const MainLayout: React.FC = () => {
           path: ROUTE_PATHS.MANAGE_USERS,
         },
         {
+          label: t('admin:managePatients'),
+          icon: 'pi pi-user',
+          path: ROUTE_PATHS.MANAGE_PATIENTS,
+        },
+        {
           label: t('admin:manageDoctors'),
           icon: 'pi pi-user-plus',
           path: ROUTE_PATHS.MANAGE_DOCTORS,

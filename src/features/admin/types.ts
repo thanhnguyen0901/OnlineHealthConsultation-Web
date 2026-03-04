@@ -1,5 +1,15 @@
 import type { Id, User } from '@/types/common';
 
+export interface Patient extends User {
+  profileId: Id;  // PatientProfile.id
+  isActive: boolean;
+  phone?: string | null;
+  gender?: string | null;
+  dateOfBirth?: string | null;
+  address?: string | null;
+  role: 'PATIENT';
+}
+
 export interface Doctor extends User {
   specialtyId: Id;
   specialtyName: string;
@@ -8,8 +18,6 @@ export interface Doctor extends User {
 
 export interface Specialty {
   id: Id;
-  /** @deprecated Not returned by BE — use nameEn or nameVi instead */
-  name?: string;
   nameEn: string;
   nameVi: string;
   description?: string;

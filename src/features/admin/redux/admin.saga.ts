@@ -10,6 +10,15 @@ import {
   loadDoctorsRequested,
   loadDoctorsSucceeded,
   loadDoctorsFailed,
+  loadPatientsRequested,
+  loadPatientsSucceeded,
+  loadPatientsFailed,
+  updatePatientRequested,
+  updatePatientSucceeded,
+  updatePatientFailed,
+  deletePatientRequested,
+  deletePatientSucceeded,
+  deletePatientFailed,
   loadSpecialtiesRequested,
   loadSpecialtiesSucceeded,
   loadSpecialtiesFailed,
@@ -58,7 +67,7 @@ import {
 } from './admin.slice';
 import * as adminApi from '../apis/admin.api';
 import type { User } from '@/types/common';
-import type { Doctor, Specialty, AdminStats } from '../types';
+import type { Doctor, Patient, Specialty, AdminStats } from '../types';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
 
@@ -67,25 +76,67 @@ function* handleLoadStats() {
     const stats: AdminStats = yield call(adminApi.getStats);
     yield put(loadStatsSucceeded(stats));
   } catch (error) {
-    yield put(loadStatsFailed(extractErrorMessage(error)));
+    const msg = extractErrorMessage(error);
+    yield put(loadStatsFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
-function* handleLoadUsers() {
+function* handleLoadUsers(action: PayloadAction<any>) {
   try {
-    const users: User[] = yield call(adminApi.getUsers);
-    yield put(loadUsersSucceeded(users));
+    const result: { data: User[]; pagination: any } = yield call(adminApi.getUsers, action.payload);
+    yield put(loadUsersSucceeded({ users: result.data, pagination: result.pagination }));
   } catch (error) {
-    yield put(loadUsersFailed(extractErrorMessage(error)));
+    const msg = extractErrorMessage(error);
+    yield put(loadUsersFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
-function* handleLoadDoctors() {
+function* handleLoadDoctors(action: PayloadAction<any>) {
   try {
-    const doctors: Doctor[] = yield call(adminApi.getDoctors);
-    yield put(loadDoctorsSucceeded(doctors));
+    const result: { data: Doctor[]; pagination: any } = yield call(adminApi.getDoctors, action.payload);
+    yield put(loadDoctorsSucceeded({ doctors: result.data, pagination: result.pagination }));
   } catch (error) {
-    yield put(loadDoctorsFailed(extractErrorMessage(error)));
+    const msg = extractErrorMessage(error);
+    yield put(loadDoctorsFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+  }
+}
+
+// Patient Sagas
+function* handleLoadPatients(action: PayloadAction<any>) {
+  try {
+    const result: { data: Patient[]; pagination: any } = yield call(adminApi.getPatients, action.payload);
+    yield put(loadPatientsSucceeded({ patients: result.data, pagination: result.pagination }));
+  } catch (error) {
+    const msg = extractErrorMessage(error);
+    yield put(loadPatientsFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+  }
+}
+
+function* handleUpdatePatient(action: PayloadAction<{ id: string; data: Partial<Patient> }>) {
+  try {
+    const patient: Patient = yield call(adminApi.updatePatient, action.payload.id, action.payload.data);
+    yield put(updatePatientSucceeded(patient));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Patient updated successfully' }));
+  } catch (error) {
+    const msg = extractErrorMessage(error);
+    yield put(updatePatientFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+  }
+}
+
+function* handleDeletePatient(action: PayloadAction<string>) {
+  try {
+    yield call(adminApi.deletePatient, action.payload);
+    yield put(deletePatientSucceeded(action.payload));
+    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Patient deactivated successfully' }));
+  } catch (error) {
+    const msg = extractErrorMessage(error);
+    yield put(deletePatientFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -94,7 +145,9 @@ function* handleLoadSpecialties() {
     const specialties: Specialty[] = yield call(adminApi.getSpecialties);
     yield put(loadSpecialtiesSucceeded(specialties));
   } catch (error) {
-    yield put(loadSpecialtiesFailed(extractErrorMessage(error)));
+    const msg = extractErrorMessage(error);
+    yield put(loadSpecialtiesFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -218,12 +271,14 @@ function* handleDeleteSpecialty(action: PayloadAction<string>) {
 }
 
 // Appointments Sagas
-function* handleLoadAppointments(action: PayloadAction<{ status?: string; startDate?: string; endDate?: string } | undefined>) {
+function* handleLoadAppointments(action: PayloadAction<any>) {
   try {
-    const appointments: any[] = yield call(adminApi.getAppointments, action.payload);
-    yield put(loadAppointmentsSucceeded(appointments));
+    const result: { data: any[]; pagination: any } = yield call(adminApi.getAppointments, action.payload);
+    yield put(loadAppointmentsSucceeded({ appointments: result.data, pagination: result.pagination }));
   } catch (error) {
-    yield put(loadAppointmentsFailed(extractErrorMessage(error)));
+    const msg = extractErrorMessage(error);
+    yield put(loadAppointmentsFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -251,7 +306,9 @@ function* handleLoadModerationItems() {
     const items: any[] = yield call(adminApi.getModerationItems);
     yield put(loadModerationItemsSucceeded(items));
   } catch (error) {
-    yield put(loadModerationItemsFailed(extractErrorMessage(error)));
+    const msg = extractErrorMessage(error);
+    yield put(loadModerationItemsFailed(msg));
+    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
   }
 }
 
@@ -285,6 +342,9 @@ export function* adminSaga() {
   yield takeLatest(loadStatsRequested.type, handleLoadStats);
   yield takeLatest(loadUsersRequested.type, handleLoadUsers);
   yield takeLatest(loadDoctorsRequested.type, handleLoadDoctors);
+  yield takeLatest(loadPatientsRequested.type, handleLoadPatients);
+  yield takeLatest(updatePatientRequested.type, handleUpdatePatient);
+  yield takeLatest(deletePatientRequested.type, handleDeletePatient);
   yield takeLatest(loadSpecialtiesRequested.type, handleLoadSpecialties);
   yield takeLatest(createUserRequested.type, handleCreateUser);
   yield takeLatest(updateUserRequested.type, handleUpdateUser);

@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialAdminState } from './admin.state';
 import type { User, Id } from '@/types/common';
-import type { Doctor, Specialty, AdminStats } from '../types';
+import type { Doctor, Patient, Specialty, AdminStats } from '../types';
+import type { PaginationMeta, UserListParams, DoctorListParams, PatientListParams, AppointmentFilters } from '../apis/admin.api';
 
 const adminSlice = createSlice({
   name: 'admin',
@@ -18,25 +19,63 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    loadUsersRequested: (state) => {
+    loadUsersRequested: (state, _action: PayloadAction<UserListParams | undefined>) => {
       state.loading = true;
     },
-    loadUsersSucceeded: (state, action: PayloadAction<User[]>) => {
+    loadUsersSucceeded: (state, action: PayloadAction<{ users: User[]; pagination: PaginationMeta }>) => {
       state.loading = false;
-      state.users = action.payload;
+      state.users = action.payload.users;
+      state.usersPagination = action.payload.pagination;
     },
     loadUsersFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
-    loadDoctorsRequested: (state) => {
+    loadDoctorsRequested: (state, _action: PayloadAction<DoctorListParams | undefined>) => {
       state.loading = true;
     },
-    loadDoctorsSucceeded: (state, action: PayloadAction<Doctor[]>) => {
+    loadDoctorsSucceeded: (state, action: PayloadAction<{ doctors: Doctor[]; pagination: PaginationMeta }>) => {
       state.loading = false;
-      state.doctors = action.payload;
+      state.doctors = action.payload.doctors;
+      state.doctorsPagination = action.payload.pagination;
     },
     loadDoctorsFailed: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    // Patients
+    loadPatientsRequested: (state, _action: PayloadAction<PatientListParams | undefined>) => {
+      state.loading = true;
+    },
+    loadPatientsSucceeded: (state, action: PayloadAction<{ patients: Patient[]; pagination: PaginationMeta }>) => {
+      state.loading = false;
+      state.patients = action.payload.patients;
+      state.patientsPagination = action.payload.pagination;
+    },
+    loadPatientsFailed: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    updatePatientRequested: (state, _action: PayloadAction<{ id: string; data: Partial<Patient> }>) => {
+      state.loading = true;
+    },
+    updatePatientSucceeded: (state, action: PayloadAction<Patient>) => {
+      state.loading = false;
+      const index = state.patients.findIndex((p) => p.id === action.payload.id);
+      if (index !== -1) state.patients[index] = action.payload;
+    },
+    updatePatientFailed: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    deletePatientRequested: (state, _action: PayloadAction<string>) => {
+      state.loading = true;
+    },
+    deletePatientSucceeded: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.patients = state.patients.filter((p) => p.id !== action.payload);
+    },
+    deletePatientFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
@@ -55,9 +94,9 @@ const adminSlice = createSlice({
     createUserRequested: (state, _action: PayloadAction<Partial<User> & { password: string }>) => {
       state.loading = true;
     },
-    createUserSucceeded: (state, action: PayloadAction<User>) => {
+    createUserSucceeded: (state, _action: PayloadAction<User>) => {
+      // Component bumps `revision` on create, triggering a server refetch.
       state.loading = false;
-      state.users.push(action.payload);
     },
     createUserFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -93,9 +132,9 @@ const adminSlice = createSlice({
     ) => {
       state.loading = true;
     },
-    createDoctorSucceeded: (state, action: PayloadAction<Doctor>) => {
+    createDoctorSucceeded: (state, _action: PayloadAction<Doctor>) => {
+      // Component bumps `revision` on create, triggering a server refetch.
       state.loading = false;
-      state.doctors.push(action.payload);
     },
     createDoctorFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -167,13 +206,14 @@ const adminSlice = createSlice({
     },
 
     // Appointments
-    loadAppointmentsRequested: (state, _action: PayloadAction<{ status?: string; startDate?: string; endDate?: string } | undefined>) => {
+    loadAppointmentsRequested: (state, _action: PayloadAction<AppointmentFilters | undefined>) => {
       state.loading = true;
       state.error = null;
     },
-    loadAppointmentsSucceeded: (state, action: PayloadAction<any[]>) => {
+    loadAppointmentsSucceeded: (state, action: PayloadAction<{ appointments: any[]; pagination: PaginationMeta }>) => {
       state.loading = false;
-      state.appointments = action.payload;
+      state.appointments = action.payload.appointments;
+      state.appointmentsPagination = action.payload.pagination;
     },
     loadAppointmentsFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -262,6 +302,15 @@ export const {
   loadDoctorsRequested,
   loadDoctorsSucceeded,
   loadDoctorsFailed,
+  loadPatientsRequested,
+  loadPatientsSucceeded,
+  loadPatientsFailed,
+  updatePatientRequested,
+  updatePatientSucceeded,
+  updatePatientFailed,
+  deletePatientRequested,
+  deletePatientSucceeded,
+  deletePatientFailed,
   loadSpecialtiesRequested,
   loadSpecialtiesSucceeded,
   loadSpecialtiesFailed,
