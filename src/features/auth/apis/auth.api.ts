@@ -1,4 +1,5 @@
 import apiClient from '@/apis/core/apiClient';
+import { performRefresh } from '@/apis/core/refreshManager';
 import type { User } from '@/types/common';
 
 interface BackendUser {
@@ -17,14 +18,6 @@ interface AuthResponse {
     accessToken: string;
     refreshToken: string;
     user: BackendUser;
-  };
-}
-
-interface RefreshResponse {
-  data: {
-    accessToken: string;
-    refreshToken?: string;
-    user?: BackendUser;
   };
 }
 
@@ -81,21 +74,9 @@ export const me = async (): Promise<AuthResult> => {
 };
 
 export const refresh = async (): Promise<AuthResult> => {
-  // POST /auth/refresh now returns { accessToken, user } in addition to setting
-  // the rotated refreshToken in an httpOnly cookie.
-  // We do NOT make a second GET /auth/me call — that was the source of the
-  // double-refresh race that caused TOKEN_REUSE_DETECTED on page reload.
-  const response = await apiClient.post<RefreshResponse>('/auth/refresh', {});
-  const { accessToken, user } = response.data.data;
-
-  if (!user) {
-    // Graceful fallback: if the server somehow omits user data (old BE version),
-    // fetch it explicitly. This path should never be hit with the current BE.
-    const meResponse = await apiClient.get<{ data: BackendUser }>('/auth/me', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return { user: normalizeUser(meResponse.data.data), accessToken };
-  }
-
-  return { user: normalizeUser(user), accessToken };
+  // Delegate to the shared single-flight refresh manager.
+  // If the Axios 401 interceptor is already running a refresh at this moment,
+  // performRefresh() returns the same in-flight Promise — no duplicate request.
+  const { accessToken, user } = await performRefresh();
+  return { accessToken, user };
 };

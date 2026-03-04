@@ -15,6 +15,7 @@ import {
 } from './auth.slice';
 import * as authApi from '../apis/auth.api';
 import type { AuthResult } from '../apis/auth.api';
+import { resetRefreshState } from '@/apis/core/refreshManager';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
 
@@ -45,8 +46,11 @@ function* handleLogout() {
   try {
     yield call(authApi.logout);
   } catch (error) {
-    // Ignore logout API errors - always clear local state
+    // Ignore logout API errors — always clear local auth state regardless.
   } finally {
+    // Reset the single-flight refresh lock so any stale in-flight promise
+    // from before logout cannot be accidentally reused after re-login.
+    resetRefreshState();
     yield put(logoutSucceeded());
   }
 }

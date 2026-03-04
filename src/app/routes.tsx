@@ -103,7 +103,16 @@ const NotFoundPage = lazy(() =>
 );
 
 const HomeRedirect: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isBootstrapping } = useAuth();
+
+  // Wait for auth bootstrap before deciding what to render
+  if (isBootstrapping) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   // If not logged in, show HomePage
   if (!user) return <HomePage />;

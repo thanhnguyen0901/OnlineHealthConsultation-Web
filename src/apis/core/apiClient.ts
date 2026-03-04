@@ -1,10 +1,11 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { HttpError } from './httpError';
+import { performRefresh } from './refreshManager';
 import { API_CONFIG } from '@/config/api.config';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 import { store } from '@/state/store';
 import { selectAccessToken } from '@/features/auth/redux/auth.selectors';
-import { setAccessToken, logoutSucceeded } from '@/features/auth/redux/auth.slice';
+import { logoutSucceeded } from '@/features/auth/redux/auth.slice';
 
 const apiClient = axios.create({
   baseURL: (import.meta.env.VITE_API_BASE_URL || API_CONFIG.BASE_URL) + '/api',
@@ -15,22 +16,9 @@ const apiClient = axios.create({
   },
 });
 
-let isRefreshing = false;
-let refreshQueue: Array<{
-  resolve: (value: unknown) => void;
-  reject: (reason?: unknown) => void;
-}> = [];
-
-const processQueue = (error: Error | null, token: string | null = null) => {
-  refreshQueue.forEach((promise) => {
-    if (error) {
-      promise.reject(error);
-    } else {
-      promise.resolve(token);
-    }
-  });
-  refreshQueue = [];
-};
+// The single-flight refresh lock (formerly isRefreshing / refreshQueue /
+// processQueue) lives in refreshManager.ts so the Axios interceptor and the
+// Redux-Saga bootstrap path share the same mutual-exclusion primitive.
 
 // Request interceptor
 apiClient.interceptors.request.use(
@@ -72,51 +60,21 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // If already refreshing, queue the request
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          refreshQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            // Retry original request with new token from store
-            return apiClient(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
-        // Attempt to refresh access token using HttpOnly cookie
-        const refreshResponse = await apiClient.post<{
-          success: boolean;
-          data: { accessToken: string; refreshToken?: string };
-        }>('/auth/refresh', {});
-
-        const newAccessToken = refreshResponse.data.data.accessToken;
-        
-        // Update Redux store with new access token
-        store.dispatch(setAccessToken(newAccessToken));
-
-        // Process queued requests
-        processQueue(null, newAccessToken);
-
-        // Retry the original request with new token
+        // performRefresh() is single-flight: if the saga bootstrap has already
+        // started a refresh, this call joins that in-flight Promise and no
+        // additional POST /auth/refresh request is issued.
+        // On success, the manager dispatches setAccessToken to the Redux store
+        // so the request interceptor attaches the new token to the retry.
+        await performRefresh();
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed - logout user
-        processQueue(refreshError as Error, null);
-        
-        // Clear auth state and redirect to login
+        // Refresh failed — clear local auth state and send the user to login.
         store.dispatch(logoutSucceeded());
         window.location.href = ROUTE_PATHS.LOGIN;
-        
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
 
