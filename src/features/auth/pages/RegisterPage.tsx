@@ -34,8 +34,6 @@ export const RegisterPage: React.FC = () => {
   const registerCompleted = useAppSelector(selectRegisterCompleted);
   const { showError } = useToast();
 
-  // On successful registration: clear the flag and redirect to login.
-  // The success toast is already dispatched by auth.saga.ts → handleRegister.
   React.useEffect(() => {
     if (registerCompleted) {
       dispatch(clearRegisterCompleted());
@@ -43,7 +41,6 @@ export const RegisterPage: React.FC = () => {
     }
   }, [registerCompleted, dispatch, navigate]);
 
-  // Show server-side error as a toast so the user can read and retry.
   React.useEffect(() => {
     if (authError) showError(authError);
   }, [authError, showError]);
@@ -58,8 +55,7 @@ export const RegisterPage: React.FC = () => {
         initialValues={{ firstName: '', lastName: '', email: '', password: '' }}
         validationSchema={registerSchema}
         onSubmit={(values) => {
-          // role is fixed to 'PATIENT' for the public registration form.
-          // Admin can create DOCTOR accounts through the admin panel.
+          // role is fixed to 'PATIENT'; admin creates DOCTOR accounts via the admin panel.
           dispatch(registerRequested({ ...values, role: 'PATIENT' }));
           // Do NOT navigate here — wait for registerCompleted flag (see useEffect above).
         }}

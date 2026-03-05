@@ -55,9 +55,8 @@ export const AppointmentsManagePage: React.FC = () => {
   // All filtering is now API-driven; no client-side filtering needed
   const filteredAppointments = appointments;
 
-  // Stage the change for confirmation instead of dispatching immediately
   const handleStatusChange = (rowData: any, newStatus: string) => {
-    if (newStatus === rowData.status) return; // no-op if same value selected
+    if (newStatus === rowData.status) return;
     setPendingChange({
       appointmentId: rowData.id,
       patientName: rowData.patientName ?? rowData.id,
@@ -181,7 +180,6 @@ export const AppointmentsManagePage: React.FC = () => {
           </DataTable>
         </div>
 
-        {/* Status change confirmation dialog */}
         <Dialog
           visible={pendingChange !== null}
           style={{ width: '32rem' }}

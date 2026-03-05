@@ -43,7 +43,6 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    // Patients
     loadPatientsRequested: (state, _action: PayloadAction<PatientListParams | undefined>) => {
       state.loading = true;
     },
@@ -90,7 +89,6 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    // User CRUD
     createUserRequested: (state, _action: PayloadAction<Partial<User> & { password: string }>) => {
       state.loading = true;
     },
@@ -125,7 +123,6 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    // Doctor CRUD
     createDoctorRequested: (
       state,
       _action: PayloadAction<Partial<Doctor> & { password: string }>
@@ -166,7 +163,6 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    // Specialty CRUD
     createSpecialtyRequested: (state, _action: PayloadAction<Partial<Specialty>>) => {
       state.loading = true;
     },
@@ -205,7 +201,6 @@ const adminSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Appointments
     loadAppointmentsRequested: (state, _action: PayloadAction<AppointmentFilters | undefined>) => {
       state.loading = true;
       state.error = null;
@@ -238,7 +233,6 @@ const adminSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Moderation
     loadModerationItemsRequested: (state) => {
       state.loading = true;
       state.error = null;
@@ -257,9 +251,7 @@ const adminSlice = createSlice({
     },
     approveModerationSucceeded: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      // approveModeration API returns void — action.payload is undefined.
-      // The saga already dispatches loadModerationItemsRequested() which will
-      // replace the full list.  Guard here so we don't corrupt the array.
+      // approve/reject API returns void; saga re-fetches via loadModerationItemsRequested; guard payload to avoid corrupting the array.
       if (action.payload != null) {
         const index = state.moderationItems.findIndex((item) => item.id === action.payload.id);
         if (index !== -1) {
@@ -277,7 +269,7 @@ const adminSlice = createSlice({
     },
     rejectModerationSucceeded: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      // rejectModeration API returns void — guard same as approve.
+      // reject API returns void; guard same as approve.
       if (action.payload != null) {
         const index = state.moderationItems.findIndex((item) => item.id === action.payload.id);
         if (index !== -1) {

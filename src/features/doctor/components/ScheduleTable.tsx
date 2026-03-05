@@ -6,7 +6,6 @@ import { Checkbox } from 'primereact/checkbox';
 import { Button as PrimeButton } from 'primereact/button';
 import type { Schedule } from '../types';
 
-/** Schedule slot augmented with a stable local key for React editing. */
 export interface EditableSlot extends Schedule {
   _key: string;
 }

@@ -45,7 +45,7 @@ const doctorSlice = createSlice({
     answerQuestionSucceeded: (state, action: PayloadAction<{ questionId: string }>) => {
       state.loading = false;
       state.answerSubmitted = true;
-      // Optimistically mark as answered (server resync via loadQuestionsRequested follows).
+      // Optimistic update; server resync follows via loadQuestionsRequested.
       const idx = state.questions.findIndex((q) => q.id === action.payload.questionId);
       if (idx !== -1) {
         state.questions[idx] = { ...state.questions[idx], status: 'answered' };
@@ -59,7 +59,6 @@ const doctorSlice = createSlice({
     clearAnswerSubmitted: (state) => {
       state.answerSubmitted = false;
     },
-    // Doctor appointments
     loadDoctorAppointmentsRequested: (
       state,
       _action: PayloadAction<{ status?: string } | undefined>

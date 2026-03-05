@@ -1,7 +1,3 @@
-/**
- * Conditional logger for development
- * In production (DEV=false), logging is suppressed
- */
 const isDev = import.meta.env.DEV;
 
 export const logger = {

@@ -16,14 +16,8 @@ const apiClient = axios.create({
   },
 });
 
-// The single-flight refresh lock (formerly isRefreshing / refreshQueue /
-// processQueue) lives in refreshManager.ts so the Axios interceptor and the
-// Redux-Saga bootstrap path share the same mutual-exclusion primitive.
-
-// Request interceptor
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Get access token from Redux store (in-memory)
     const accessToken = selectAccessToken(store.getState());
     if (accessToken && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -35,22 +29,18 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Handle forbidden access
     if (error.response?.status === 403) {
       window.location.href = ROUTE_PATHS.HOME;
       return Promise.reject(error);
     }
 
-    // Handle 401 Unauthorized - attempt token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Skip refresh for auth endpoints (and /auth/me used by the bootstrap
-      // fallback) to avoid infinite retry loops.
+      // Skip auth endpoints to prevent infinite 401 retry loops.
       if (
         originalRequest.url?.includes('/auth/login') ||
         originalRequest.url?.includes('/auth/register') ||
@@ -63,15 +53,10 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // performRefresh() is single-flight: if the saga bootstrap has already
-        // started a refresh, this call joins that in-flight Promise and no
-        // additional POST /auth/refresh request is issued.
-        // On success, the manager dispatches setAccessToken to the Redux store
-        // so the request interceptor attaches the new token to the retry.
+        // performRefresh() is single-flight: concurrent callers share the same in-flight Promise; no duplicate POST /auth/refresh is issued.
         await performRefresh();
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed — clear local auth state and send the user to login.
         store.dispatch(logoutSucceeded());
         window.location.href = ROUTE_PATHS.LOGIN;
         return Promise.reject(refreshError);

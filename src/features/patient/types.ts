@@ -7,7 +7,7 @@ export interface Question {
   doctorName?: string;
   question: string;
   answer?: string;
-  /** Matches BE QuestionStatus enum (lowercased by the controller). */
+  // Lowercased by BE controller; matches QuestionStatus enum values.
   status: 'pending' | 'answered' | 'moderated';
   createdAt: string;
   answeredAt?: string;
@@ -42,15 +42,13 @@ export interface PatientProfile {
   gender?: 'male' | 'female' | 'other';
   phone?: string;
   address?: string;
-  /** Free-text medical history stored in PatientProfile.medicalHistory */
   medicalHistory?: string;
 }
 
 export interface Rating {
   id: Id;
-  /** Matches BE `Rating.appointmentId` — the appointment this rating belongs to. */
   appointmentId: Id;
-  /** Integer 1-5. Matches BE `Rating.score`. */
+  // Integer 1–5.
   score: number;
   comment?: string;
   createdAt: string;

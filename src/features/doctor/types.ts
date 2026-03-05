@@ -28,9 +28,7 @@ export interface DoctorQuestion {
   question: string;
   createdAt: string;
   status: 'pending' | 'answered' | 'moderated';
-  /** Doctor's answer content, present when status is 'answered' or 'moderated'. */
   answer?: string | null;
-  /** Patient's medical history, shown in the answer dialog to help the doctor. */
   patientMedicalHistory?: string | null;
 }
 
@@ -39,7 +37,7 @@ export interface DoctorAppointment {
   patientId: Id;
   patientName: string;
   specialtyName?: string;
-  /** ISO date-time string from the server (replaces separate date/time fields) */
+  // ISO date-time string (replaces separate date/time fields).
   scheduledAt: string;
   reason?: string;
   notes?: string;
@@ -65,13 +63,12 @@ export interface RatingsPagination {
   totalPages: number;
 }
 
-/** Mirrors ScheduleSlot from BE src/utils/schedule.ts */
 export interface Schedule {
-  /** ISO date string YYYY-MM-DD */
+  // YYYY-MM-DD
   date: string;
-  /** HH:MM 24-hour start time */
+  // HH:MM 24-hour
   startTime: string;
-  /** HH:MM 24-hour end time */
+  // HH:MM 24-hour
   endTime: string;
   available: boolean;
 }

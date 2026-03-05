@@ -42,9 +42,7 @@ const authSlice = createSlice({
       state.registerCompleted = false;
     },
     registerSucceeded: (state, _action: PayloadAction<AuthSuccessPayload>) => {
-      // Intentionally do NOT set user/accessToken/isAuthenticated here.
-      // After registering, the user is redirected to /login and must log in
-      // explicitly — this prevents the HomeRedirect from skipping /login.
+      // Not setting isAuthenticated prevents HomeRedirect from skipping /login after registration.
       state.loading = false;
       state.registerCompleted = true;
       state.error = null;

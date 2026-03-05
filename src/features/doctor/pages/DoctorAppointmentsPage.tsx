@@ -19,7 +19,6 @@ import {
 } from '../redux/doctor.selectors';
 import type { DoctorAppointment } from '../types';
 
-/** Returns the status options the doctor can transition to from the current status. */
 const getNextStatuses = (
   current: DoctorAppointment['status']
 ): { label: string; value: string }[] => {
@@ -39,17 +38,14 @@ const getNextStatuses = (
   }
 };
 
-/** True when a doctor can reschedule this appointment status. */
 const canReschedule = (status: DoctorAppointment['status']): boolean =>
   status === 'pending' || status === 'confirmed';
 
-/** Returns yyyy-MM-dd string for use in <input type="date"> */
 const toDateInputValue = (iso: string | null | undefined): string => {
   if (!iso) return '';
   return iso.slice(0, 10);
 };
 
-/** Returns HH:MM string for use in <input type="time"> */
 const toTimeInputValue = (iso: string | null | undefined): string => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -63,20 +59,17 @@ export const DoctorAppointmentsPage: React.FC = () => {
   const loading = useAppSelector(selectDoctorLoading);
   const rescheduleSubmitted = useAppSelector(selectRescheduleSubmitted);
 
-  // Reschedule dialog state
   const [rescheduleTarget, setRescheduleTarget] = useState<DoctorAppointment | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
   const [rescheduleError, setRescheduleError] = useState('');
 
-  // Today's date string (yyyy-MM-dd) to use as min date
   const todayStr = useRef(new Date().toISOString().slice(0, 10)).current;
 
   useEffect(() => {
     dispatch(loadDoctorAppointmentsRequested());
   }, [dispatch]);
 
-  // Close dialog and clear state after successful reschedule
   useEffect(() => {
     if (rescheduleSubmitted) {
       setRescheduleTarget(null);
@@ -107,7 +100,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
       setRescheduleError('Please select both date and time.');
       return;
     }
-    // Combine date + time into an ISO string (user's local timezone)
+    // Combine date + time into ISO string using local timezone.
     const localDt = new Date(`${rescheduleDate}T${rescheduleTime}:00`);
     if (isNaN(localDt.getTime())) {
       setRescheduleError('Invalid date or time.');
@@ -258,7 +251,6 @@ export const DoctorAppointmentsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Reschedule Dialog */}
       <Dialog
         header={t('rescheduleTitle')}
         visible={rescheduleTarget !== null}

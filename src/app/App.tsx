@@ -7,17 +7,12 @@ import { meRequested } from '@/features/auth/redux/auth.slice';
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
-  // Guard against React StrictMode's double-invocation of useEffect which would
-  // fire two simultaneous POST /auth/refresh requests and quickly exhaust the
-  // rate limiter. useRef persists across StrictMode's simulated remount cycle.
+  // useRef prevents StrictMode's double-invocation from firing two concurrent POST /auth/refresh requests.
   const bootstrapped = useRef(false);
 
   useEffect(() => {
     if (bootstrapped.current) return;
     bootstrapped.current = true;
-    // Silent refresh: Attempt to restore session from HttpOnly refresh cookie
-    // This will call POST /auth/refresh and update Redux state if successful
-    // If refresh cookie doesn't exist or is expired, meFailed will be dispatched
     dispatch(meRequested());
   }, [dispatch]);
 

@@ -10,9 +10,7 @@ export interface PatientState {
   doctors: Doctor[];
   loading: boolean;
   error: string | null;
-  /** Set to true by askQuestionSucceeded; cleared by clearQuestionSubmitted. */
   questionSubmitted: boolean;
-  /** Set to true by bookAppointmentSucceeded; cleared by clearAppointmentSubmitted. */
   appointmentSubmitted: boolean;
 }
 

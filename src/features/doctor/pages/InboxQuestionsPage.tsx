@@ -26,7 +26,6 @@ export const InboxQuestionsPage: React.FC = () => {
     dispatch(loadQuestionsRequested());
   }, [dispatch]);
 
-  // Close answer dialog when saga confirms success
   useEffect(() => {
     if (answerSubmitted) {
       setAnswerDialog(false);
@@ -49,7 +48,7 @@ export const InboxQuestionsPage: React.FC = () => {
           answer: answerText,
         })
       );
-      // Dialog will close when answerSubmitted becomes true (set by saga success)
+      // Dialog closes when answerSubmitted becomes true.
     }
   };
 

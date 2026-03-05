@@ -118,8 +118,7 @@ const patientSlice = createSlice({
     rateConsultationSucceeded: (state, action: PayloadAction<Rating>) => {
       state.loading = false;
       state.ratings.unshift(action.payload);
-      // Mark the matching appointment as rated so the "Rate" button
-      // is replaced by "Rated" immediately without waiting for a refetch.
+      // Optimistic update: mark appointment as rated to swap "Rate" button to "Rated".
       const apptIdx = state.appointments.findIndex((a) => a.id === action.payload.appointmentId);
       if (apptIdx !== -1) {
         state.appointments[apptIdx] = { ...state.appointments[apptIdx], hasRating: true };

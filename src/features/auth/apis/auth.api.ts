@@ -26,7 +26,6 @@ export interface AuthResult {
   accessToken: string;
 }
 
-// Normalize backend user to frontend User type
 const normalizeUser = (backendUser: BackendUser): User => ({
   id: backendUser.id,
   email: backendUser.email,
@@ -73,14 +72,7 @@ export const me = async (): Promise<AuthResult> => {
   };
 };
 
-/**
- * Bootstrap helper: call GET /auth/me with an explicitly provided access token.
- *
- * Used during app init when a valid token was found in sessionStorage — avoids
- * an unnecessary POST /auth/refresh call.  The Authorization header is passed
- * directly so the apiClient interceptor (which reads from the Redux store, which
- * is still empty at this point) does not need to have the token pre-loaded.
- */
+// Passes Authorization header directly; avoids POST /auth/refresh when sessionStorage already has a valid token.
 export const meWithToken = async (accessToken: string): Promise<AuthResult> => {
   const response = await apiClient.get<{ data: BackendUser }>('/auth/me', {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -92,9 +84,7 @@ export const meWithToken = async (accessToken: string): Promise<AuthResult> => {
 };
 
 export const refresh = async (): Promise<AuthResult> => {
-  // Delegate to the shared single-flight refresh manager.
-  // If the Axios 401 interceptor is already running a refresh at this moment,
-  // performRefresh() returns the same in-flight Promise — no duplicate request.
+  // performRefresh() is single-flight: concurrent callers share the same in-flight Promise.
   const { accessToken, user } = await performRefresh();
   return { accessToken, user };
 };

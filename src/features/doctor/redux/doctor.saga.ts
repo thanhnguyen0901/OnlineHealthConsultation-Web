@@ -65,7 +65,6 @@ function* handleAnswerQuestion(action: PayloadAction<{ questionId: string; answe
     yield call(doctorApi.answerQuestion, action.payload);
     yield put(answerQuestionSucceeded({ questionId: action.payload.questionId }));
     yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Answer submitted successfully' }));
-    // Re-sync from server so answered question appears with correct status.
     yield put(loadQuestionsRequested());
   } catch (error) {
     const msg = extractErrorMessage(error);
@@ -82,7 +81,7 @@ function* handleLoadDoctorAppointments(
       doctorApi.getAppointments,
       action.payload
     );
-    // BE returns { data: [...], meta: pagination } but we just need the array
+    // BE wraps response as { data: [...], meta: pagination }; normalize to array.
     const appointments = Array.isArray(result) ? result : (result as any).data ?? result;
     yield put(loadDoctorAppointmentsSucceeded(appointments as DoctorAppointment[]));
   } catch (error) {
@@ -102,7 +101,6 @@ function* handleUpdateDoctorAppointment(
     });
     yield put(updateDoctorAppointmentSucceeded(result as DoctorAppointment));
     yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Appointment updated' }));
-    // Resync the full list to ensure consistent state
     yield put(loadDoctorAppointmentsRequested());
   } catch (error) {
     const msg = extractErrorMessage(error);
@@ -141,7 +139,6 @@ function* handleLoadRatings(action: PayloadAction<{ page?: number; limit?: numbe
 function* handleUpdateProfile(action: PayloadAction<UpdateProfilePayload>) {
   try {
     yield call(doctorApi.updateProfile, action.payload);
-    // Reload the full profile from server so specialty object + stats are fresh.
     const freshProfile: DoctorProfile = yield call(doctorApi.getMe);
     yield put(updateProfileSucceeded(freshProfile));
     yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' }));
@@ -155,7 +152,6 @@ function* handleUpdateProfile(action: PayloadAction<UpdateProfilePayload>) {
 function* handleUpdateSchedule(action: PayloadAction<Schedule[]>) {
   try {
     yield call(doctorApi.updateSchedule, action.payload);
-    // Reload from server for authoritative order
     const schedules: Schedule[] = yield call(doctorApi.getSchedule);
     yield put(updateScheduleSucceeded(schedules));
     yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Schedule saved successfully' }));
@@ -177,7 +173,6 @@ function* handleRescheduleAppointment(
     );
     yield put(rescheduleAppointmentSucceeded(result as DoctorAppointment));
     yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Appointment rescheduled successfully' }));
-    // Reload full list to ensure consistency
     yield put(loadDoctorAppointmentsRequested());
   } catch (error) {
     const msg = extractErrorMessage(error);

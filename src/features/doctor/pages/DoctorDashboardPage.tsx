@@ -65,7 +65,6 @@ export const DoctorDashboardPage: React.FC = () => {
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full space-y-8">
-        {/* Header */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             {t('dashboard')}
@@ -80,7 +79,6 @@ export const DoctorDashboardPage: React.FC = () => {
           )}
         </div>
 
-        {/* Stat Cards */}
         {loading && !profile ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
@@ -119,7 +117,6 @@ export const DoctorDashboardPage: React.FC = () => {
           </div>
         )}
 
-        {/* Quick Links */}
         <div>
           <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
             {t('quickLinks') || 'Quick Links'}

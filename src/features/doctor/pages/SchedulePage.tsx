@@ -16,7 +16,7 @@ import {
 import { ScheduleTable, type EditableSlot } from '../components/ScheduleTable';
 import type { Schedule } from '../types';
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+
 let keyCounter = 0;
 const makeKey = () => `slot-${++keyCounter}-${Date.now()}`;
 
@@ -42,22 +42,19 @@ export const SchedulePage: React.FC = () => {
   const [localSlots, setLocalSlots] = useState<EditableSlot[]>([]);
   const [isDirty, setIsDirty] = useState(false);
 
-  // Add-slot dialog state
   const [addDialogVisible, setAddDialogVisible] = useState(false);
   const [newDate, setNewDate] = useState('');
   const [newStart, setNewStart] = useState('08:00');
   const [newEnd, setNewEnd] = useState('17:00');
   const [addError, setAddError] = useState('');
 
-  // Whether we have synced from server at least once
   const initialised = useRef(false);
 
-  // Load from server on mount
   useEffect(() => {
     dispatch(loadScheduleRequested());
   }, [dispatch]);
 
-  // Sync from Redux when server data arrives (first load only)
+  // initialised guard prevents re-overwriting local edits on subsequent Redux updates.
   useEffect(() => {
     if (!initialised.current && serverSchedule.length >= 0) {
       setLocalSlots(toEditable(serverSchedule));
@@ -65,7 +62,6 @@ export const SchedulePage: React.FC = () => {
     }
   }, [serverSchedule]);
 
-  // Detect successful save → resync + clear dirty
   useEffect(() => {
     if (scheduleUpdated) {
       setLocalSlots(toEditable(serverSchedule));
@@ -110,9 +106,7 @@ export const SchedulePage: React.FC = () => {
     setAddDialogVisible(false);
   };
 
-  // ── save / discard ─────────────────────────────────────────────────────────
   const handleSave = () => {
-    // Validate before sending
     const invalid = localSlots.some(
       (s) => !isValidTime(s.startTime) || !isValidTime(s.endTime) || s.endTime <= s.startTime
     );
@@ -165,7 +159,6 @@ export const SchedulePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Unsaved-changes banner */}
         {isDirty && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-2 text-sm text-amber-800 dark:text-amber-300">
             <i className="pi pi-exclamation-triangle" />
@@ -183,7 +176,6 @@ export const SchedulePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Add Slot Dialog */}
       <Dialog
         header={t('addSlotTitle')}
         visible={addDialogVisible}

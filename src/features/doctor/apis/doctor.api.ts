@@ -15,7 +15,7 @@ export const answerQuestion = async (data: {
   questionId: string;
   answer: string;
 }): Promise<void> => {
-  // Canonical path: POST /doctors/questions/:id/answers (plural)
+  // Endpoint uses plural /answers, not /answer.
   await apiClient.post(`/doctors/questions/${data.questionId}/answers`, { answer: data.answer });
 };
 

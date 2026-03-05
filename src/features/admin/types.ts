@@ -24,7 +24,6 @@ export interface Specialty {
   isActive?: boolean;
 }
 
-/** Mirrors BE ReportService.getOverallStats() response */
 export interface AdminStats {
   totalUsers: number;
   totalDoctors: number;

@@ -64,7 +64,6 @@ export const AskQuestionPage: React.FC = () => {
   const questionSubmitted = useAppSelector(selectQuestionSubmitted);
   const specialties = useAppSelector(selectSpecialties);
 
-  // Load specialties for the dropdown on mount
   React.useEffect(() => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
@@ -74,9 +73,7 @@ export const AskQuestionPage: React.FC = () => {
     value: s.id as string,
   }));
 
-  // On success: navigate to history.
-  // Success/error toasts are dispatched by patient.saga.ts → no toast here.
-  // Clear the flag so re-visiting this page doesn't re-trigger navigation.
+  // Saga dispatches toasts; clear flag to prevent re-trigger on re-visit.
   React.useEffect(() => {
     if (questionSubmitted) {
       dispatch(clearQuestionSubmitted());
@@ -96,9 +93,7 @@ export const AskQuestionPage: React.FC = () => {
             initialValues={{ specialtyId: '', question: '' }}
             validationSchema={questionSchema}
             onSubmit={(values) => {
-              // Do NOT resetForm here — it fires before the saga completes.
-              // On success the page navigates away; on error the form stays
-              // populated so the user can correct and retry.
+              // Do not resetForm: fires before the saga completes, losing form data on error retry.
               dispatch(askQuestionRequested({ question: values.question, specialtyId: values.specialtyId }));
             }}
           >
@@ -122,7 +117,6 @@ export const AskQuestionPage: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end pt-4">
-                  {/* loading from Redux — true while the saga is running */}
                   <Button type="submit" loading={loading} disabled={loading}>
                     {t('common:submit')}
                   </Button>

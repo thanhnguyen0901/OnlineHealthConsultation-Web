@@ -9,11 +9,8 @@ export interface DoctorState {
   ratingsPagination: RatingsPagination | null;
   loading: boolean;
   error: string | null;
-  /** Set true by answerQuestionSucceeded; cleared by clearAnswerSubmitted. */
   answerSubmitted: boolean;
-  /** Set true by updateScheduleSucceeded; cleared by clearScheduleUpdated. */
   scheduleUpdated: boolean;
-  /** Set true by rescheduleAppointmentSucceeded; cleared by clearRescheduleSubmitted. */
   rescheduleSubmitted: boolean;
 }
 

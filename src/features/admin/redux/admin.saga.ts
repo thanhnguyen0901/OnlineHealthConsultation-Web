@@ -104,7 +104,6 @@ function* handleLoadDoctors(action: PayloadAction<any>) {
   }
 }
 
-// Patient Sagas
 function* handleLoadPatients(action: PayloadAction<any>) {
   try {
     const result: { data: Patient[]; pagination: any } = yield call(adminApi.getPatients, action.payload);
@@ -151,7 +150,6 @@ function* handleLoadSpecialties() {
   }
 }
 
-// User CRUD Sagas
 function* handleCreateUser(action: PayloadAction<Partial<User> & { password: string }>) {
   try {
     const user: User = yield call(adminApi.createUser, action.payload);
@@ -188,7 +186,6 @@ function* handleDeleteUser(action: PayloadAction<string>) {
   }
 }
 
-// Doctor CRUD Sagas
 function* handleCreateDoctor(action: PayloadAction<Partial<Doctor> & { password: string }>) {
   try {
     const doctor: Doctor = yield call(adminApi.createDoctor, action.payload);
@@ -229,7 +226,6 @@ function* handleDeleteDoctor(action: PayloadAction<string>) {
   }
 }
 
-// Specialty CRUD Sagas
 function* handleCreateSpecialty(action: PayloadAction<Partial<Specialty>>) {
   try {
     const specialty: Specialty = yield call(adminApi.createSpecialty, action.payload);
@@ -270,7 +266,6 @@ function* handleDeleteSpecialty(action: PayloadAction<string>) {
   }
 }
 
-// Appointments Sagas
 function* handleLoadAppointments(action: PayloadAction<any>) {
   try {
     const result: { data: any[]; pagination: any } = yield call(adminApi.getAppointments, action.payload);
@@ -300,7 +295,6 @@ function* handleUpdateAppointmentStatus(
   }
 }
 
-// Moderation Sagas
 function* handleLoadModerationItems() {
   try {
     const items: any[] = yield call(adminApi.getModerationItems);

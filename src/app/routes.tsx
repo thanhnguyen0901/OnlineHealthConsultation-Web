@@ -10,7 +10,7 @@ import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { HomePage } from '@/pages/HomePage';
 
-// Lazy load pages
+// Lazy-loaded page components
 const LoginPage = lazy(() =>
   import('@/features/auth/pages/LoginPage').then((m) => ({ default: m.LoginPage }))
 );
@@ -105,7 +105,6 @@ const NotFoundPage = lazy(() =>
 const HomeRedirect: React.FC = () => {
   const { user, isBootstrapping } = useAuth();
 
-  // Wait for auth bootstrap before deciding what to render
   if (isBootstrapping) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -114,10 +113,8 @@ const HomeRedirect: React.FC = () => {
     );
   }
 
-  // If not logged in, show HomePage
   if (!user) return <HomePage />;
 
-  // If logged in, redirect to role-based dashboard
   if (user.role === ROLES.PATIENT) return <Navigate to={ROUTE_PATHS.PATIENT_DASHBOARD} replace />;
   if (user.role === ROLES.DOCTOR) return <Navigate to={ROUTE_PATHS.DOCTOR_DASHBOARD} replace />;
   if (user.role === ROLES.ADMIN) return <Navigate to={ROUTE_PATHS.ADMIN_DASHBOARD} replace />;
@@ -135,16 +132,13 @@ export const RoutesConfig: React.FC = () => {
       }
     >
       <Routes>
-        {/* Home / Landing page */}
         <Route path={ROUTE_PATHS.HOME} element={<HomeRedirect />} />
 
-        {/* Public routes */}
         <Route element={<AuthLayout />}>
           <Route path={ROUTE_PATHS.LOGIN} element={<LoginPage />} />
           <Route path={ROUTE_PATHS.REGISTER} element={<RegisterPage />} />
         </Route>
 
-        {/* Protected routes */}
         <Route
           element={
             <AuthGuard>
@@ -152,7 +146,6 @@ export const RoutesConfig: React.FC = () => {
             </AuthGuard>
           }
         >
-          {/* Patient routes */}
           <Route
             path={ROUTE_PATHS.PATIENT_DASHBOARD}
             element={
@@ -194,7 +187,6 @@ export const RoutesConfig: React.FC = () => {
             }
           />
 
-          {/* Doctor routes */}
           <Route
             path={ROUTE_PATHS.DOCTOR_DASHBOARD}
             element={
@@ -244,7 +236,6 @@ export const RoutesConfig: React.FC = () => {
             }
           />
 
-          {/* Admin routes */}
           <Route
             path={ROUTE_PATHS.ADMIN_DASHBOARD}
             element={
@@ -302,7 +293,6 @@ export const RoutesConfig: React.FC = () => {
             }
           />
 
-          {/* Reports route */}
           <Route
             path={ROUTE_PATHS.REPORTS}
             element={
@@ -313,7 +303,6 @@ export const RoutesConfig: React.FC = () => {
           />
         </Route>
 
-        {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

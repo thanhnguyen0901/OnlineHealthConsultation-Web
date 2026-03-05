@@ -30,7 +30,7 @@ export const askQuestion = async (data: {
 
 export const bookAppointment = async (data: {
   doctorId: string;
-  /** UTC ISO-8601 string, e.g. "2026-03-15T01:00:00.000Z" */
+  // UTC ISO-8601 string.
   scheduledAt: string;
   reason: string;
   notes?: string;

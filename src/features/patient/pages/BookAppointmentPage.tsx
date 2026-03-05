@@ -17,7 +17,7 @@ import {
 import { selectSpecialties, selectDoctors, selectPatientLoading, selectAppointmentSubmitted } from '../redux/patient.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
-/** Format a JS Date to "YYYY-MM-DD" using LOCAL calendar date (not UTC). */
+// Local calendar date, not UTC (avoids day-off-by-one for negative-UTC-offset timezones).
 const formatLocalDate = (d: Date): string => {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -76,8 +76,7 @@ export const BookAppointmentPage: React.FC = () => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
 
-  // Navigate to history page after successful booking.
-  // Success/error toasts are dispatched by patient.saga.ts → no toast here.
+  // Saga dispatches toasts; navigate only.
   useEffect(() => {
     if (appointmentSubmitted) {
       dispatch(clearAppointmentSubmitted());
@@ -93,15 +92,7 @@ export const BookAppointmentPage: React.FC = () => {
 
   const handleSubmit = (values: AppointmentFormValues) => {
     if (!values.date) return;
-    // Build a Date from the user's LOCAL calendar date + clock time (no trailing Z
-    // so the JS engine interprets it in the browser's local timezone), then convert
-    // to a UTC ISO string for transport. This ensures the stored scheduledAt instant
-    // exactly represents what the patient selected on-screen.
-    //
-    // Example (UTC+7 browser):
-    //   formatLocalDate(values.date) = "2026-03-15"
-    //   values.time                  = "08:00"
-    //   new Date("2026-03-15T08:00:00") → 2026-03-15T01:00:00.000Z  ✓
+    // No trailing Z: JS interprets the string in local timezone, mapping correctly to UTC.
     const localDateTimeStr = `${formatLocalDate(values.date)}T${values.time}:00`;
     const scheduledAt = new Date(localDateTimeStr).toISOString();
     dispatch(

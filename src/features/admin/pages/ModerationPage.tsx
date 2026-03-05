@@ -26,7 +26,6 @@ export const ModerationPage: React.FC = () => {
     dispatch(loadModerationItemsRequested());
   }, [dispatch]);
 
-  // Opens the confirmation dialog instead of dispatching immediately
   const confirmApprove = (item: any) => setPendingAction({ item, action: 'approve' });
   const confirmReject  = (item: any) => setPendingAction({ item, action: 'reject'  });
 
@@ -60,8 +59,7 @@ export const ModerationPage: React.FC = () => {
   };
 
   const statusBodyTemplate = (rowData: any) => {
-    // BE sends uppercase status; normalize for display
-    // Only QUESTION and ANSWER types appear here (ratings removed)
+    // Only QUESTION and ANSWER types appear in the moderation queue; ratings are excluded.
     const s = (rowData.status || '').toUpperCase();
     const isApproved = s === 'ANSWERED' || s === 'APPROVED';
     const isRejected = s === 'MODERATED';
@@ -77,7 +75,6 @@ export const ModerationPage: React.FC = () => {
     const s = (rowData.status || '').toUpperCase();
     const isPending = s === 'PENDING';
     if (!isPending) return null;
-    // Disable both buttons for this row while any confirm dialog is open
     const dialogOpen = pendingAction !== null;
     return (
       <div className="flex gap-2">
@@ -146,7 +143,6 @@ export const ModerationPage: React.FC = () => {
           </DataTable>
         </div>
 
-        {/* Approve / Reject confirmation dialog */}
         <Dialog
           visible={pendingAction !== null}
           style={{ width: '30rem' }}

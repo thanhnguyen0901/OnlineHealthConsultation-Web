@@ -26,7 +26,7 @@ export const ConsultationHistoryPage: React.FC = () => {
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
   const loading = useAppSelector(selectPatientLoading);
-  // Use a ref to track the ratings array length so we can detect a new entry.
+  // Ref tracks previous ratings count; detects new entries without triggering re-render.
   const ratingsRef = React.useRef<number | null>(null);
   const ratings = useAppSelector((s) => s.patient.ratings);
 
@@ -42,8 +42,7 @@ export const ConsultationHistoryPage: React.FC = () => {
     dispatch(loadHistoryRequested());
   }, [dispatch]);
 
-  // Close the rating dialog when a new rating arrives in state.
-  // The saga already dispatches addToast for success/error — no toast here.
+  // Saga dispatches toast; dialog closes when ratings.length increases.
   useEffect(() => {
     if (ratingsRef.current !== null && ratings.length > ratingsRef.current) {
       setRatingDialog(false);
@@ -68,7 +67,6 @@ export const ConsultationHistoryPage: React.FC = () => {
     if (ratingValue === 0) return;
 
     if (selectedAppointment && selectedAppointment.doctorId) {
-      // Rating for appointment
       dispatch(
         rateConsultationRequested({
           consultationId: selectedAppointment.id,
@@ -78,7 +76,7 @@ export const ConsultationHistoryPage: React.FC = () => {
         })
       );
     } else if (selectedQuestion && selectedQuestion.doctorId) {
-      // Rating for question (currently not supported by backend)
+      // Question ratings are not yet supported by backend.
       dispatch(
         rateConsultationRequested({
           consultationId: selectedQuestion.id,
@@ -114,7 +112,7 @@ export const ConsultationHistoryPage: React.FC = () => {
       string,
       { severity: 'success' | 'warning' | 'danger' | 'info'; label: string }
     > = {
-      // BE /patients/history returns status in lowercase matching AppointmentStatus enum
+      // BE returns status lowercased; matches AppointmentStatus enum values.
       pending:   { severity: 'warning', label: t('pending') },
       confirmed: { severity: 'info',    label: t('confirmed') },
       completed: { severity: 'success', label: t('completed') },

@@ -30,14 +30,12 @@ export const DoctorProfilePage: React.FC = () => {
   const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [specialtiesLoading, setSpecialtiesLoading] = useState(false);
 
-  // Load own profile on mount if not yet in store
   useEffect(() => {
     if (!profile) {
       dispatch(loadProfileRequested());
     }
   }, [dispatch, profile]);
 
-  // Sync form whenever profile changes (initial load or after successful save)
   useEffect(() => {
     if (profile) {
       setForm({
@@ -48,7 +46,7 @@ export const DoctorProfilePage: React.FC = () => {
     }
   }, [profile]);
 
-  // Fetch specialties for dropdown (read-only list — reuse admin endpoint)
+  // Reuses admin getSpecialties endpoint (no dedicated doctor-facing endpoint exists).
   useEffect(() => {
     setSpecialtiesLoading(true);
     getSpecialties()
@@ -65,7 +63,7 @@ export const DoctorProfilePage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const payload: { bio?: string; yearsOfExperience?: number; specialtyId?: string } = {};
-    // Always include bio to allow clearing it; BE accepts empty string
+    // Always include bio to allow clearing it; BE accepts empty string.
     payload.bio = form.bio.trim();
     if (form.yearsOfExperience !== null && form.yearsOfExperience !== undefined) {
       payload.yearsOfExperience = form.yearsOfExperience;
@@ -85,7 +83,7 @@ export const DoctorProfilePage: React.FC = () => {
           {t('editProfile')}
         </h1>
 
-        {/* Personal info — read-only */}
+        {/* read-only: personal info changes are admin-only */}
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 mb-6">
           <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
             <i className="pi pi-user text-blue-500" />
@@ -117,7 +115,6 @@ export const DoctorProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Editable professional info */}
         <form onSubmit={handleSubmit}>
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 space-y-6">
             <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
@@ -125,7 +122,6 @@ export const DoctorProfilePage: React.FC = () => {
               {t('professionalInfo')}
             </h2>
 
-            {/* Bio */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('bio')}
@@ -143,7 +139,6 @@ export const DoctorProfilePage: React.FC = () => {
               </span>
             </div>
 
-            {/* Years of experience */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('yearsOfExperience')}
@@ -165,7 +160,6 @@ export const DoctorProfilePage: React.FC = () => {
               />
             </div>
 
-            {/* Specialty dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('specialty')}
@@ -181,7 +175,6 @@ export const DoctorProfilePage: React.FC = () => {
               />
             </div>
 
-            {/* Actions */}
             <div className="flex justify-end pt-2">
               <Button
                 type="submit"

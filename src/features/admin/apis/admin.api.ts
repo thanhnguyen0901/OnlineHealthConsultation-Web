@@ -31,12 +31,11 @@ const normalizeDoctor = (backendDoctor: BackendDoctor): Doctor => ({
 });
 
 export const getStats = async (): Promise<AdminStats> => {
-  // AUDIT-08: canonical stats endpoint is /reports/stats; /admin/stats was removed.
   const response = await apiClient.get<{ data: AdminStats }>('/reports/stats');
   return response.data.data;
 };
 
-// ── Shared pagination types ────────────────────────────────────────────────
+
 export interface PaginationMeta {
   page: number;
   limit: number;
@@ -49,7 +48,7 @@ export interface PagedResult<T> {
   pagination: PaginationMeta;
 }
 
-// ── Query param shapes ───────────────────────────────────────────────────────
+
 export interface UserListParams {
   page?: number;
   limit?: number;
@@ -70,7 +69,6 @@ export interface PatientListParams {
   isActive?: boolean;
 }
 
-// Users API
 export const getUsers = async (params?: UserListParams): Promise<PagedResult<User>> => {
   const response = await apiClient.get<{ data: BackendUser[]; meta?: PaginationMeta }>(
     '/admin/users',
@@ -96,7 +94,6 @@ export const deleteUser = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/users/${id}`);
 };
 
-// Doctors API
 export const getDoctors = async (params?: DoctorListParams): Promise<PagedResult<Doctor>> => {
   const response = await apiClient.get<{ data: BackendDoctor[]; meta?: PaginationMeta }>(
     '/admin/doctors',
@@ -124,7 +121,6 @@ export const deleteDoctor = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/doctors/${id}`);
 };
 
-// Patients API
 export interface BackendPatient {
   id: Id;           // User.id
   profileId: Id;    // PatientProfile.id
@@ -166,7 +162,6 @@ export const deletePatient = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/patients/${id}`);
 };
 
-// Specialties API
 export const getSpecialties = async (): Promise<Specialty[]> => {
   const response = await apiClient.get<{ data: Specialty[] }>('/admin/specialties');
   return response.data.data;
@@ -186,7 +181,6 @@ export const deleteSpecialty = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/specialties/${id}`);
 };
 
-// Appointments API
 export interface Appointment {
   id: Id;
   patientId: Id;
@@ -233,25 +227,17 @@ export const updateAppointmentStatus = async (id: Id, status: string): Promise<A
   return response.data.data;
 };
 
-// Moderation API
-/**
- * BE returns a composite id "QUESTION_<uuid>" | "ANSWER_<uuid>" | "RATING_<uuid>".
- * `approve` and `reject` endpoints expect this composite id as-is.
- */
+// id is composite "QUESTION_<uuid>" | "ANSWER_<uuid>" | "RATING_<uuid>"; pass as-is to approve/reject endpoints.
 export interface ModerationItem {
-  /** Composite id e.g. "QUESTION_<uuid>". Pass as-is to approve/reject endpoints. */
   id: string;
   type: 'QUESTION' | 'ANSWER' | 'RATING';
-  /** Short preview of the content */
   contentPreview: string;
   content: string;
-  /** Display name of the author */
   author: string;
   authorId: Id;
   createdAt: string;
-  /** QUESTION: "PENDING"|"ANSWERED"|"MODERATED" | ANSWER: "PENDING"|"APPROVED" | RATING: "VISIBLE"|"HIDDEN" */
+  // QUESTION: "PENDING"|"ANSWERED"|"MODERATED" | ANSWER: "PENDING"|"APPROVED" | RATING: "VISIBLE"|"HIDDEN"
   status: string;
-  /** Bare entity UUID (question/answer/rating id) */
   entityId: Id;
 }
 

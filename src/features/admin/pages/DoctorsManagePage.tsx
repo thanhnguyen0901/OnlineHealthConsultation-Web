@@ -71,14 +71,13 @@ export const DoctorsManagePage: React.FC = () => {
   const saveDoctor = () => {
     setSubmitted(true);
     const isCreate = !doctor.id;
-    // Validate all required fields; for new doctors password is also required.
     const valid =
       !!doctor.firstName?.trim() &&
       !!doctor.lastName?.trim() &&
       !!doctor.email?.trim() &&
       !!doctor.specialtyId &&
       (!isCreate || !!doctor.password?.trim());
-    if (!valid) return; // keep dialog open so user sees the error hints
+    if (!valid) return;
 
     if (isCreate) {
       // role: 'DOCTOR' is required by the BE createUserSchema.

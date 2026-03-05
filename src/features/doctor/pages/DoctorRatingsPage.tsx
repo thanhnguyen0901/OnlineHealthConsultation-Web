@@ -25,7 +25,7 @@ export const DoctorRatingsPage: React.FC = () => {
     dispatch(loadRatingsRequested({ page: 1, limit: 20 }));
   }, [dispatch]);
 
-  // Derive average and total — prefer profile.stats if loaded, else derive from pagination
+  // Prefer profile.stats for aggregates if loaded; fall back to pagination total.
   const avgRating: number =
     profile?.ratingAverage ??
     (ratings.length > 0
@@ -33,7 +33,6 @@ export const DoctorRatingsPage: React.FC = () => {
       : 0);
   const totalRatings: number = profile?.ratingCount ?? pagination?.total ?? ratings.length;
 
-  /* ── template helpers ── */
   const scoreTemplate = (rowData: DoctorRating) => (
     <Rating value={rowData.score} readOnly cancel={false} className="text-yellow-500" />
   );
@@ -57,12 +56,10 @@ export const DoctorRatingsPage: React.FC = () => {
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-5xl mx-auto w-full">
-        {/* Page header */}
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('ratings')}
         </h1>
 
-        {/* Summary cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-5 flex flex-col items-center gap-1">
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -85,7 +82,6 @@ export const DoctorRatingsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Ratings table */}
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <DataTable
             value={ratings}

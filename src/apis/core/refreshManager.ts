@@ -1,35 +1,9 @@
-/**
- * Single-flight refresh manager.
- *
- * Guarantees that at any point in time there is at most ONE in-flight
- * POST /auth/refresh request, regardless of how many callers (saga bootstrap,
- * Axios 401 interceptor, etc.) invoke performRefresh() concurrently.
- *
- * All concurrent callers receive the same Promise and therefore the same
- * resolved value — preventing the duplicate-refresh race that triggers
- * TOKEN_REUSE_DETECTED on the backend.
- *
- * Design notes:
- *  - Uses a raw axios instance (NOT the shared apiClient) to avoid a
- *    circular-dependency between apiClient ↔ refreshManager, and to ensure
- *    the refresh call itself is never intercepted by the 401 handler.
- *  - Dispatches setAccessToken to the Redux store on success so the request
- *    interceptor in apiClient picks up the new token for retried requests.
- *  - Does NOT dispatch logout on failure; each call-site is responsible for
- *    its own error handling (the Axios interceptor redirects to /login; the
- *    saga dispatches meFailed).
- */
-
 import axios from 'axios';
 import { API_CONFIG } from '@/config/api.config';
 import { store } from '@/state/store';
 import { setAccessToken } from '@/features/auth/redux/auth.slice';
 import { saveAuthToStorage } from '@/utils/authStorage';
 import type { User } from '@/types/common';
-
-// ---------------------------------------------------------------------------
-// Internal types (mirror of auth.api.ts — kept local to avoid circular imports)
-// ---------------------------------------------------------------------------
 
 interface BackendUser {
   id: string;
@@ -56,13 +30,8 @@ export interface AuthPayload {
   user: User;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || API_CONFIG.BASE_URL) + '/api';
 
-/** Debug-mode logger — only active when VITE_DEBUG_REFRESH=true in .env. */
 const debugLog = (...args: unknown[]) => {
   if (import.meta.env.VITE_DEBUG_REFRESH === 'true') {
     // eslint-disable-next-line no-console
@@ -79,44 +48,19 @@ const normalizeUser = (u: BackendUser): User => ({
   role: u.role,
 });
 
-/** Resolves after `ms` milliseconds. */
 const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-/**
- * Returns true when the backend responded with TOKEN_ROTATED (HTTP 409).
- *
- * TOKEN_ROTATED means the refresh token was recently rotated (within the
- * backend grace window) and the previous token was re-submitted by a
- * concurrent/racing request.  It is NOT a security alert — the caller
- * should wait briefly and retry with the same cookie (which now holds the
- * newer token set during the first successful rotation).
- */
+// TOKEN_ROTATED (409): grace-window race from a concurrent rotation; not a security alert — retry after a short delay.
 const isTokenRotatedError = (err: unknown): boolean =>
   axios.isAxiosError(err) &&
   err.response?.status === 409 &&
   (err.response.data as { code?: string })?.code === 'TOKEN_ROTATED';
 
-/** How long to wait before the single TOKEN_ROTATED retry (ms). */
 const TOKEN_ROTATED_RETRY_DELAY_MS = 200;
 
-// ---------------------------------------------------------------------------
-// Single-flight state
-// ---------------------------------------------------------------------------
-
-/**
- * When non-null, a refresh is already in progress.
- * Every new caller awaits this same Promise instead of starting a new request.
- */
+// Non-null when a refresh is in-flight; all concurrent callers await this same Promise.
 let inflightRefresh: Promise<AuthPayload> | null = null;
 
-// ---------------------------------------------------------------------------
-// Core logic
-// ---------------------------------------------------------------------------
-
-/**
- * Executes the actual POST /auth/refresh network call.
- * Called exactly once per refresh cycle.
- */
 async function executeRefresh(): Promise<AuthPayload> {
   debugLog('executing POST /auth/refresh');
 
@@ -132,16 +76,10 @@ async function executeRefresh(): Promise<AuthPayload> {
   const { accessToken, user } = response.data.data;
 
   if (!user) {
-    // Should not occur with the current backend, but guard defensively.
     throw new Error('Refresh response did not include user data');
   }
 
-  // Persist the new access token in the Redux store immediately so that the
-  // Axios request interceptor attaches it to any retried requests.
   store.dispatch(setAccessToken(accessToken));
-
-  // Keep sessionStorage in sync so the *next* reload can use this fresh token
-  // directly instead of triggering another POST /api/auth/refresh.
   saveAuthToStorage(accessToken);
 
   debugLog('refresh succeeded, new accessToken dispatched to store and saved to sessionStorage');
@@ -149,18 +87,7 @@ async function executeRefresh(): Promise<AuthPayload> {
   return { accessToken, user: normalizeUser(user) };
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
-/**
- * Runs executeRefresh(), and on TOKEN_ROTATED (409 grace-window race) waits
- * TOKEN_ROTATED_RETRY_DELAY_MS then retries **once**.
- *
- * Retry is bounded at 1: if the second attempt also fails (any error,
- * including a second TOKEN_ROTATED), the error propagates unmodified so
- * the caller can decide to logout.
- */
+// On TOKEN_ROTATED (409 grace-window race) waits TOKEN_ROTATED_RETRY_DELAY_MS then retries once; second failure propagates.
 async function executeRefreshWithRetry(): Promise<AuthPayload> {
   try {
     return await executeRefresh();
@@ -177,11 +104,7 @@ async function executeRefreshWithRetry(): Promise<AuthPayload> {
   }
 }
 
-/**
- * Returns a Promise that resolves with the new AuthPayload once the refresh
- * completes.  If a refresh is already in-flight, all concurrent callers share
- * that same Promise — only one HTTP request is ever made per refresh cycle.
- */
+// At most one POST /auth/refresh in-flight at any time; concurrent callers share the same Promise.
 export async function performRefresh(): Promise<AuthPayload> {
   if (inflightRefresh) {
     debugLog('refresh already in-flight — joining existing promise');
@@ -190,7 +113,6 @@ export async function performRefresh(): Promise<AuthPayload> {
 
   debugLog('starting new refresh');
   inflightRefresh = executeRefreshWithRetry().finally(() => {
-    // Clear the reference so the next refresh cycle starts fresh.
     inflightRefresh = null;
     debugLog('in-flight reference cleared');
   });
@@ -198,12 +120,7 @@ export async function performRefresh(): Promise<AuthPayload> {
   return inflightRefresh;
 }
 
-/**
- * Resets the single-flight state immediately.
- * Call this on explicit logout so a stale in-flight promise (unlikely but
- * possible if logout races an in-progress refresh) is not accidentally
- * reused after the user logs back in.
- */
+// Call on logout to prevent a stale in-flight Promise from being reused after re-login.
 export function resetRefreshState(): void {
   inflightRefresh = null;
   debugLog('refresh state reset (called from logout)');
