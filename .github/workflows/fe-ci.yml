@@ -1,0 +1,46 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: Lint, Type-Check & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build
+        env:
+          # Placeholder value used only to satisfy Vite's build-time env check.
+          # The real production value is set in Vercel's project environment settings.
+          VITE_API_BASE_URL: http://localhost:4000
+
+      # Cypress E2E tests are intentionally excluded from this CI workflow.
+      # They require a running backend service (OnlineHealthConsultation-Service)
+      # which is not available in this pipeline. Run them locally with:
+      #   npm run test:e2e
