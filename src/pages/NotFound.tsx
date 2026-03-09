@@ -11,7 +11,7 @@ export const NotFoundPage: React.FC = () => {
           Page Not Found
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mb-8">
-          The page you're looking for doesn't exist.
+          {"The page you're looking for doesn't exist."}
         </p>
         <Link
           to={ROUTE_PATHS.HOME}

@@ -8,6 +8,7 @@ export const logger = {
     if (isDev) console.warn(...args);
   },
   info: (...args: unknown[]): void => {
+    // eslint-disable-next-line no-console
     if (isDev) console.log(...args);
   },
   debug: (...args: unknown[]): void => {
