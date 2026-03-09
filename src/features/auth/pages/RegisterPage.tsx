@@ -62,23 +62,25 @@ export const RegisterPage: React.FC = () => {
       >
         <Form className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <FormikInputText name="firstName" label={t('common:firstName')} placeholder="John" />
-            <FormikInputText name="lastName" label={t('common:lastName')} placeholder="Doe" />
+            <FormikInputText name="firstName" label={t('common:firstName')} placeholder="John" data-cy="register-first-name" />
+            <FormikInputText name="lastName" label={t('common:lastName')} placeholder="Doe" data-cy="register-last-name" />
           </div>
           <FormikInputText
             name="email"
             label={t('common:email')}
             type="email"
             placeholder="you@example.com"
+            data-cy="register-email"
           />
           <FormikInputText
             name="password"
             label={t('common:password')}
             type="password"
             placeholder="••••••••"
+            data-cy="register-password"
           />
           <div className="pt-2">
-            <Button type="submit" className="w-full" loading={loading} disabled={loading}>
+            <Button type="submit" className="w-full" loading={loading} disabled={loading} data-cy="register-submit">
               {t('common:register')}
             </Button>
           </div>

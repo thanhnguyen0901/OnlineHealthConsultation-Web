@@ -26,10 +26,11 @@ const questionSchema = Yup.object({
     .required('Question is required'),
 });
 
-const FormikTextArea: React.FC<{ name: string; label: string; rows?: number }> = ({
+const FormikTextArea: React.FC<{ name: string; label: string; rows?: number; 'data-cy'?: string }> = ({
   name,
   label,
   rows = 5,
+  'data-cy': dataCy,
 }) => {
   const [field, meta] = useField(name);
   return (
@@ -48,6 +49,7 @@ const FormikTextArea: React.FC<{ name: string; label: string; rows?: number }> =
         rows={rows}
         className={`w-full${meta.touched && meta.error ? ' p-invalid' : ''}`}
         autoResize
+        data-cy={dataCy}
       />
       {meta.touched && meta.error && (
         <small className="p-error block mt-1">{meta.error}</small>
@@ -113,11 +115,11 @@ export const AskQuestionPage: React.FC = () => {
                   >
                     {t('yourQuestion')}
                   </label>
-                  <FormikTextArea name="question" label="" rows={8} />
+                  <FormikTextArea name="question" label="" rows={8} data-cy="ask-question-text" />
                 </div>
 
                 <div className="flex justify-end pt-4">
-                  <Button type="submit" loading={loading} disabled={loading}>
+                  <Button type="submit" loading={loading} disabled={loading} data-cy="ask-question-submit">
                     {t('common:submit')}
                   </Button>
                 </div>

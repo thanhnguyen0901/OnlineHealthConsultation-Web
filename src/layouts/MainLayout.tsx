@@ -175,6 +175,7 @@ export const MainLayout: React.FC = () => {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
+                data-cy={`nav-item-${item.path.split('/').pop()}`}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                   isActive(item.path)
                     ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold border-l-4 border-blue-600 pl-2'
@@ -238,6 +239,7 @@ export const MainLayout: React.FC = () => {
                 tooltip={t('common:logout')}
                 tooltipOptions={{ position: 'bottom' }}
                 className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                data-cy="logout-btn"
               />
             </div>
           </div>

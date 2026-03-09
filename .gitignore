@@ -28,3 +28,8 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Cypress artifacts
+cypress/videos
+cypress/screenshots
+cypress.env.json

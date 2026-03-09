@@ -183,7 +183,7 @@ export const BookAppointmentPage: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button type="submit" loading={loading}>
+                  <Button type="submit" loading={loading} data-cy="book-appointment-submit">
                     {t('bookAppointment')}
                   </Button>
                 </div>

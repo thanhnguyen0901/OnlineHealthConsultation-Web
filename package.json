@@ -8,7 +8,15 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:auth": "cypress run --spec \"cypress/e2e/auth.cy.ts\"",
+    "cy:run:patient": "cypress run --spec \"cypress/e2e/patient-*.cy.ts\"",
+    "cy:run:admin": "cypress run --spec \"cypress/e2e/admin-*.cy.ts\"",
+    "cy:run:doctor": "cypress run --spec \"cypress/e2e/doctor-*.cy.ts\"",
+    "cy:run:role-guard": "cypress run --spec \"cypress/e2e/role-guard.cy.ts\"",
+    "test:e2e": "start-server-and-test dev http://localhost:5173 cy:run"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.7",
@@ -39,12 +47,14 @@
     "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-react": "^4.3.2",
     "baseline-browser-mapping": "^2.9.11",
+    "cypress": "^13.17.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.11",
     "prettier": "^3.3.3",
+    "start-server-and-test": "^2.1.5",
     "typescript": "^5.6.2",
     "vite": "^5.4.8"
   }

@@ -56,6 +56,7 @@ export const LoginPage: React.FC = () => {
             type="email"
             placeholder="you@example.com"
             autoComplete="email"
+            data-cy="login-email"
           />
           <FormikInputText
             name="password"
@@ -63,9 +64,10 @@ export const LoginPage: React.FC = () => {
             type="password"
             placeholder="••••••••"
             autoComplete="current-password"
+            data-cy="login-password"
           />
           <div className="pt-2">
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button type="submit" className="w-full" loading={loading} data-cy="login-submit">
               {t('common:login')}
             </Button>
           </div>

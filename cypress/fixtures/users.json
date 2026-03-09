@@ -1,0 +1,31 @@
+{
+  "patient": {
+    "id": "patient-001",
+    "email": "patient@test.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "name": "John Doe",
+    "role": "PATIENT",
+    "isActive": true
+  },
+  "doctor": {
+    "id": "doctor-001",
+    "email": "doctor@test.com",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "name": "Jane Smith",
+    "role": "DOCTOR",
+    "isActive": true,
+    "specialtyId": "specialty-001",
+    "specialtyName": "Cardiology"
+  },
+  "admin": {
+    "id": "admin-001",
+    "email": "admin@test.com",
+    "firstName": "Admin",
+    "lastName": "User",
+    "name": "Admin User",
+    "role": "ADMIN",
+    "isActive": true
+  }
+}
