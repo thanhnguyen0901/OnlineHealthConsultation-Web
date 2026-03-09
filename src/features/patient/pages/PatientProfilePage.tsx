@@ -16,14 +16,13 @@ import { selectProfile, selectPatientLoading } from '@/features/patient/redux/pa
 import type { PatientProfile } from '@/features/patient/types';
 
 const profileSchema = Yup.object({
-  fullName: Yup.string().required(),
+  firstName: Yup.string().required(),
+  lastName: Yup.string().required(),
   dateOfBirth: Yup.date().nullable(),
   gender: Yup.string().oneOf(['male', 'female', 'other']),
   phone: Yup.string().matches(/^[0-9]{10,11}$/),
   address: Yup.string(),
   medicalHistory: Yup.string(),
-  allergies: Yup.string(),
-  chronicDiseases: Yup.string(),
 });
 
 export const PatientProfilePage: React.FC = () => {
@@ -60,20 +59,20 @@ export const PatientProfilePage: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik
             initialValues={{
-              fullName: profile?.fullName || '',
+              firstName: profile?.firstName || '',
+              lastName: profile?.lastName || '',
               dateOfBirth: profile?.dateOfBirth ? new Date(profile.dateOfBirth) : null,
               gender: profile?.gender || '',
               phone: profile?.phone || '',
               address: profile?.address || '',
               medicalHistory: profile?.medicalHistory || '',
-              allergies: profile?.allergies || '',
-              chronicDiseases: profile?.chronicDiseases || '',
             }}
             validationSchema={profileSchema}
             enableReinitialize
             onSubmit={(values) => {
               const profileData: Partial<PatientProfile> = {
-                fullName: values.fullName,
+                firstName: values.firstName,
+                lastName: values.lastName,
                 dateOfBirth: values.dateOfBirth
                   ? values.dateOfBirth.toISOString().split('T')[0]
                   : undefined,
@@ -81,8 +80,6 @@ export const PatientProfilePage: React.FC = () => {
                 phone: values.phone,
                 address: values.address,
                 medicalHistory: values.medicalHistory,
-                allergies: values.allergies,
-                chronicDiseases: values.chronicDiseases,
               };
               dispatch(updateProfileRequested(profileData));
             }}
@@ -96,10 +93,17 @@ export const PatientProfilePage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormikInputText
-                      name="fullName"
-                      label={t('patient:fullName')}
-                      placeholder={t('patient:fullNamePlaceholder')}
+                      name="firstName"
+                      label={t('patient:firstName')}
+                      placeholder={t('patient:firstNamePlaceholder')}
                     />
+                    <FormikInputText
+                      name="lastName"
+                      label={t('patient:lastName')}
+                      placeholder={t('patient:lastNamePlaceholder')}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormikInputText
                       name="phone"
                       label={t('patient:phone')}
@@ -141,22 +145,6 @@ export const PatientProfilePage: React.FC = () => {
                     placeholder={t('patient:medicalHistoryPlaceholder')}
                     as="textarea"
                     rows={3}
-                  />
-
-                  <FormikInputText
-                    name="allergies"
-                    label={t('patient:allergies')}
-                    placeholder={t('patient:allergiesPlaceholder')}
-                    as="textarea"
-                    rows={2}
-                  />
-
-                  <FormikInputText
-                    name="chronicDiseases"
-                    label={t('patient:chronicDiseases')}
-                    placeholder={t('patient:chronicDiseasesPlaceholder')}
-                    as="textarea"
-                    rows={2}
                   />
                 </div>
               </section>

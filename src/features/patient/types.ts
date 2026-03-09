@@ -7,7 +7,8 @@ export interface Question {
   doctorName?: string;
   question: string;
   answer?: string;
-  status: 'pending' | 'answered';
+  // Lowercased by BE controller; matches QuestionStatus enum values.
+  status: 'pending' | 'answered' | 'moderated';
   createdAt: string;
   answeredAt?: string;
 }
@@ -22,6 +23,7 @@ export interface Appointment {
   date: string;
   time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  reason?: string;
   notes?: string;
   hasRating?: boolean;
 }
@@ -33,20 +35,21 @@ export interface ConsultationHistory {
 
 export interface PatientProfile {
   id: Id;
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
   dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other';
   phone?: string;
   address?: string;
   medicalHistory?: string;
-  allergies?: string;
-  chronicDiseases?: string;
 }
 
 export interface Rating {
   id: Id;
-  consultationId: Id;
-  rating: number;
+  appointmentId: Id;
+  // Integer 1–5.
+  score: number;
   comment?: string;
   createdAt: string;
 }

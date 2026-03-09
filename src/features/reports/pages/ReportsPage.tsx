@@ -46,7 +46,6 @@ export const ReportsPage: React.FC = () => {
           {t('reports')}
         </h1>
 
-        {/* Statistics Cards */}
         {statistics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
@@ -80,7 +79,6 @@ export const ReportsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="bg-white dark:bg-slate-900 shadow-sm">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">

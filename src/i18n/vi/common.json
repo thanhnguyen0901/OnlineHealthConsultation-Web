@@ -8,6 +8,8 @@
   "email": "Email",
   "password": "Mật khẩu",
   "name": "Họ tên",
+  "firstName": "Họ",
+  "lastName": "Tên",
   "submit": "Gửi",
   "cancel": "Hủy",
   "save": "Lưu",

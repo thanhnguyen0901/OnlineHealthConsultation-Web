@@ -11,7 +11,6 @@ export const setYupLocale = () => {
       min: ({ min }) => i18n.t('validation:stringMin', { min }),
     },
     date: {
-      // Add date validation messages if needed
     },
   });
 };

@@ -10,6 +10,8 @@ export interface PatientState {
   doctors: Doctor[];
   loading: boolean;
   error: string | null;
+  questionSubmitted: boolean;
+  appointmentSubmitted: boolean;
 }
 
 export const initialPatientState: PatientState = {
@@ -21,4 +23,6 @@ export const initialPatientState: PatientState = {
   doctors: [],
   loading: false,
   error: null,
+  questionSubmitted: false,
+  appointmentSubmitted: false,
 };

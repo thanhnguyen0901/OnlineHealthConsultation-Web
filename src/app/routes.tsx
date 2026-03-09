@@ -10,7 +10,7 @@ import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { HomePage } from '@/pages/HomePage';
 
-// Lazy load pages
+// Lazy-loaded page components
 const LoginPage = lazy(() =>
   import('@/features/auth/pages/LoginPage').then((m) => ({ default: m.LoginPage }))
 );
@@ -53,6 +53,21 @@ const InboxQuestionsPage = lazy(() =>
 const SchedulePage = lazy(() =>
   import('@/features/doctor/pages/SchedulePage').then((m) => ({ default: m.SchedulePage }))
 );
+const DoctorAppointmentsPage = lazy(() =>
+  import('@/features/doctor/pages/DoctorAppointmentsPage').then((m) => ({
+    default: m.DoctorAppointmentsPage,
+  }))
+);
+const DoctorRatingsPage = lazy(() =>
+  import('@/features/doctor/pages/DoctorRatingsPage').then((m) => ({
+    default: m.DoctorRatingsPage,
+  }))
+);
+const DoctorProfilePage = lazy(() =>
+  import('@/features/doctor/pages/DoctorProfilePage').then((m) => ({
+    default: m.DoctorProfilePage,
+  }))
+);
 const AdminDashboardPage = lazy(() =>
   import('@/features/admin/pages/AdminDashboardPage').then((m) => ({
     default: m.AdminDashboardPage,
@@ -60,6 +75,9 @@ const AdminDashboardPage = lazy(() =>
 );
 const UsersManagePage = lazy(() =>
   import('@/features/admin/pages/UsersManagePage').then((m) => ({ default: m.UsersManagePage }))
+);
+const PatientsManagePage = lazy(() =>
+  import('@/features/admin/pages/PatientsManagePage').then((m) => ({ default: m.PatientsManagePage }))
 );
 const DoctorsManagePage = lazy(() =>
   import('@/features/admin/pages/DoctorsManagePage').then((m) => ({ default: m.DoctorsManagePage }))
@@ -85,12 +103,18 @@ const NotFoundPage = lazy(() =>
 );
 
 const HomeRedirect: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isBootstrapping } = useAuth();
 
-  // If not logged in, show HomePage
+  if (isBootstrapping) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
   if (!user) return <HomePage />;
 
-  // If logged in, redirect to role-based dashboard
   if (user.role === ROLES.PATIENT) return <Navigate to={ROUTE_PATHS.PATIENT_DASHBOARD} replace />;
   if (user.role === ROLES.DOCTOR) return <Navigate to={ROUTE_PATHS.DOCTOR_DASHBOARD} replace />;
   if (user.role === ROLES.ADMIN) return <Navigate to={ROUTE_PATHS.ADMIN_DASHBOARD} replace />;
@@ -108,16 +132,13 @@ export const RoutesConfig: React.FC = () => {
       }
     >
       <Routes>
-        {/* Home / Landing page */}
         <Route path={ROUTE_PATHS.HOME} element={<HomeRedirect />} />
 
-        {/* Public routes */}
         <Route element={<AuthLayout />}>
           <Route path={ROUTE_PATHS.LOGIN} element={<LoginPage />} />
           <Route path={ROUTE_PATHS.REGISTER} element={<RegisterPage />} />
         </Route>
 
-        {/* Protected routes */}
         <Route
           element={
             <AuthGuard>
@@ -125,7 +146,6 @@ export const RoutesConfig: React.FC = () => {
             </AuthGuard>
           }
         >
-          {/* Patient routes */}
           <Route
             path={ROUTE_PATHS.PATIENT_DASHBOARD}
             element={
@@ -167,7 +187,6 @@ export const RoutesConfig: React.FC = () => {
             }
           />
 
-          {/* Doctor routes */}
           <Route
             path={ROUTE_PATHS.DOCTOR_DASHBOARD}
             element={
@@ -192,8 +211,31 @@ export const RoutesConfig: React.FC = () => {
               </RoleGuard>
             }
           />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_APPOINTMENTS}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <DoctorAppointmentsPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_RATINGS}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <DoctorRatingsPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_PROFILE}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <DoctorProfilePage />
+              </RoleGuard>
+            }
+          />
 
-          {/* Admin routes */}
           <Route
             path={ROUTE_PATHS.ADMIN_DASHBOARD}
             element={
@@ -207,6 +249,14 @@ export const RoutesConfig: React.FC = () => {
             element={
               <RoleGuard roles={['ADMIN']}>
                 <UsersManagePage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.MANAGE_PATIENTS}
+            element={
+              <RoleGuard roles={['ADMIN']}>
+                <PatientsManagePage />
               </RoleGuard>
             }
           />
@@ -243,7 +293,6 @@ export const RoutesConfig: React.FC = () => {
             }
           />
 
-          {/* Reports route */}
           <Route
             path={ROUTE_PATHS.REPORTS}
             element={
@@ -254,7 +303,6 @@ export const RoutesConfig: React.FC = () => {
           />
         </Route>
 
-        {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

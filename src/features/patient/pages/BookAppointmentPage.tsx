@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
@@ -11,8 +12,18 @@ import {
   loadSpecialtiesRequested,
   loadDoctorsBySpecialtyRequested,
   bookAppointmentRequested,
+  clearAppointmentSubmitted,
 } from '../redux/patient.slice';
-import { selectSpecialties, selectDoctors, selectPatientLoading } from '../redux/patient.selectors';
+import { selectSpecialties, selectDoctors, selectPatientLoading, selectAppointmentSubmitted } from '../redux/patient.selectors';
+import { ROUTE_PATHS } from '@/constants/routePaths';
+
+// Local calendar date, not UTC (avoids day-off-by-one for negative-UTC-offset timezones).
+const formatLocalDate = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
 
 const timeSlots = [
   { label: '08:00', value: '08:00' },
@@ -38,6 +49,7 @@ const appointmentSchema = Yup.object().shape({
   doctorId: Yup.string().required(),
   date: Yup.date().required().nullable(),
   time: Yup.string().required(),
+  reason: Yup.string().required(),
   notes: Yup.string(),
 });
 
@@ -46,20 +58,31 @@ interface AppointmentFormValues {
   doctorId: string;
   date: Date | null;
   time: string;
+  reason: string;
   notes: string;
 }
 
 export const BookAppointmentPage: React.FC = () => {
   const { t, i18n } = useTranslation('patient');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const specialties = useAppSelector(selectSpecialties);
   const doctors = useAppSelector(selectDoctors);
   const loading = useAppSelector(selectPatientLoading);
+  const appointmentSubmitted = useAppSelector(selectAppointmentSubmitted);
   const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>('');
 
   useEffect(() => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
+
+  // Saga dispatches toasts; navigate only.
+  useEffect(() => {
+    if (appointmentSubmitted) {
+      dispatch(clearAppointmentSubmitted());
+      navigate(ROUTE_PATHS.CONSULTATION_HISTORY);
+    }
+  }, [appointmentSubmitted, dispatch, navigate]);
 
   const specialtyOptions = specialties.map((s) => ({
     label: i18n.language === 'vi' ? s.nameVi : s.nameEn,
@@ -69,11 +92,14 @@ export const BookAppointmentPage: React.FC = () => {
 
   const handleSubmit = (values: AppointmentFormValues) => {
     if (!values.date) return;
+    // No trailing Z: JS interprets the string in local timezone, mapping correctly to UTC.
+    const localDateTimeStr = `${formatLocalDate(values.date)}T${values.time}:00`;
+    const scheduledAt = new Date(localDateTimeStr).toISOString();
     dispatch(
       bookAppointmentRequested({
         doctorId: values.doctorId,
-        date: values.date.toISOString().split('T')[0],
-        time: values.time,
+        scheduledAt,
+        reason: values.reason,
         notes: values.notes,
       })
     );
@@ -93,6 +119,7 @@ export const BookAppointmentPage: React.FC = () => {
               doctorId: '',
               date: null,
               time: '',
+              reason: '',
               notes: '',
             }}
             validationSchema={appointmentSchema}
@@ -142,11 +169,21 @@ export const BookAppointmentPage: React.FC = () => {
                 </div>
 
                 <div className="mt-2">
+                  <FormikInputText
+                    name="reason"
+                    label={t('reason')}
+                    placeholder={t('reasonPlaceholder')}
+                    as="textarea"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="mt-2">
                   <FormikInputText name="notes" label={t('notes')} as="textarea" rows={4} />
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button type="submit" loading={loading}>
+                  <Button type="submit" loading={loading} data-cy="book-appointment-submit">
                     {t('bookAppointment')}
                   </Button>
                 </div>

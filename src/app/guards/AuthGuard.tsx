@@ -14,7 +14,6 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const isBootstrapping = useAppSelector(selectIsBootstrapping);
 
-  // Show loading spinner during initial bootstrap (silent refresh attempt)
   if (isBootstrapping) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -23,7 +22,6 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
-  // After bootstrap completes, redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to={ROUTE_PATHS.LOGIN} replace />;
   }

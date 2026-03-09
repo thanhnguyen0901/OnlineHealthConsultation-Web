@@ -1,0 +1,23 @@
+[
+  {
+    "id": "specialty-001",
+    "nameEn": "Cardiology",
+    "nameVi": "Tim mạch",
+    "description": "Heart and cardiovascular system",
+    "isActive": true
+  },
+  {
+    "id": "specialty-002",
+    "nameEn": "Dermatology",
+    "nameVi": "Da liễu",
+    "description": "Skin conditions and diseases",
+    "isActive": true
+  },
+  {
+    "id": "specialty-003",
+    "nameEn": "Neurology",
+    "nameVi": "Thần kinh học",
+    "description": "Nervous system disorders",
+    "isActive": true
+  }
+]

@@ -1,10 +1,12 @@
 import apiClient from '@/apis/core/apiClient';
+import { performRefresh } from '@/apis/core/refreshManager';
 import type { User } from '@/types/common';
 
 interface BackendUser {
   id: string;
   email: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   role: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   isActive?: boolean;
   patientProfile?: any;
@@ -19,23 +21,17 @@ interface AuthResponse {
   };
 }
 
-interface RefreshResponse {
-  data: {
-    accessToken: string;
-    refreshToken?: string;
-  };
-}
-
 export interface AuthResult {
   user: User;
   accessToken: string;
 }
 
-// Normalize backend user to frontend User type
 const normalizeUser = (backendUser: BackendUser): User => ({
   id: backendUser.id,
   email: backendUser.email,
-  name: backendUser.fullName,
+  firstName: backendUser.firstName,
+  lastName: backendUser.lastName,
+  name: `${backendUser.firstName} ${backendUser.lastName}`.trim(),
   role: backendUser.role,
 });
 
@@ -53,7 +49,9 @@ export const login = async (credentials: {
 export const register = async (data: {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  role: 'PATIENT' | 'DOCTOR';
 }): Promise<AuthResult> => {
   const response = await apiClient.post<AuthResponse>('/auth/register', data);
   return {
@@ -74,17 +72,19 @@ export const me = async (): Promise<AuthResult> => {
   };
 };
 
-export const refresh = async (): Promise<AuthResult> => {
-  const response = await apiClient.post<RefreshResponse>('/auth/refresh', {});
-  // Backend should also return user data or we need to call /auth/me after refresh
-  // For now, we'll call /auth/me to get user data
-  const meResponse = await apiClient.get<{ data: BackendUser }>('/auth/me', {
-    headers: {
-      Authorization: `Bearer ${response.data.data.accessToken}`,
-    },
+// Passes Authorization header directly; avoids POST /auth/refresh when sessionStorage already has a valid token.
+export const meWithToken = async (accessToken: string): Promise<AuthResult> => {
+  const response = await apiClient.get<{ data: BackendUser }>('/auth/me', {
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
   return {
-    user: normalizeUser(meResponse.data.data),
-    accessToken: response.data.data.accessToken,
+    user: normalizeUser(response.data.data),
+    accessToken, // carry the same token forward into Redux
   };
+};
+
+export const refresh = async (): Promise<AuthResult> => {
+  // performRefresh() is single-flight: concurrent callers share the same in-flight Promise.
+  const { accessToken, user } = await performRefresh();
+  return { accessToken, user };
 };

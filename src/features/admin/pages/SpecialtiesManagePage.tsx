@@ -48,27 +48,27 @@ export const SpecialtiesManagePage: React.FC = () => {
 
   const saveSpecialty = () => {
     setSubmitted(true);
-    if (specialty.nameEn?.trim() && specialty.nameVi?.trim() && specialty.description?.trim()) {
-      // Auto-generate name from nameEn for backward compatibility
-      const dataToSave = {
-        ...specialty,
-        name: specialty.nameEn,
-      };
-
+    // description is optional on the BE — only nameEn and nameVi are required.
+    if (specialty.nameEn?.trim() && specialty.nameVi?.trim()) {
       if (specialty.id) {
         dispatch(
           updateSpecialtyRequested({
             id: specialty.id,
             data: {
-              name: dataToSave.name,
-              nameEn: dataToSave.nameEn,
-              nameVi: dataToSave.nameVi,
-              description: dataToSave.description,
+              nameEn: specialty.nameEn,
+              nameVi: specialty.nameVi,
+              description: specialty.description,
             },
           })
         );
       } else {
-        dispatch(createSpecialtyRequested(dataToSave as Partial<Specialty>));
+        dispatch(
+          createSpecialtyRequested({
+            nameEn: specialty.nameEn,
+            nameVi: specialty.nameVi,
+            description: specialty.description,
+          })
+        );
       }
       setDialog(false);
       setSpecialty({});
@@ -101,12 +101,14 @@ export const SpecialtiesManagePage: React.FC = () => {
           size="sm"
           variant="secondary"
           onClick={() => editSpecialty(rowData)}
+          data-cy={`btn-edit-specialty-${rowData.id}`}
         />
         <Button
           icon="pi pi-trash"
           size="sm"
           variant="danger"
           onClick={() => confirmDeleteSpecialty(rowData)}
+          data-cy={`btn-delete-specialty-${rowData.id}`}
         />
       </div>
     );
@@ -115,14 +117,14 @@ export const SpecialtiesManagePage: React.FC = () => {
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
       <Button label={t('cancel')} variant="secondary" onClick={hideDialog} />
-      <Button label={t('save')} onClick={saveSpecialty} />
+      <Button label={t('save')} onClick={saveSpecialty} data-cy="btn-save-specialty" />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
       <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} />
-      <Button label={t('yes')} variant="danger" onClick={deleteSpecialty} />
+      <Button label={t('yes')} variant="danger" onClick={deleteSpecialty} data-cy="btn-confirm-delete" />
     </div>
   );
 
@@ -135,7 +137,7 @@ export const SpecialtiesManagePage: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
-            <Button icon="pi pi-plus" onClick={openNew}>
+            <Button icon="pi pi-plus" onClick={openNew} data-cy="btn-new-specialty">
               {t('addSpecialty')}
             </Button>
           </div>
@@ -174,6 +176,7 @@ export const SpecialtiesManagePage: React.FC = () => {
                 {t('nameEnglish')} <span className="text-red-500">*</span>
               </label>
               <InputText
+                id="nameEn"
                 value={specialty.nameEn || ''}
                 onChange={(e) => setSpecialty({ ...specialty, nameEn: e.target.value })}
                 required
@@ -189,8 +192,7 @@ export const SpecialtiesManagePage: React.FC = () => {
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('nameVietnamese')} <span className="text-red-500">*</span>
               </label>
-              <InputText
-                value={specialty.nameVi || ''}
+              <InputText                id="nameVi"                value={specialty.nameVi || ''}
                 onChange={(e) => setSpecialty({ ...specialty, nameVi: e.target.value })}
                 required
                 className={`w-full ${submitted && !specialty.nameVi ? 'p-invalid' : ''}`}
@@ -205,6 +207,7 @@ export const SpecialtiesManagePage: React.FC = () => {
                 {t('description')}
               </label>
               <InputTextarea
+                id="description"
                 value={specialty.description || ''}
                 onChange={(e) => setSpecialty({ ...specialty, description: e.target.value })}
                 required
@@ -233,7 +236,7 @@ export const SpecialtiesManagePage: React.FC = () => {
               <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
               {specialty && (
                 <span className="text-gray-700 dark:text-gray-300 text-base">
-                  {t('deleteSpecialtyConfirm', { name: specialty.name })}
+                  {t('deleteSpecialtyConfirm', { name: specialty.nameEn })}
                 </span>
               )}
             </div>

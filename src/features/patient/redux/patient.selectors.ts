@@ -9,3 +9,5 @@ export const selectSpecialties = (state: RootState) => state.patient.specialties
 export const selectDoctors = (state: RootState) => state.patient.doctors;
 export const selectPatientLoading = (state: RootState) => state.patient.loading;
 export const selectPatientError = (state: RootState) => state.patient.error;
+export const selectQuestionSubmitted = (state: RootState) => state.patient.questionSubmitted;
+export const selectAppointmentSubmitted = (state: RootState) => state.patient.appointmentSubmitted;

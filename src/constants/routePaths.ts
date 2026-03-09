@@ -13,11 +13,15 @@ export const ROUTE_PATHS = {
   // Doctor routes
   DOCTOR_DASHBOARD: '/doctor',
   INBOX_QUESTIONS: '/doctor/inbox',
+  DOCTOR_APPOINTMENTS: '/doctor/appointments',
   SCHEDULE: '/doctor/schedule',
+  DOCTOR_RATINGS: '/doctor/ratings',
+  DOCTOR_PROFILE: '/doctor/profile',
 
   // Admin routes
   ADMIN_DASHBOARD: '/admin',
   MANAGE_USERS: '/admin/users',
+  MANAGE_PATIENTS: '/admin/patients',
   MANAGE_DOCTORS: '/admin/doctors',
   MANAGE_SPECIALTIES: '/admin/specialties',
   MANAGE_APPOINTMENTS: '/admin/appointments',

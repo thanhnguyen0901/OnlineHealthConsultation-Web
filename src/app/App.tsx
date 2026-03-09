@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { RoutesConfig } from './routes';
 import { ToastPortal } from '@/components/common/ToastPortal';
@@ -7,11 +7,12 @@ import { meRequested } from '@/features/auth/redux/auth.slice';
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
+  // useRef prevents StrictMode's double-invocation from firing two concurrent POST /auth/refresh requests.
+  const bootstrapped = useRef(false);
 
   useEffect(() => {
-    // Silent refresh: Attempt to restore session from HttpOnly refresh cookie
-    // This will call POST /auth/refresh and update Redux state if successful
-    // If refresh cookie doesn't exist or is expired, meFailed will be dispatched
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
     dispatch(meRequested());
   }, [dispatch]);
 

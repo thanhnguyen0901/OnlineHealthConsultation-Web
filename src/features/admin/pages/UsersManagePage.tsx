@@ -13,7 +13,7 @@ import {
   updateUserRequested,
   deleteUserRequested,
 } from '../redux/admin.slice';
-import { selectAdminUsers, selectAdminLoading } from '../redux/admin.selectors';
+import { selectAdminUsers, selectAdminLoading, selectAdminUsersPagination } from '../redux/admin.selectors';
 import type { User } from '@/types/common';
 import { ROLES } from '@/constants/roles';
 
@@ -22,6 +22,11 @@ export const UsersManagePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAdminUsers);
   const loading = useAppSelector(selectAdminLoading);
+  const usersPagination = useAppSelector(selectAdminUsersPagination);
+
+  const [first, setFirst] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [revision, setRevision] = useState(0);
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -35,8 +40,9 @@ export const UsersManagePage: React.FC = () => {
   ];
 
   useEffect(() => {
-    dispatch(loadUsersRequested());
-  }, [dispatch]);
+    const page = Math.floor(first / pageSize) + 1;
+    dispatch(loadUsersRequested({ page, limit: pageSize }));
+  }, [dispatch, first, pageSize, revision]);
 
   const openNew = () => {
     setUser({});
@@ -55,26 +61,31 @@ export const UsersManagePage: React.FC = () => {
 
   const saveUser = () => {
     setSubmitted(true);
-    if (user.name?.trim() && user.email?.trim()) {
-      if (user.id) {
-        dispatch(
-          updateUserRequested({
-            id: user.id,
-            data: { name: user.name, email: user.email, role: user.role },
-          })
-        );
-      } else {
-        if (user.password) {
-          dispatch(
-            createUserRequested({ ...user, password: user.password } as Partial<User> & {
-              password: string;
-            })
-          );
-        }
-      }
-      setDialog(false);
-      setUser({});
+    const isCreate = !user.id;
+    const valid =
+      !!user.firstName?.trim() &&
+      !!user.lastName?.trim() &&
+      !!user.email?.trim() &&
+      (!isCreate || !!user.password?.trim());
+    if (!valid) return;
+    if (isCreate) {
+      dispatch(
+        createUserRequested({ ...user, role: user.role || ROLES.PATIENT, password: user.password! } as Partial<User> & {
+          password: string;
+        })
+      );
+      setFirst(0);
+      setRevision((r) => r + 1);
+    } else {
+      dispatch(
+        updateUserRequested({
+          id: user.id!,
+          data: { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role },
+        })
+      );
     }
+    setDialog(false);
+    setUser({});
   };
 
   const editUser = (user: User) => {
@@ -93,6 +104,7 @@ export const UsersManagePage: React.FC = () => {
     }
     setDeleteDialog(false);
     setUser({});
+    setRevision((r) => r + 1);
   };
 
   const actionBodyTemplate = (rowData: User) => {
@@ -143,8 +155,13 @@ export const UsersManagePage: React.FC = () => {
           </div>
           <DataTable
             value={users}
+            lazy
             paginator
-            rows={10}
+            rows={pageSize}
+            rowsPerPageOptions={[10, 20, 50]}
+            first={first}
+            totalRecords={usersPagination?.total ?? 0}
+            onPage={(e: any) => { setFirst(e.first); setPageSize(e.rows); }}
             loading={loading}
             emptyMessage={t('noUsers')}
             className="primereact-table"
@@ -166,20 +183,36 @@ export const UsersManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1 space-y-4">
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('name')}
-              </label>
-              <InputText
-                value={user.name || ''}
-                onChange={(e) => setUser({ ...user, name: e.target.value })}
-                required
-                autoFocus
-                className={`w-full ${submitted && !user.name ? 'p-invalid' : ''}`}
-              />
-              {submitted && !user.name && (
-                <small className="text-red-500 text-xs mt-1">{t('nameRequired')}</small>
-              )}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('firstName')}
+                </label>
+                <InputText
+                  value={user.firstName || ''}
+                  onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+                  required
+                  autoFocus
+                  className={`w-full ${submitted && !user.firstName ? 'p-invalid' : ''}`}
+                />
+                {submitted && !user.firstName && (
+                  <small className="text-red-500 text-xs mt-1">{t('firstNameRequired')}</small>
+                )}
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('lastName')}
+                </label>
+                <InputText
+                  value={user.lastName || ''}
+                  onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+                  required
+                  className={`w-full ${submitted && !user.lastName ? 'p-invalid' : ''}`}
+                />
+                {submitted && !user.lastName && (
+                  <small className="text-red-500 text-xs mt-1">{t('lastNameRequired')}</small>
+                )}
+              </div>
             </div>
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -241,7 +274,7 @@ export const UsersManagePage: React.FC = () => {
               <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
               {user && (
                 <span className="text-gray-700 dark:text-gray-300 text-base">
-                  {t('deleteUserConfirm', { name: user.name })}
+                  {t('deleteUserConfirm', { name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() })}
                 </span>
               )}
             </div>

@@ -14,18 +14,21 @@ export const PatientDashboardPage: React.FC = () => {
       icon: 'pi pi-question-circle',
       path: ROUTE_PATHS.ASK_QUESTION,
       color: 'bg-blue-500',
+      dataCy: 'quick-action-ask-question',
     },
     {
       label: t('bookAppointment'),
       icon: 'pi pi-calendar-plus',
       path: ROUTE_PATHS.BOOK_APPOINTMENT,
       color: 'bg-green-500',
+      dataCy: 'quick-action-book-appointment',
     },
     {
       label: t('consultationHistory'),
       icon: 'pi pi-history',
       path: ROUTE_PATHS.CONSULTATION_HISTORY,
       color: 'bg-purple-500',
+      dataCy: 'quick-action-history',
     },
   ];
 
@@ -42,6 +45,7 @@ export const PatientDashboardPage: React.FC = () => {
               key={action.path}
               className="hover:shadow-xl transition-all cursor-pointer bg-white dark:bg-slate-900"
               onClick={() => navigate(action.path)}
+              data-cy={action.dataCy}
             >
               <div className="flex flex-col items-center p-6">
                 <div className={`${action.color} rounded-full p-6 mb-4 shadow-lg`}>

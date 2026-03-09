@@ -4,7 +4,8 @@ import type { Doctor, Specialty, AdminStats } from '../types';
 
 interface BackendUser {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   phone?: string;
@@ -21,23 +22,62 @@ interface BackendDoctor extends BackendUser {
 
 const normalizeUser = (backendUser: BackendUser): User => ({
   ...backendUser,
-  name: backendUser.fullName,
+  name: `${backendUser.firstName} ${backendUser.lastName}`.trim(),
 });
 
 const normalizeDoctor = (backendDoctor: BackendDoctor): Doctor => ({
   ...backendDoctor,
-  name: backendDoctor.fullName,
+  name: `${backendDoctor.firstName} ${backendDoctor.lastName}`.trim(),
 });
 
 export const getStats = async (): Promise<AdminStats> => {
-  const response = await apiClient.get<{ data: AdminStats }>('/admin/stats');
+  const response = await apiClient.get<{ data: AdminStats }>('/reports/stats');
   return response.data.data;
 };
 
-// Users API
-export const getUsers = async (): Promise<User[]> => {
-  const response = await apiClient.get<{ data: BackendUser[] }>('/admin/users');
-  return response.data.data.map(normalizeUser);
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PagedResult<T> {
+  data: T[];
+  pagination: PaginationMeta;
+}
+
+
+export interface UserListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+  isActive?: boolean;
+}
+
+export interface DoctorListParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface PatientListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+}
+
+export const getUsers = async (params?: UserListParams): Promise<PagedResult<User>> => {
+  const response = await apiClient.get<{ data: BackendUser[]; meta?: PaginationMeta }>(
+    '/admin/users',
+    { params }
+  );
+  return {
+    data: (response.data.data ?? []).map(normalizeUser),
+    pagination: response.data.meta ?? { page: 1, limit: 10, total: 0, totalPages: 0 },
+  };
 };
 
 export const createUser = async (data: Partial<User> & { password: string }): Promise<User> => {
@@ -54,10 +94,15 @@ export const deleteUser = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/users/${id}`);
 };
 
-// Doctors API
-export const getDoctors = async (): Promise<Doctor[]> => {
-  const response = await apiClient.get<{ data: BackendDoctor[] }>('/admin/doctors');
-  return response.data.data.map(normalizeDoctor);
+export const getDoctors = async (params?: DoctorListParams): Promise<PagedResult<Doctor>> => {
+  const response = await apiClient.get<{ data: BackendDoctor[]; meta?: PaginationMeta }>(
+    '/admin/doctors',
+    { params }
+  );
+  return {
+    data: (response.data.data ?? []).map(normalizeDoctor),
+    pagination: response.data.meta ?? { page: 1, limit: 10, total: 0, totalPages: 0 },
+  };
 };
 
 export const createDoctor = async (
@@ -76,7 +121,47 @@ export const deleteDoctor = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/doctors/${id}`);
 };
 
-// Specialties API
+export interface BackendPatient {
+  id: Id;           // User.id
+  profileId: Id;    // PatientProfile.id
+  email: string;
+  firstName: string;
+  lastName: string;
+  isActive: boolean;
+  phone?: string | null;
+  gender?: string | null;
+  dateOfBirth?: string | null;
+  address?: string | null;
+  role: 'PATIENT';
+}
+
+import type { Patient } from '../types';
+
+const normalizePatient = (p: BackendPatient): Patient => ({
+  ...p,
+  name: `${p.firstName} ${p.lastName}`.trim(),
+});
+
+export const getPatients = async (params?: PatientListParams): Promise<PagedResult<Patient>> => {
+  const response = await apiClient.get<{ data: BackendPatient[]; meta?: PaginationMeta }>(
+    '/admin/patients',
+    { params }
+  );
+  return {
+    data: (response.data.data ?? []).map(normalizePatient),
+    pagination: response.data.meta ?? { page: 1, limit: 10, total: 0, totalPages: 0 },
+  };
+};
+
+export const updatePatient = async (id: Id, data: Partial<Patient>): Promise<Patient> => {
+  const response = await apiClient.put<{ data: BackendPatient }>(`/admin/patients/${id}`, data);
+  return normalizePatient(response.data.data);
+};
+
+export const deletePatient = async (id: Id): Promise<void> => {
+  await apiClient.delete(`/admin/patients/${id}`);
+};
+
 export const getSpecialties = async (): Promise<Specialty[]> => {
   const response = await apiClient.get<{ data: Specialty[] }>('/admin/specialties');
   return response.data.data;
@@ -96,7 +181,6 @@ export const deleteSpecialty = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/specialties/${id}`);
 };
 
-// Appointments API
 export interface Appointment {
   id: Id;
   patientId: Id;
@@ -111,9 +195,29 @@ export interface Appointment {
   notes?: string;
 }
 
-export const getAppointments = async (): Promise<Appointment[]> => {
-  const response = await apiClient.get<{ data: Appointment[] }>('/admin/appointments');
-  return response.data.data;
+export interface AppointmentFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export const getAppointments = async (filters?: AppointmentFilters): Promise<PagedResult<Appointment>> => {
+  const params: Record<string, any> = {};
+  if (filters?.page)      params.page      = filters.page;
+  if (filters?.limit)     params.limit     = filters.limit;
+  if (filters?.status)    params.status    = filters.status;
+  if (filters?.startDate) params.startDate = filters.startDate;
+  if (filters?.endDate)   params.endDate   = filters.endDate;
+  const response = await apiClient.get<{ data: Appointment[]; meta?: PaginationMeta }>(
+    '/admin/appointments',
+    { params }
+  );
+  return {
+    data: response.data.data ?? [],
+    pagination: response.data.meta ?? { page: 1, limit: 10, total: 0, totalPages: 0 },
+  };
 };
 
 export const updateAppointmentStatus = async (id: Id, status: string): Promise<Appointment> => {
@@ -123,15 +227,18 @@ export const updateAppointmentStatus = async (id: Id, status: string): Promise<A
   return response.data.data;
 };
 
-// Moderation API
+// id is composite "QUESTION_<uuid>" | "ANSWER_<uuid>" | "RATING_<uuid>"; pass as-is to approve/reject endpoints.
 export interface ModerationItem {
-  id: Id;
-  type: 'question' | 'answer';
+  id: string;
+  type: 'QUESTION' | 'ANSWER' | 'RATING';
+  contentPreview: string;
   content: string;
+  author: string;
   authorId: Id;
-  authorName: string;
   createdAt: string;
-  status: 'pending' | 'approved' | 'rejected';
+  // QUESTION: "PENDING"|"ANSWERED"|"MODERATED" | ANSWER: "PENDING"|"APPROVED" | RATING: "VISIBLE"|"HIDDEN"
+  status: string;
+  entityId: Id;
 }
 
 export const getModerationItems = async (): Promise<ModerationItem[]> => {

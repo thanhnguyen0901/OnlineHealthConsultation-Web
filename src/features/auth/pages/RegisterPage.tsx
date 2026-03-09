@@ -6,12 +6,21 @@ import { useTranslation } from 'react-i18next';
 import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import { registerRequested } from '@/features/auth/redux/auth.slice';
-import { selectAuthLoading } from '@/features/auth/redux/auth.selectors';
+import {
+  registerRequested,
+  clearRegisterCompleted,
+} from '@/features/auth/redux/auth.slice';
+import {
+  selectAuthLoading,
+  selectAuthError,
+  selectRegisterCompleted,
+} from '@/features/auth/redux/auth.selectors';
+import { useToast } from '@/hooks/useToast';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 const registerSchema = Yup.object({
-  name: Yup.string().required(),
+  firstName: Yup.string().required(),
+  lastName: Yup.string().required(),
   email: Yup.string().email().required(),
   password: Yup.string().min(6).required(),
 });
@@ -21,6 +30,20 @@ export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const loading = useAppSelector(selectAuthLoading);
+  const authError = useAppSelector(selectAuthError);
+  const registerCompleted = useAppSelector(selectRegisterCompleted);
+  const { showError } = useToast();
+
+  React.useEffect(() => {
+    if (registerCompleted) {
+      dispatch(clearRegisterCompleted());
+      navigate(ROUTE_PATHS.LOGIN);
+    }
+  }, [registerCompleted, dispatch, navigate]);
+
+  React.useEffect(() => {
+    if (authError) showError(authError);
+  }, [authError, showError]);
 
   return (
     <div>
@@ -29,29 +52,35 @@ export const RegisterPage: React.FC = () => {
       </h2>
 
       <Formik
-        initialValues={{ name: '', email: '', password: '' }}
+        initialValues={{ firstName: '', lastName: '', email: '', password: '' }}
         validationSchema={registerSchema}
         onSubmit={(values) => {
-          dispatch(registerRequested(values));
-          navigate(ROUTE_PATHS.LOGIN);
+          // role is fixed to 'PATIENT'; admin creates DOCTOR accounts via the admin panel.
+          dispatch(registerRequested({ ...values, role: 'PATIENT' }));
+          // Do NOT navigate here — wait for registerCompleted flag (see useEffect above).
         }}
       >
         <Form className="space-y-4">
-          <FormikInputText name="name" label={t('common:name')} placeholder="John Doe" />
+          <div className="grid grid-cols-2 gap-3">
+            <FormikInputText name="firstName" label={t('common:firstName')} placeholder="John" data-cy="register-first-name" />
+            <FormikInputText name="lastName" label={t('common:lastName')} placeholder="Doe" data-cy="register-last-name" />
+          </div>
           <FormikInputText
             name="email"
             label={t('common:email')}
             type="email"
             placeholder="you@example.com"
+            data-cy="register-email"
           />
           <FormikInputText
             name="password"
             label={t('common:password')}
             type="password"
             placeholder="••••••••"
+            data-cy="register-password"
           />
           <div className="pt-2">
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button type="submit" className="w-full" loading={loading} disabled={loading} data-cy="register-submit">
               {t('common:register')}
             </Button>
           </div>

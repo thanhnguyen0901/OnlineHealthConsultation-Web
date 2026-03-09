@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadHistoryRequested,
   rateConsultationRequested,
+  cancelAppointmentRequested,
 } from '@/features/patient/redux/patient.slice';
 import {
   selectQuestions,
@@ -18,7 +19,6 @@ import {
   selectPatientLoading,
 } from '@/features/patient/redux/patient.selectors';
 import type { Question, Appointment } from '../types';
-import { useToast } from '@/hooks/useToast';
 
 export const ConsultationHistoryPage: React.FC = () => {
   const { t } = useTranslation('patient');
@@ -26,30 +26,34 @@ export const ConsultationHistoryPage: React.FC = () => {
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
   const loading = useAppSelector(selectPatientLoading);
-  const { showSuccess } = useToast();
+  // Ref tracks previous ratings count; detects new entries without triggering re-render.
+  const ratingsRef = React.useRef<number | null>(null);
+  const ratings = useAppSelector((s) => s.patient.ratings);
 
   const [ratingDialog, setRatingDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [ratingValue, setRatingValue] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [detailDialog, setDetailDialog] = useState(false);
+  const [detailAppointment, setDetailAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     dispatch(loadHistoryRequested());
   }, [dispatch]);
 
-  // Track rating submission completion
+  // Saga dispatches toast; dialog closes when ratings.length increases.
   useEffect(() => {
-    if (isSubmitting && !loading) {
-      // Rating submission completed
-      showSuccess(t('ratingSubmitted') || 'Rating submitted successfully');
+    if (ratingsRef.current !== null && ratings.length > ratingsRef.current) {
       setRatingDialog(false);
-      setIsSubmitting(false);
-      // Reload history to get updated data
-      setTimeout(() => dispatch(loadHistoryRequested()), 500);
     }
-  }, [loading, isSubmitting, showSuccess, dispatch, t]);
+    ratingsRef.current = ratings.length;
+  }, [ratings.length]);
+
+  const handleOpenDetail = (appointment: Appointment) => {
+    setDetailAppointment(appointment);
+    setDetailDialog(true);
+  };
 
   const handleOpenAppointmentRating = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
@@ -62,10 +66,7 @@ export const ConsultationHistoryPage: React.FC = () => {
   const handleSubmitRating = () => {
     if (ratingValue === 0) return;
 
-    setIsSubmitting(true);
-
     if (selectedAppointment && selectedAppointment.doctorId) {
-      // Rating for appointment
       dispatch(
         rateConsultationRequested({
           consultationId: selectedAppointment.id,
@@ -75,7 +76,7 @@ export const ConsultationHistoryPage: React.FC = () => {
         })
       );
     } else if (selectedQuestion && selectedQuestion.doctorId) {
-      // Rating for question (currently not supported by backend)
+      // Question ratings are not yet supported by backend.
       dispatch(
         rateConsultationRequested({
           consultationId: selectedQuestion.id,
@@ -111,9 +112,11 @@ export const ConsultationHistoryPage: React.FC = () => {
       string,
       { severity: 'success' | 'warning' | 'danger' | 'info'; label: string }
     > = {
-      scheduled: { severity: 'info', label: t('scheduled') },
+      // BE returns status lowercased; matches AppointmentStatus enum values.
+      pending:   { severity: 'warning', label: t('pending') },
+      confirmed: { severity: 'info',    label: t('confirmed') },
       completed: { severity: 'success', label: t('completed') },
-      cancelled: { severity: 'danger', label: t('cancelled') },
+      cancelled: { severity: 'danger',  label: t('cancelled') },
     };
 
     const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
@@ -121,15 +124,22 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   const appointmentActionTemplate = (rowData: Appointment) => {
+    const detailBtn = (
+      <Button
+        icon="pi pi-info-circle"
+        size="sm"
+        variant="secondary"
+        onClick={() => handleOpenDetail(rowData)}
+        title={t('viewDetail')}
+      />
+    );
+
     if (rowData.status === 'completed') {
-      if (rowData.hasRating) {
-        return (
-          <span className="text-green-600 dark:text-green-400 text-sm font-medium">
-            {t('rated')}
-          </span>
-        );
-      }
-      return (
+      const actionBtn = rowData.hasRating ? (
+        <span className="text-green-600 dark:text-green-400 text-sm font-medium">
+          {t('rated')}
+        </span>
+      ) : (
         <Button
           label={t('rate')}
           icon="pi pi-star"
@@ -137,8 +147,28 @@ export const ConsultationHistoryPage: React.FC = () => {
           onClick={() => handleOpenAppointmentRating(rowData)}
         />
       );
+      return <div className="flex items-center gap-2">{actionBtn}{detailBtn}</div>;
     }
-    return <span className="text-gray-400 text-sm italic">{t('notAvailable')}</span>;
+    if (rowData.status === 'pending' || rowData.status === 'confirmed') {
+      return (
+        <div className="flex items-center gap-2">
+          <Button
+            label={t('cancel')}
+            icon="pi pi-times"
+            size="sm"
+            variant="danger"
+            onClick={() => dispatch(cancelAppointmentRequested(rowData.id))}
+          />
+          {detailBtn}
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-gray-400 text-sm italic">{t('notAvailable')}</span>
+        {detailBtn}
+      </div>
+    );
   };
 
   return (
@@ -163,6 +193,17 @@ export const ConsultationHistoryPage: React.FC = () => {
                 className="primereact-table"
               >
                 <Column field="question" header={t('question')} sortable />
+                <Column
+                  field="answer"
+                  header={t('answer')}
+                  body={(rowData: Question) =>
+                    rowData.answer ? (
+                      <span className="text-gray-800 dark:text-gray-200">{rowData.answer}</span>
+                    ) : (
+                      <span className="text-gray-400 italic text-sm">—</span>
+                    )
+                  }
+                />
                 <Column
                   field="status"
                   header={t('status')}
@@ -203,6 +244,22 @@ export const ConsultationHistoryPage: React.FC = () => {
                   style={{ width: '150px' }}
                 />
                 <Column
+                  field="reason"
+                  header={t('reason')}
+                  body={(rowData: Appointment) =>
+                    rowData.reason ? (
+                      <span
+                        className="text-gray-800 dark:text-gray-200 block max-w-[220px] truncate"
+                        title={rowData.reason}
+                      >
+                        {rowData.reason}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 italic text-sm">—</span>
+                    )
+                  }
+                />
+                <Column
                   field="status"
                   header={t('status')}
                   body={appointmentStatusTemplate}
@@ -212,13 +269,56 @@ export const ConsultationHistoryPage: React.FC = () => {
                 <Column
                   body={appointmentActionTemplate}
                   header={t('actions')}
-                  style={{ width: '180px' }}
+                  style={{ width: '200px' }}
                 />
               </DataTable>
             </div>
           </section>
         </div>
       </div>
+
+      <Dialog
+        header={t('appointmentDetails')}
+        visible={detailDialog}
+        style={{ width: '480px' }}
+        onHide={() => setDetailDialog(false)}
+        modal
+        className="p-dialog-custom"
+      >
+        {detailAppointment && (
+          <div className="p-6 space-y-4">
+            <div className="grid grid-cols-[140px_1fr] gap-y-3 text-sm">
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('doctor')}</span>
+              <span className="text-gray-900 dark:text-gray-100">{detailAppointment.doctorName ?? '—'}</span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('date')}</span>
+              <span className="text-gray-900 dark:text-gray-100">
+                {new Date(detailAppointment.date).toLocaleString()}
+              </span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('status')}</span>
+              <span>{appointmentStatusTemplate(detailAppointment as any)}</span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('reason')}</span>
+              <span className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                {detailAppointment.reason || '—'}
+              </span>
+
+              <span className="font-medium text-gray-600 dark:text-gray-400">{t('notes')}</span>
+              <span className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                {detailAppointment.notes
+                  ? detailAppointment.notes
+                  : <span className="text-gray-400 italic">{t('noNotes')}</span>}
+              </span>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button variant="secondary" onClick={() => setDetailDialog(false)}>
+                {t('cancel')}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
 
       <Dialog
         header={t('rateConsultation')}

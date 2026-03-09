@@ -13,18 +13,24 @@ const patientSlice = createSlice({
     ) => {
       state.loading = true;
       state.error = null;
+      state.questionSubmitted = false;
     },
     askQuestionSucceeded: (state, action: PayloadAction<Question>) => {
       state.loading = false;
       state.questions.unshift(action.payload);
+      state.questionSubmitted = true;
     },
     askQuestionFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
+      state.questionSubmitted = false;
+    },
+    clearQuestionSubmitted: (state) => {
+      state.questionSubmitted = false;
     },
     bookAppointmentRequested: (
       state,
-      _action: PayloadAction<{ doctorId: string; date: string; time: string; notes?: string }>
+      _action: PayloadAction<{ doctorId: string; scheduledAt: string; reason: string; notes?: string }>
     ) => {
       state.loading = true;
       state.error = null;
@@ -32,8 +38,28 @@ const patientSlice = createSlice({
     bookAppointmentSucceeded: (state, action: PayloadAction<Appointment>) => {
       state.loading = false;
       state.appointments.unshift(action.payload);
+      state.appointmentSubmitted = true;
     },
     bookAppointmentFailed: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+      state.appointmentSubmitted = false;
+    },
+    clearAppointmentSubmitted: (state) => {
+      state.appointmentSubmitted = false;
+    },
+    cancelAppointmentRequested: (state, _action: PayloadAction<string>) => {
+      state.loading = true;
+      state.error = null;
+    },
+    cancelAppointmentSucceeded: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      const idx = state.appointments.findIndex((a) => a.id === action.payload);
+      if (idx !== -1) {
+        state.appointments[idx] = { ...state.appointments[idx], status: 'cancelled' };
+      }
+    },
+    cancelAppointmentFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
@@ -92,6 +118,11 @@ const patientSlice = createSlice({
     rateConsultationSucceeded: (state, action: PayloadAction<Rating>) => {
       state.loading = false;
       state.ratings.unshift(action.payload);
+      // Optimistic update: mark appointment as rated to swap "Rate" button to "Rated".
+      const apptIdx = state.appointments.findIndex((a) => a.id === action.payload.appointmentId);
+      if (apptIdx !== -1) {
+        state.appointments[apptIdx] = { ...state.appointments[apptIdx], hasRating: true };
+      }
     },
     rateConsultationFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -128,9 +159,14 @@ export const {
   askQuestionRequested,
   askQuestionSucceeded,
   askQuestionFailed,
+  clearQuestionSubmitted,
   bookAppointmentRequested,
   bookAppointmentSucceeded,
   bookAppointmentFailed,
+  clearAppointmentSubmitted,
+  cancelAppointmentRequested,
+  cancelAppointmentSucceeded,
+  cancelAppointmentFailed,
   loadHistoryRequested,
   loadHistorySucceeded,
   loadHistoryFailed,

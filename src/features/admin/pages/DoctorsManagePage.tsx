@@ -19,6 +19,7 @@ import {
   selectAdminDoctors,
   selectAdminSpecialties,
   selectAdminLoading,
+  selectAdminDoctorsPagination,
 } from '../redux/admin.selectors';
 import type { Doctor } from '../types';
 
@@ -28,14 +29,22 @@ export const DoctorsManagePage: React.FC = () => {
   const doctors = useAppSelector(selectAdminDoctors);
   const specialties = useAppSelector(selectAdminSpecialties);
   const loading = useAppSelector(selectAdminLoading);
+  const doctorsPagination = useAppSelector(selectAdminDoctorsPagination);
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [doctor, setDoctor] = useState<Partial<Doctor> & { password?: string }>({});
   const [submitted, setSubmitted] = useState(false);
+  const [first, setFirst] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [revision, setRevision] = useState(0);
 
   useEffect(() => {
-    dispatch(loadDoctorsRequested());
+    const page = Math.floor(first / pageSize) + 1;
+    dispatch(loadDoctorsRequested({ page, limit: pageSize }));
+  }, [dispatch, first, pageSize, revision]);
+
+  useEffect(() => {
     dispatch(loadSpecialtiesRequested());
   }, [dispatch]);
 
@@ -61,31 +70,42 @@ export const DoctorsManagePage: React.FC = () => {
 
   const saveDoctor = () => {
     setSubmitted(true);
-    if (doctor.name?.trim() && doctor.email?.trim() && doctor.specialtyId) {
-      if (doctor.id) {
-        dispatch(
-          updateDoctorRequested({
-            id: doctor.id,
-            data: {
-              name: doctor.name,
-              email: doctor.email,
-              specialtyId: doctor.specialtyId,
-              bio: doctor.bio,
-            },
-          })
-        );
-      } else {
-        if (doctor.password) {
-          dispatch(
-            createDoctorRequested({ ...doctor, password: doctor.password } as Partial<Doctor> & {
-              password: string;
-            })
-          );
-        }
-      }
-      setDialog(false);
-      setDoctor({});
+    const isCreate = !doctor.id;
+    const valid =
+      !!doctor.firstName?.trim() &&
+      !!doctor.lastName?.trim() &&
+      !!doctor.email?.trim() &&
+      !!doctor.specialtyId &&
+      (!isCreate || !!doctor.password?.trim());
+    if (!valid) return;
+
+    if (isCreate) {
+      // role: 'DOCTOR' is required by the BE createUserSchema.
+      dispatch(
+        createDoctorRequested({
+          ...doctor,
+          role: 'DOCTOR',
+          password: doctor.password!,
+        } as Partial<Doctor> & { password: string })
+      );
+      setFirst(0);
+      setRevision((r) => r + 1);
+    } else {
+      dispatch(
+        updateDoctorRequested({
+          id: doctor.id!,
+          data: {
+            firstName: doctor.firstName,
+            lastName: doctor.lastName,
+            email: doctor.email,
+            specialtyId: doctor.specialtyId,
+            bio: doctor.bio,
+          },
+        })
+      );
     }
+    setDialog(false);
+    setDoctor({});
   };
 
   const editDoctor = (doctor: Doctor) => {
@@ -104,6 +124,7 @@ export const DoctorsManagePage: React.FC = () => {
     }
     setDeleteDialog(false);
     setDoctor({});
+    setRevision((r) => r + 1);
   };
 
   const actionBodyTemplate = (rowData: Doctor) => {
@@ -154,8 +175,13 @@ export const DoctorsManagePage: React.FC = () => {
           </div>
           <DataTable
             value={doctors}
+            lazy
             paginator
-            rows={10}
+            rows={pageSize}
+            rowsPerPageOptions={[10, 20, 50]}
+            first={first}
+            totalRecords={doctorsPagination?.total ?? 0}
+            onPage={(e: any) => { setFirst(e.first); setPageSize(e.rows); }}
             loading={loading}
             emptyMessage={t('noDoctors')}
             className="primereact-table"
@@ -182,20 +208,36 @@ export const DoctorsManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1 space-y-4">
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('name')}
-              </label>
-              <InputText
-                value={doctor.name || ''}
-                onChange={(e) => setDoctor({ ...doctor, name: e.target.value })}
-                required
-                autoFocus
-                className={`w-full ${submitted && !doctor.name ? 'p-invalid' : ''}`}
-              />
-              {submitted && !doctor.name && (
-                <small className="text-red-500 text-xs mt-1">{t('nameRequired')}</small>
-              )}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('firstName')}
+                </label>
+                <InputText
+                  value={doctor.firstName || ''}
+                  onChange={(e) => setDoctor({ ...doctor, firstName: e.target.value })}
+                  required
+                  autoFocus
+                  className={`w-full ${submitted && !doctor.firstName ? 'p-invalid' : ''}`}
+                />
+                {submitted && !doctor.firstName && (
+                  <small className="text-red-500 text-xs mt-1">{t('firstNameRequired')}</small>
+                )}
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('lastName')}
+                </label>
+                <InputText
+                  value={doctor.lastName || ''}
+                  onChange={(e) => setDoctor({ ...doctor, lastName: e.target.value })}
+                  required
+                  className={`w-full ${submitted && !doctor.lastName ? 'p-invalid' : ''}`}
+                />
+                {submitted && !doctor.lastName && (
+                  <small className="text-red-500 text-xs mt-1">{t('lastNameRequired')}</small>
+                )}
+              </div>
             </div>
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -269,7 +311,7 @@ export const DoctorsManagePage: React.FC = () => {
               <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
               {doctor && (
                 <span className="text-gray-700 dark:text-gray-300 text-base">
-                  {t('deleteDoctorConfirm', { name: doctor.name })}
+                  {t('deleteDoctorConfirm', { name: `${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() })}
                 </span>
               )}
             </div>

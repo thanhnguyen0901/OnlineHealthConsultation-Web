@@ -1,0 +1,37 @@
+{
+  "data": [
+    {
+      "id": "patient-001",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "patient@test.com",
+      "role": "PATIENT",
+      "name": "John Doe",
+      "isActive": true
+    },
+    {
+      "id": "doctor-001",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "doctor@test.com",
+      "role": "DOCTOR",
+      "name": "Jane Smith",
+      "isActive": true
+    },
+    {
+      "id": "admin-001",
+      "firstName": "Admin",
+      "lastName": "User",
+      "email": "admin@test.com",
+      "role": "ADMIN",
+      "name": "Admin User",
+      "isActive": true
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 3,
+    "totalPages": 1
+  }
+}

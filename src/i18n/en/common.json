@@ -8,6 +8,8 @@
   "email": "Email",
   "password": "Password",
   "name": "Name",
+  "firstName": "First Name",
+  "lastName": "Last Name",
   "submit": "Submit",
   "cancel": "Cancel",
   "save": "Save",
