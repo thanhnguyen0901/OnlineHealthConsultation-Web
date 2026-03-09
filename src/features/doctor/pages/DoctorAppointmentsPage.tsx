@@ -163,9 +163,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
             size="sm"
             variant={opt.value === 'cancelled' ? 'danger' : 'primary'}
             onClick={() =>
-              dispatch(
-                updateDoctorAppointmentRequested({ id: rowData.id, status: opt.value })
-              )
+              dispatch(updateDoctorAppointmentRequested({ id: rowData.id, status: opt.value }))
             }
           />
         ))}
@@ -209,12 +207,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
             sortField="scheduledAt"
             sortOrder={1}
           >
-            <Column
-              field="patientName"
-              header={t('patient')}
-              sortable
-              style={{ width: '180px' }}
-            />
+            <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
             <Column
               field="specialtyName"
               header={t('specialty')}
@@ -242,11 +235,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
               sortable
               style={{ width: '140px' }}
             />
-            <Column
-              body={actionsTemplate}
-              header={t('actions')}
-              style={{ width: '260px' }}
-            />
+            <Column body={actionsTemplate} header={t('actions')} style={{ width: '260px' }} />
           </DataTable>
         </div>
       </div>

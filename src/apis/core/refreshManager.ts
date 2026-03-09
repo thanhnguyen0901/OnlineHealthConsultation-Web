@@ -93,9 +93,7 @@ async function executeRefreshWithRetry(): Promise<AuthPayload> {
     return await executeRefresh();
   } catch (err) {
     if (isTokenRotatedError(err)) {
-      debugLog(
-        `TOKEN_ROTATED — waiting ${TOKEN_ROTATED_RETRY_DELAY_MS} ms then retrying once`
-      );
+      debugLog(`TOKEN_ROTATED — waiting ${TOKEN_ROTATED_RETRY_DELAY_MS} ms then retrying once`);
       await delay(TOKEN_ROTATED_RETRY_DELAY_MS);
       // Second attempt: propagates naturally if it also fails
       return executeRefresh();

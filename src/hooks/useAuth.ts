@@ -1,5 +1,9 @@
 import { useAppSelector } from '@/state/hooks';
-import { selectUser, selectIsAuthenticated, selectIsBootstrapping } from '@/features/auth/redux/auth.selectors';
+import {
+  selectUser,
+  selectIsAuthenticated,
+  selectIsBootstrapping,
+} from '@/features/auth/redux/auth.selectors';
 import { ROLES } from '@/constants/roles';
 
 export const useAuth = () => {

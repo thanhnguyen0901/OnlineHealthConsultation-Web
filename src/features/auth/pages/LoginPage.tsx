@@ -7,7 +7,11 @@ import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loginRequested } from '@/features/auth/redux/auth.slice';
-import { selectAuthLoading, selectIsAuthenticated, selectUser } from '@/features/auth/redux/auth.selectors';
+import {
+  selectAuthLoading,
+  selectIsAuthenticated,
+  selectUser,
+} from '@/features/auth/redux/auth.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 import { ROLES } from '@/constants/roles';
 import { useEffect } from 'react';

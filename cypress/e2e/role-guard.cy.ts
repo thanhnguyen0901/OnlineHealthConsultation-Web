@@ -112,7 +112,10 @@ describe('RoleGuard – shared /reports route', () => {
       cy.intercept('GET', '**/api/doctors/me', { statusCode: 200, body: { data: profile } });
     });
     cy.intercept('GET', '**/api/reports/stats', { statusCode: 200, body: { data: {} } });
-    cy.intercept('GET', '**/api/reports/appointments-chart', { statusCode: 200, body: { data: [] } });
+    cy.intercept('GET', '**/api/reports/appointments-chart', {
+      statusCode: 200,
+      body: { data: [] },
+    });
     cy.intercept('GET', '**/api/reports/questions-chart', { statusCode: 200, body: { data: [] } });
 
     cy.loginAs('DOCTOR', '/reports');
@@ -121,7 +124,10 @@ describe('RoleGuard – shared /reports route', () => {
 
   it('allows an ADMIN to access /reports', () => {
     cy.intercept('GET', '**/api/reports/stats', { statusCode: 200, body: { data: {} } });
-    cy.intercept('GET', '**/api/reports/appointments-chart', { statusCode: 200, body: { data: [] } });
+    cy.intercept('GET', '**/api/reports/appointments-chart', {
+      statusCode: 200,
+      body: { data: [] },
+    });
     cy.intercept('GET', '**/api/reports/questions-chart', { statusCode: 200, body: { data: [] } });
 
     cy.loginAs('ADMIN', '/reports');

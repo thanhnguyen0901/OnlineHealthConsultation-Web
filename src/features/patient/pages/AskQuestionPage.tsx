@@ -26,12 +26,12 @@ const questionSchema = Yup.object({
     .required('Question is required'),
 });
 
-const FormikTextArea: React.FC<{ name: string; label: string; rows?: number; 'data-cy'?: string }> = ({
-  name,
-  label,
-  rows = 5,
-  'data-cy': dataCy,
-}) => {
+const FormikTextArea: React.FC<{
+  name: string;
+  label: string;
+  rows?: number;
+  'data-cy'?: string;
+}> = ({ name, label, rows = 5, 'data-cy': dataCy }) => {
   const [field, meta] = useField(name);
   return (
     <div className="mb-4">
@@ -51,9 +51,7 @@ const FormikTextArea: React.FC<{ name: string; label: string; rows?: number; 'da
         autoResize
         data-cy={dataCy}
       />
-      {meta.touched && meta.error && (
-        <small className="p-error block mt-1">{meta.error}</small>
-      )}
+      {meta.touched && meta.error && <small className="p-error block mt-1">{meta.error}</small>}
     </div>
   );
 };
@@ -96,7 +94,9 @@ export const AskQuestionPage: React.FC = () => {
             validationSchema={questionSchema}
             onSubmit={(values) => {
               // Do not resetForm: fires before the saga completes, losing form data on error retry.
-              dispatch(askQuestionRequested({ question: values.question, specialtyId: values.specialtyId }));
+              dispatch(
+                askQuestionRequested({ question: values.question, specialtyId: values.specialtyId })
+              );
             }}
           >
             {({ isSubmitting: _unused }) => (
@@ -119,7 +119,12 @@ export const AskQuestionPage: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end pt-4">
-                  <Button type="submit" loading={loading} disabled={loading} data-cy="ask-question-submit">
+                  <Button
+                    type="submit"
+                    loading={loading}
+                    disabled={loading}
+                    data-cy="ask-question-submit"
+                  >
                     {t('common:submit')}
                   </Button>
                 </div>

@@ -74,7 +74,8 @@ export const DoctorProfilePage: React.FC = () => {
     dispatch(updateProfileRequested(payload));
   };
 
-  const isSubmitDisabled = loading || (!form.bio.trim() && !form.yearsOfExperience && !form.specialtyId);
+  const isSubmitDisabled =
+    loading || (!form.bio.trim() && !form.yearsOfExperience && !form.specialtyId);
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">

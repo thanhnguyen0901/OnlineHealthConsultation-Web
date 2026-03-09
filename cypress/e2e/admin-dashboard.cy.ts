@@ -22,7 +22,7 @@ describe('Admin Dashboard', () => {
   it('displays stat cards with figures from the API', () => {
     // Figures come from admin-stats fixture (totalUsers: 150, etc.)
     cy.contains('150').should('be.visible'); // totalUsers
-    cy.contains('20').should('be.visible');  // totalDoctors
+    cy.contains('20').should('be.visible'); // totalDoctors
     cy.contains('130').should('be.visible'); // totalPatients
   });
 

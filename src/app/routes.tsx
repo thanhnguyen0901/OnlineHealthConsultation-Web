@@ -77,7 +77,9 @@ const UsersManagePage = lazy(() =>
   import('@/features/admin/pages/UsersManagePage').then((m) => ({ default: m.UsersManagePage }))
 );
 const PatientsManagePage = lazy(() =>
-  import('@/features/admin/pages/PatientsManagePage').then((m) => ({ default: m.PatientsManagePage }))
+  import('@/features/admin/pages/PatientsManagePage').then((m) => ({
+    default: m.PatientsManagePage,
+  }))
 );
 const DoctorsManagePage = lazy(() =>
   import('@/features/admin/pages/DoctorsManagePage').then((m) => ({ default: m.DoctorsManagePage }))

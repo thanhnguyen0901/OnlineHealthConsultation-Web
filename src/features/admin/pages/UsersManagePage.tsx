@@ -13,7 +13,11 @@ import {
   updateUserRequested,
   deleteUserRequested,
 } from '../redux/admin.slice';
-import { selectAdminUsers, selectAdminLoading, selectAdminUsersPagination } from '../redux/admin.selectors';
+import {
+  selectAdminUsers,
+  selectAdminLoading,
+  selectAdminUsersPagination,
+} from '../redux/admin.selectors';
 import type { User } from '@/types/common';
 import { ROLES } from '@/constants/roles';
 
@@ -70,7 +74,11 @@ export const UsersManagePage: React.FC = () => {
     if (!valid) return;
     if (isCreate) {
       dispatch(
-        createUserRequested({ ...user, role: user.role || ROLES.PATIENT, password: user.password! } as Partial<User> & {
+        createUserRequested({
+          ...user,
+          role: user.role || ROLES.PATIENT,
+          password: user.password!,
+        } as Partial<User> & {
           password: string;
         })
       );
@@ -80,7 +88,12 @@ export const UsersManagePage: React.FC = () => {
       dispatch(
         updateUserRequested({
           id: user.id!,
-          data: { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role },
+          data: {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+          },
         })
       );
     }
@@ -161,7 +174,10 @@ export const UsersManagePage: React.FC = () => {
             rowsPerPageOptions={[10, 20, 50]}
             first={first}
             totalRecords={usersPagination?.total ?? 0}
-            onPage={(e: any) => { setFirst(e.first); setPageSize(e.rows); }}
+            onPage={(e: any) => {
+              setFirst(e.first);
+              setPageSize(e.rows);
+            }}
             loading={loading}
             emptyMessage={t('noUsers')}
             className="primereact-table"
@@ -274,7 +290,9 @@ export const UsersManagePage: React.FC = () => {
               <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
               {user && (
                 <span className="text-gray-700 dark:text-gray-300 text-base">
-                  {t('deleteUserConfirm', { name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() })}
+                  {t('deleteUserConfirm', {
+                    name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+                  })}
                 </span>
               )}
             </div>

@@ -58,9 +58,7 @@ export const DoctorDashboardPage: React.FC = () => {
   }, [dispatch]);
 
   const stats = profile?.stats;
-  const ratingAvg = stats?.ratingAverage
-    ? stats.ratingAverage.toFixed(1)
-    : '—';
+  const ratingAvg = stats?.ratingAverage ? stats.ratingAverage.toFixed(1) : '—';
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">

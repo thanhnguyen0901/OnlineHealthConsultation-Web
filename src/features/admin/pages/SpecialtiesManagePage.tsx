@@ -124,7 +124,12 @@ export const SpecialtiesManagePage: React.FC = () => {
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
       <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} />
-      <Button label={t('yes')} variant="danger" onClick={deleteSpecialty} data-cy="btn-confirm-delete" />
+      <Button
+        label={t('yes')}
+        variant="danger"
+        onClick={deleteSpecialty}
+        data-cy="btn-confirm-delete"
+      />
     </div>
   );
 
@@ -192,7 +197,9 @@ export const SpecialtiesManagePage: React.FC = () => {
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('nameVietnamese')} <span className="text-red-500">*</span>
               </label>
-              <InputText                id="nameVi"                value={specialty.nameVi || ''}
+              <InputText
+                id="nameVi"
+                value={specialty.nameVi || ''}
                 onChange={(e) => setSpecialty({ ...specialty, nameVi: e.target.value })}
                 required
                 className={`w-full ${submitted && !specialty.nameVi ? 'p-invalid' : ''}`}

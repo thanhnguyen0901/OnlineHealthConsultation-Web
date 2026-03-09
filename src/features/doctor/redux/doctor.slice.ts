@@ -1,6 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialDoctorState } from './doctor.state';
-import type { DoctorQuestion, DoctorAppointment, DoctorProfile, DoctorRating, RatingsPagination, Schedule } from '../types';
+import type {
+  DoctorQuestion,
+  DoctorAppointment,
+  DoctorProfile,
+  DoctorRating,
+  RatingsPagination,
+  Schedule,
+} from '../types';
 
 export type UpdateProfilePayload = {
   bio?: string;
@@ -80,10 +87,7 @@ const doctorSlice = createSlice({
     ) => {
       state.loading = true;
     },
-    updateDoctorAppointmentSucceeded: (
-      state,
-      action: PayloadAction<DoctorAppointment>
-    ) => {
+    updateDoctorAppointmentSucceeded: (state, action: PayloadAction<DoctorAppointment>) => {
       state.loading = false;
       const idx = state.appointments.findIndex((a) => a.id === action.payload.id);
       if (idx !== -1) {
@@ -124,10 +128,7 @@ const doctorSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    updateProfileRequested: (
-      state,
-      _action: PayloadAction<UpdateProfilePayload>
-    ) => {
+    updateProfileRequested: (state, _action: PayloadAction<UpdateProfilePayload>) => {
       state.loading = true;
       state.error = null;
     },
@@ -143,10 +144,7 @@ const doctorSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    updateScheduleRequested: (
-      state,
-      _action: PayloadAction<Schedule[]>
-    ) => {
+    updateScheduleRequested: (state, _action: PayloadAction<Schedule[]>) => {
       state.loading = true;
       state.error = null;
       state.scheduleUpdated = false;

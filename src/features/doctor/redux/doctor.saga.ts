@@ -34,7 +34,14 @@ import {
   type UpdateProfilePayload,
 } from './doctor.slice';
 import * as doctorApi from '../apis/doctor.api';
-import type { DoctorQuestion, DoctorAppointment, DoctorProfile, DoctorRating, RatingsPagination, Schedule } from '../types';
+import type {
+  DoctorQuestion,
+  DoctorAppointment,
+  DoctorProfile,
+  DoctorRating,
+  RatingsPagination,
+  Schedule,
+} from '../types';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
 
@@ -64,7 +71,9 @@ function* handleAnswerQuestion(action: PayloadAction<{ questionId: string; answe
   try {
     yield call(doctorApi.answerQuestion, action.payload);
     yield put(answerQuestionSucceeded({ questionId: action.payload.questionId }));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Answer submitted successfully' }));
+    yield put(
+      addToast({ severity: 'success', summary: 'Success', detail: 'Answer submitted successfully' })
+    );
     yield put(loadQuestionsRequested());
   } catch (error) {
     const msg = extractErrorMessage(error);
@@ -73,16 +82,14 @@ function* handleAnswerQuestion(action: PayloadAction<{ questionId: string; answe
   }
 }
 
-function* handleLoadDoctorAppointments(
-  action: PayloadAction<{ status?: string } | undefined>
-) {
+function* handleLoadDoctorAppointments(action: PayloadAction<{ status?: string } | undefined>) {
   try {
     const result: { data: DoctorAppointment[]; meta?: unknown } = yield call(
       doctorApi.getAppointments,
       action.payload
     );
     // BE wraps response as { data: [...], meta: pagination }; normalize to array.
-    const appointments = Array.isArray(result) ? result : (result as any).data ?? result;
+    const appointments = Array.isArray(result) ? result : ((result as any).data ?? result);
     yield put(loadDoctorAppointmentsSucceeded(appointments as DoctorAppointment[]));
   } catch (error) {
     const msg = extractErrorMessage(error);
@@ -126,8 +133,10 @@ function* handleLoadRatings(action: PayloadAction<{ page?: number; limit?: numbe
       doctorApi.getRatings,
       action.payload
     );
-    const ratings: DoctorRating[] = (Array.isArray(result) ? result : (result as any).data ?? []) as DoctorRating[];
-    const pagination = (result as any).meta as RatingsPagination | null ?? null;
+    const ratings: DoctorRating[] = (
+      Array.isArray(result) ? result : ((result as any).data ?? [])
+    ) as DoctorRating[];
+    const pagination = ((result as any).meta as RatingsPagination | null) ?? null;
     yield put(loadRatingsSucceeded({ ratings, pagination }));
   } catch (error) {
     const msg = extractErrorMessage(error);
@@ -141,7 +150,9 @@ function* handleUpdateProfile(action: PayloadAction<UpdateProfilePayload>) {
     yield call(doctorApi.updateProfile, action.payload);
     const freshProfile: DoctorProfile = yield call(doctorApi.getMe);
     yield put(updateProfileSucceeded(freshProfile));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' }));
+    yield put(
+      addToast({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateProfileFailed(msg));
@@ -154,7 +165,9 @@ function* handleUpdateSchedule(action: PayloadAction<Schedule[]>) {
     yield call(doctorApi.updateSchedule, action.payload);
     const schedules: Schedule[] = yield call(doctorApi.getSchedule);
     yield put(updateScheduleSucceeded(schedules));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Schedule saved successfully' }));
+    yield put(
+      addToast({ severity: 'success', summary: 'Success', detail: 'Schedule saved successfully' })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateScheduleFailed(msg));
@@ -162,9 +175,7 @@ function* handleUpdateSchedule(action: PayloadAction<Schedule[]>) {
   }
 }
 
-function* handleRescheduleAppointment(
-  action: PayloadAction<{ id: string; scheduledAt: string }>
-) {
+function* handleRescheduleAppointment(action: PayloadAction<{ id: string; scheduledAt: string }>) {
   try {
     const result: unknown = yield call(
       doctorApi.rescheduleAppointment,
@@ -172,7 +183,13 @@ function* handleRescheduleAppointment(
       action.payload.scheduledAt
     );
     yield put(rescheduleAppointmentSucceeded(result as DoctorAppointment));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Appointment rescheduled successfully' }));
+    yield put(
+      addToast({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Appointment rescheduled successfully',
+      })
+    );
     yield put(loadDoctorAppointmentsRequested());
   } catch (error) {
     const msg = extractErrorMessage(error);

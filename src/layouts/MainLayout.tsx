@@ -162,7 +162,9 @@ export const MainLayout: React.FC = () => {
           {sidebarOpen && (
             <div className="flex items-center gap-2">
               <i className="pi pi-heart-fill text-2xl text-blue-600" />
-              <span className="font-bold text-lg text-gray-900 dark:text-white">{t('common:appTitle')}</span>
+              <span className="font-bold text-lg text-gray-900 dark:text-white">
+                {t('common:appTitle')}
+              </span>
             </div>
           )}
           {!sidebarOpen && <i className="pi pi-heart-fill text-2xl text-blue-600 mx-auto" />}

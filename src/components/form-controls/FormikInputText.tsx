@@ -17,7 +17,17 @@ export interface FormikInputTextProps {
 }
 
 export const FormikInputText: React.FC<FormikInputTextProps> = memo(
-  ({ name, label, placeholder, type = 'text', disabled = false, as, rows, autoComplete, 'data-cy': dataCy }) => {
+  ({
+    name,
+    label,
+    placeholder,
+    type = 'text',
+    disabled = false,
+    as,
+    rows,
+    autoComplete,
+    'data-cy': dataCy,
+  }) => {
     const [field, meta] = useField(name);
     const hasError = meta.touched && meta.error;
 

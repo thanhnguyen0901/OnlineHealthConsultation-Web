@@ -9,8 +9,9 @@ export const selectAdminSpecialties = (state: RootState) => state.admin.specialt
 export const selectAdminAppointments = (state: RootState) => state.admin.appointments;
 export const selectAdminModerationItems = (state: RootState) => state.admin.moderationItems;
 export const selectAdminLoading = (state: RootState) => state.admin.loading;
-export const selectAdminError   = (state: RootState) => state.admin.error;
-export const selectAdminUsersPagination        = (state: RootState) => state.admin.usersPagination;
-export const selectAdminPatientsPagination     = (state: RootState) => state.admin.patientsPagination;
-export const selectAdminDoctorsPagination      = (state: RootState) => state.admin.doctorsPagination;
-export const selectAdminAppointmentsPagination = (state: RootState) => state.admin.appointmentsPagination;
+export const selectAdminError = (state: RootState) => state.admin.error;
+export const selectAdminUsersPagination = (state: RootState) => state.admin.usersPagination;
+export const selectAdminPatientsPagination = (state: RootState) => state.admin.patientsPagination;
+export const selectAdminDoctorsPagination = (state: RootState) => state.admin.doctorsPagination;
+export const selectAdminAppointmentsPagination = (state: RootState) =>
+  state.admin.appointmentsPagination;

@@ -1,4 +1,11 @@
-import type { DoctorQuestion, DoctorAppointment, DoctorProfile, DoctorRating, RatingsPagination, Schedule } from '../types';
+import type {
+  DoctorQuestion,
+  DoctorAppointment,
+  DoctorProfile,
+  DoctorRating,
+  RatingsPagination,
+  Schedule,
+} from '../types';
 
 export interface DoctorState {
   profile: DoctorProfile | null;

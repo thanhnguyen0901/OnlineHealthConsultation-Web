@@ -39,7 +39,8 @@ export const DoctorRatingsPage: React.FC = () => {
 
   const patientTemplate = (rowData: DoctorRating) => {
     const u = rowData.patient?.user;
-    if (!u?.firstName && !u?.lastName) return <span className="text-gray-400 italic">{t('anonymous')}</span>;
+    if (!u?.firstName && !u?.lastName)
+      return <span className="text-gray-400 italic">{t('anonymous')}</span>;
     return <span>{`${u.firstName ?? ''} ${u.lastName ?? ''}`.trim()}</span>;
   };
 
@@ -68,9 +69,7 @@ export const DoctorRatingsPage: React.FC = () => {
             <span className="text-4xl font-bold text-yellow-500">
               {avgRating > 0 ? avgRating.toFixed(1) : '—'}
             </span>
-            {avgRating > 0 && (
-              <Rating value={Math.round(avgRating)} readOnly cancel={false} />
-            )}
+            {avgRating > 0 && <Rating value={Math.round(avgRating)} readOnly cancel={false} />}
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-5 flex flex-col items-center gap-1">
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -93,25 +92,10 @@ export const DoctorRatingsPage: React.FC = () => {
             className="primereact-table"
             lazy={false}
           >
-            <Column
-              header={t('ratingScore')}
-              body={scoreTemplate}
-              style={{ width: '180px' }}
-            />
-            <Column
-              header={t('patientName')}
-              body={patientTemplate}
-              style={{ width: '180px' }}
-            />
-            <Column
-              header={t('ratingComment')}
-              body={commentTemplate}
-            />
-            <Column
-              header={t('ratingDate')}
-              body={dateTemplate}
-              style={{ width: '140px' }}
-            />
+            <Column header={t('ratingScore')} body={scoreTemplate} style={{ width: '180px' }} />
+            <Column header={t('patientName')} body={patientTemplate} style={{ width: '180px' }} />
+            <Column header={t('ratingComment')} body={commentTemplate} />
+            <Column header={t('ratingDate')} body={dateTemplate} style={{ width: '140px' }} />
           </DataTable>
         </div>
       </div>

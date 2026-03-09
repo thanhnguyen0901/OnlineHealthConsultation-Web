@@ -78,9 +78,7 @@ describe('Patient – Ask a Question', () => {
       cy.get('#specialtyId').click();
       cy.get('.p-dropdown-item').first().click();
 
-      cy.get('[data-cy="ask-question-text"]').type(
-        'What are the symptoms of high blood pressure?'
-      );
+      cy.get('[data-cy="ask-question-text"]').type('What are the symptoms of high blood pressure?');
       cy.get('[data-cy="ask-question-submit"]').click();
       cy.wait('@askQuestion');
 
@@ -108,9 +106,7 @@ describe('Patient – Ask a Question', () => {
       cy.get('#specialtyId').click();
       cy.get('.p-dropdown-item').first().click();
 
-      cy.get('[data-cy="ask-question-text"]').type(
-        'What are the symptoms of high blood pressure?'
-      );
+      cy.get('[data-cy="ask-question-text"]').type('What are the symptoms of high blood pressure?');
       cy.get('[data-cy="ask-question-submit"]').click();
       cy.wait('@askQuestionFail');
 

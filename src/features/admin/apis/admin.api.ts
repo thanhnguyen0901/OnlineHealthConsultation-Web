@@ -35,7 +35,6 @@ export const getStats = async (): Promise<AdminStats> => {
   return response.data.data;
 };
 
-
 export interface PaginationMeta {
   page: number;
   limit: number;
@@ -47,7 +46,6 @@ export interface PagedResult<T> {
   data: T[];
   pagination: PaginationMeta;
 }
-
 
 export interface UserListParams {
   page?: number;
@@ -122,8 +120,8 @@ export const deleteDoctor = async (id: Id): Promise<void> => {
 };
 
 export interface BackendPatient {
-  id: Id;           // User.id
-  profileId: Id;    // PatientProfile.id
+  id: Id; // User.id
+  profileId: Id; // PatientProfile.id
   email: string;
   firstName: string;
   lastName: string;
@@ -203,13 +201,15 @@ export interface AppointmentFilters {
   endDate?: string;
 }
 
-export const getAppointments = async (filters?: AppointmentFilters): Promise<PagedResult<Appointment>> => {
+export const getAppointments = async (
+  filters?: AppointmentFilters
+): Promise<PagedResult<Appointment>> => {
   const params: Record<string, any> = {};
-  if (filters?.page)      params.page      = filters.page;
-  if (filters?.limit)     params.limit     = filters.limit;
-  if (filters?.status)    params.status    = filters.status;
+  if (filters?.page) params.page = filters.page;
+  if (filters?.limit) params.limit = filters.limit;
+  if (filters?.status) params.status = filters.status;
   if (filters?.startDate) params.startDate = filters.startDate;
-  if (filters?.endDate)   params.endDate   = filters.endDate;
+  if (filters?.endDate) params.endDate = filters.endDate;
   const response = await apiClient.get<{ data: Appointment[]; meta?: PaginationMeta }>(
     '/admin/appointments',
     { params }

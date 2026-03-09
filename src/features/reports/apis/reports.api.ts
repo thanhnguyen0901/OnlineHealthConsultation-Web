@@ -1,5 +1,11 @@
 import apiClient from '@/apis/core/apiClient';
-import type { AppointmentChartRow, QuestionChartRow, Statistics, ChartData, ReportData } from '../types';
+import type {
+  AppointmentChartRow,
+  QuestionChartRow,
+  Statistics,
+  ChartData,
+  ReportData,
+} from '../types';
 
 // Backward-compat alias: wraps getStatistics() result as a single ReportData row keyed by today's date.
 export const getReports = async (_params?: {
@@ -31,21 +37,24 @@ export const getQuestionsChart = async (params?: {
   from?: string;
   to?: string;
 }): Promise<QuestionChartRow[]> => {
-  const response = await apiClient.get<{ data: QuestionChartRow[] }>(
-    '/reports/questions-chart',
-    { params }
-  );
+  const response = await apiClient.get<{ data: QuestionChartRow[] }>('/reports/questions-chart', {
+    params,
+  });
   return response.data.data;
 };
 
-export const getTopDoctors = async (limit?: number): Promise<{
-  id: string;
-  doctorName: string;
-  specialty: string;
-  ratingAverage: number;
-  ratingCount: number;
-  yearsOfExperience: number;
-}[]> => {
+export const getTopDoctors = async (
+  limit?: number
+): Promise<
+  {
+    id: string;
+    doctorName: string;
+    specialty: string;
+    ratingAverage: number;
+    ratingCount: number;
+    yearsOfExperience: number;
+  }[]
+> => {
   const response = await apiClient.get('/reports/top-doctors', {
     params: limit ? { limit } : undefined,
   });

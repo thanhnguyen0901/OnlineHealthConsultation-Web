@@ -1,5 +1,5 @@
 export interface AppointmentChartRow {
-  date: string;       // YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   total: number;
   pending: number;
   confirmed: number;

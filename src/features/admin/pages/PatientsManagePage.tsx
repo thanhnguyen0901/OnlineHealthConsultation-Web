@@ -65,7 +65,8 @@ export const PatientsManagePage: React.FC = () => {
   const savePatient = () => {
     setSubmitted(true);
     if (!patient.id) return;
-    const valid = !!patient.firstName?.trim() && !!patient.lastName?.trim() && !!patient.email?.trim();
+    const valid =
+      !!patient.firstName?.trim() && !!patient.lastName?.trim() && !!patient.email?.trim();
     if (!valid) return;
     dispatch(
       updatePatientRequested({
@@ -277,7 +278,9 @@ export const PatientsManagePage: React.FC = () => {
         >
           <div className="px-6 pt-2 pb-1">
             <p className="text-gray-700 dark:text-gray-300">
-              {t('deletePatientConfirm', { name: patient.name || `${patient.firstName} ${patient.lastName}` })}
+              {t('deletePatientConfirm', {
+                name: patient.name || `${patient.firstName} ${patient.lastName}`,
+              })}
             </p>
           </div>
         </Dialog>

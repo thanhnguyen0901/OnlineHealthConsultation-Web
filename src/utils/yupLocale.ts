@@ -10,8 +10,7 @@ export const setYupLocale = () => {
       email: () => i18n.t('validation:invalidEmail'),
       min: ({ min }) => i18n.t('validation:stringMin', { min }),
     },
-    date: {
-    },
+    date: {},
   });
 };
 

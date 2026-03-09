@@ -18,11 +18,7 @@ import type { AuthResult } from '../apis/auth.api';
 import { resetRefreshState } from '@/apis/core/refreshManager';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
-import {
-  saveAuthToStorage,
-  loadAuthFromStorage,
-  clearAuthStorage,
-} from '@/utils/authStorage';
+import { saveAuthToStorage, loadAuthFromStorage, clearAuthStorage } from '@/utils/authStorage';
 
 function* handleLogin(action: PayloadAction<{ email: string; password: string }>) {
   try {
@@ -37,11 +33,21 @@ function* handleLogin(action: PayloadAction<{ email: string; password: string }>
   }
 }
 
-function* handleRegister(action: PayloadAction<{ email: string; password: string; firstName: string; lastName: string; role: 'PATIENT' | 'DOCTOR' }>) {
+function* handleRegister(
+  action: PayloadAction<{
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role: 'PATIENT' | 'DOCTOR';
+  }>
+) {
   try {
     const result: AuthResult = yield call(authApi.register, action.payload);
     yield put(registerSucceeded(result));
-    yield put(addToast({ severity: 'success', summary: 'Welcome!', detail: 'Account created successfully' }));
+    yield put(
+      addToast({ severity: 'success', summary: 'Welcome!', detail: 'Account created successfully' })
+    );
     // registerSucceeded does not set isAuthenticated; user must log in explicitly.
   } catch (error) {
     const msg = extractErrorMessage(error, 'Registration failed. Please try again.');
@@ -71,8 +77,8 @@ function* handleMe() {
     if (import.meta.env.DEV) {
       console.debug(
         `[auth:init] using-sessionStorage-token` +
-        ` | expiresAtMs=${stored.expiresAtMs}` +
-        ` | remainingMs=${stored.expiresAtMs - Date.now()}`
+          ` | expiresAtMs=${stored.expiresAtMs}` +
+          ` | remainingMs=${stored.expiresAtMs - Date.now()}`
       );
     }
     try {

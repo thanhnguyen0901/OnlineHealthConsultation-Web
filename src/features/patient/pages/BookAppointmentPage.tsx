@@ -14,7 +14,12 @@ import {
   bookAppointmentRequested,
   clearAppointmentSubmitted,
 } from '../redux/patient.slice';
-import { selectSpecialties, selectDoctors, selectPatientLoading, selectAppointmentSubmitted } from '../redux/patient.selectors';
+import {
+  selectSpecialties,
+  selectDoctors,
+  selectPatientLoading,
+  selectAppointmentSubmitted,
+} from '../redux/patient.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 
 // Local calendar date, not UTC (avoids day-off-by-one for negative-UTC-offset timezones).

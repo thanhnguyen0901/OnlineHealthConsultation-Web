@@ -181,7 +181,10 @@ export const DoctorsManagePage: React.FC = () => {
             rowsPerPageOptions={[10, 20, 50]}
             first={first}
             totalRecords={doctorsPagination?.total ?? 0}
-            onPage={(e: any) => { setFirst(e.first); setPageSize(e.rows); }}
+            onPage={(e: any) => {
+              setFirst(e.first);
+              setPageSize(e.rows);
+            }}
             loading={loading}
             emptyMessage={t('noDoctors')}
             className="primereact-table"
@@ -311,7 +314,9 @@ export const DoctorsManagePage: React.FC = () => {
               <i className="pi pi-exclamation-triangle text-4xl text-red-500" />
               {doctor && (
                 <span className="text-gray-700 dark:text-gray-300 text-base">
-                  {t('deleteDoctorConfirm', { name: `${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() })}
+                  {t('deleteDoctorConfirm', {
+                    name: `${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim(),
+                  })}
                 </span>
               )}
             </div>

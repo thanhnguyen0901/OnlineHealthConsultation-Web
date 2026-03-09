@@ -39,7 +39,13 @@ function* handleAskQuestion(action: PayloadAction<{ question: string; specialtyI
   try {
     const question: Question = yield call(patientApi.askQuestion, action.payload);
     yield put(askQuestionSucceeded(question));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Question submitted successfully' }));
+    yield put(
+      addToast({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Question submitted successfully',
+      })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(askQuestionFailed(msg));
@@ -53,7 +59,13 @@ function* handleBookAppointment(
   try {
     const appointment: Appointment = yield call(patientApi.bookAppointment, action.payload);
     yield put(bookAppointmentSucceeded(appointment));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Appointment booked successfully' }));
+    yield put(
+      addToast({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Appointment booked successfully',
+      })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(bookAppointmentFailed(msg));
@@ -85,7 +97,9 @@ function* handleUpdateProfile(action: PayloadAction<Partial<PatientProfile>>) {
   try {
     const profile: PatientProfile = yield call(patientApi.updateProfile, action.payload);
     yield put(updateProfileSucceeded(profile));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' }));
+    yield put(
+      addToast({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateProfileFailed(msg));
@@ -104,7 +118,9 @@ function* handleRateConsultation(
   try {
     const rating: Rating = yield call(patientApi.rateConsultation, action.payload);
     yield put(rateConsultationSucceeded(rating));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Rating submitted successfully' }));
+    yield put(
+      addToast({ severity: 'success', summary: 'Success', detail: 'Rating submitted successfully' })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(rateConsultationFailed(msg));
@@ -116,7 +132,9 @@ function* handleCancelAppointment(action: PayloadAction<string>) {
   try {
     yield call(patientApi.cancelAppointment, action.payload);
     yield put(cancelAppointmentSucceeded(action.payload));
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Appointment cancelled' }));
+    yield put(
+      addToast({ severity: 'success', summary: 'Success', detail: 'Appointment cancelled' })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(cancelAppointmentFailed(msg));

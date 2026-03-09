@@ -113,10 +113,10 @@ export const ConsultationHistoryPage: React.FC = () => {
       { severity: 'success' | 'warning' | 'danger' | 'info'; label: string }
     > = {
       // BE returns status lowercased; matches AppointmentStatus enum values.
-      pending:   { severity: 'warning', label: t('pending') },
-      confirmed: { severity: 'info',    label: t('confirmed') },
+      pending: { severity: 'warning', label: t('pending') },
+      confirmed: { severity: 'info', label: t('confirmed') },
       completed: { severity: 'success', label: t('completed') },
-      cancelled: { severity: 'danger',  label: t('cancelled') },
+      cancelled: { severity: 'danger', label: t('cancelled') },
     };
 
     const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
@@ -136,9 +136,7 @@ export const ConsultationHistoryPage: React.FC = () => {
 
     if (rowData.status === 'completed') {
       const actionBtn = rowData.hasRating ? (
-        <span className="text-green-600 dark:text-green-400 text-sm font-medium">
-          {t('rated')}
-        </span>
+        <span className="text-green-600 dark:text-green-400 text-sm font-medium">{t('rated')}</span>
       ) : (
         <Button
           label={t('rate')}
@@ -147,7 +145,12 @@ export const ConsultationHistoryPage: React.FC = () => {
           onClick={() => handleOpenAppointmentRating(rowData)}
         />
       );
-      return <div className="flex items-center gap-2">{actionBtn}{detailBtn}</div>;
+      return (
+        <div className="flex items-center gap-2">
+          {actionBtn}
+          {detailBtn}
+        </div>
+      );
     }
     if (rowData.status === 'pending' || rowData.status === 'confirmed') {
       return (
@@ -289,7 +292,9 @@ export const ConsultationHistoryPage: React.FC = () => {
           <div className="p-6 space-y-4">
             <div className="grid grid-cols-[140px_1fr] gap-y-3 text-sm">
               <span className="font-medium text-gray-600 dark:text-gray-400">{t('doctor')}</span>
-              <span className="text-gray-900 dark:text-gray-100">{detailAppointment.doctorName ?? '—'}</span>
+              <span className="text-gray-900 dark:text-gray-100">
+                {detailAppointment.doctorName ?? '—'}
+              </span>
 
               <span className="font-medium text-gray-600 dark:text-gray-400">{t('date')}</span>
               <span className="text-gray-900 dark:text-gray-100">
@@ -306,9 +311,11 @@ export const ConsultationHistoryPage: React.FC = () => {
 
               <span className="font-medium text-gray-600 dark:text-gray-400">{t('notes')}</span>
               <span className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-                {detailAppointment.notes
-                  ? detailAppointment.notes
-                  : <span className="text-gray-400 italic">{t('noNotes')}</span>}
+                {detailAppointment.notes ? (
+                  detailAppointment.notes
+                ) : (
+                  <span className="text-gray-400 italic">{t('noNotes')}</span>
+                )}
               </span>
             </div>
             <div className="flex justify-end pt-2">

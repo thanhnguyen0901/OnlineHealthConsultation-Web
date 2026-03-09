@@ -30,7 +30,12 @@ const patientSlice = createSlice({
     },
     bookAppointmentRequested: (
       state,
-      _action: PayloadAction<{ doctorId: string; scheduledAt: string; reason: string; notes?: string }>
+      _action: PayloadAction<{
+        doctorId: string;
+        scheduledAt: string;
+        reason: string;
+        notes?: string;
+      }>
     ) => {
       state.loading = true;
       state.error = null;

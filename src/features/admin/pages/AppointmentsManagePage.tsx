@@ -15,7 +15,11 @@ type PendingChange = {
 } | null;
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loadAppointmentsRequested, updateAppointmentStatusRequested } from '../redux/admin.slice';
-import { selectAdminAppointments, selectAdminLoading, selectAdminAppointmentsPagination } from '../redux/admin.selectors';
+import {
+  selectAdminAppointments,
+  selectAdminLoading,
+  selectAdminAppointmentsPagination,
+} from '../redux/admin.selectors';
 
 export const AppointmentsManagePage: React.FC = () => {
   const { t } = useTranslation('admin');
@@ -32,7 +36,13 @@ export const AppointmentsManagePage: React.FC = () => {
 
   useEffect(() => {
     const page = Math.floor(first / pageSize) + 1;
-    const params: { page: number; limit: number; status?: string; startDate?: string; endDate?: string } = {
+    const params: {
+      page: number;
+      limit: number;
+      status?: string;
+      startDate?: string;
+      endDate?: string;
+    } = {
       page,
       limit: pageSize,
     };
@@ -67,7 +77,12 @@ export const AppointmentsManagePage: React.FC = () => {
 
   const confirmChange = () => {
     if (!pendingChange) return;
-    dispatch(updateAppointmentStatusRequested({ id: pendingChange.appointmentId, status: pendingChange.newStatus }));
+    dispatch(
+      updateAppointmentStatusRequested({
+        id: pendingChange.appointmentId,
+        status: pendingChange.newStatus,
+      })
+    );
     setPendingChange(null);
   };
 
@@ -108,7 +123,10 @@ export const AppointmentsManagePage: React.FC = () => {
                 options={statusOptions}
                 optionLabel="label"
                 optionValue="value"
-                onChange={(e) => { setFirst(0); setStatusFilter(e.value as string); }}
+                onChange={(e) => {
+                  setFirst(0);
+                  setStatusFilter(e.value as string);
+                }}
                 placeholder={t('all')}
                 className="w-48"
               />
@@ -119,7 +137,10 @@ export const AppointmentsManagePage: React.FC = () => {
               </label>
               <Calendar
                 value={dateRange}
-                onChange={(e) => { setFirst(0); setDateRange(e.value as Date[]); }}
+                onChange={(e) => {
+                  setFirst(0);
+                  setDateRange(e.value as Date[]);
+                }}
                 selectionMode="range"
                 readOnlyInput
                 showIcon
@@ -150,7 +171,10 @@ export const AppointmentsManagePage: React.FC = () => {
             rowsPerPageOptions={[10, 20, 50]}
             first={first}
             totalRecords={appointmentsPagination?.total ?? 0}
-            onPage={(e: any) => { setFirst(e.first); setPageSize(e.rows); }}
+            onPage={(e: any) => {
+              setFirst(e.first);
+              setPageSize(e.rows);
+            }}
             loading={loading}
             emptyMessage={t('noAppointments')}
             className="primereact-table"
@@ -197,15 +221,22 @@ export const AppointmentsManagePage: React.FC = () => {
         >
           <div className="px-6 pt-2 pb-1 space-y-3">
             <p className="text-gray-700 dark:text-gray-300">
-              {t('statusChangeConfirmBody', 'Are you sure you want to change this appointment\'s status?')}
+              {t(
+                'statusChangeConfirmBody',
+                "Are you sure you want to change this appointment's status?"
+              )}
             </p>
             <dl className="text-sm space-y-1">
               <div className="flex gap-2">
-                <dt className="font-medium text-gray-600 dark:text-gray-400 w-28 shrink-0">{t('patient')}:</dt>
+                <dt className="font-medium text-gray-600 dark:text-gray-400 w-28 shrink-0">
+                  {t('patient')}:
+                </dt>
                 <dd className="text-gray-900 dark:text-gray-100">{pendingChange?.patientName}</dd>
               </div>
               <div className="flex gap-2 items-center">
-                <dt className="font-medium text-gray-600 dark:text-gray-400 w-28 shrink-0">{t('status')}:</dt>
+                <dt className="font-medium text-gray-600 dark:text-gray-400 w-28 shrink-0">
+                  {t('status')}:
+                </dt>
                 <dd className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
                   <span className="capitalize">{pendingChange?.oldStatus}</span>
                   <span className="text-gray-400">→</span>

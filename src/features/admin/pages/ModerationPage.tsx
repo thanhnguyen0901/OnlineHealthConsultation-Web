@@ -27,7 +27,7 @@ export const ModerationPage: React.FC = () => {
   }, [dispatch]);
 
   const confirmApprove = (item: any) => setPendingAction({ item, action: 'approve' });
-  const confirmReject  = (item: any) => setPendingAction({ item, action: 'reject'  });
+  const confirmReject = (item: any) => setPendingAction({ item, action: 'reject' });
 
   const hideConfirmDialog = () => setPendingAction(null);
 
@@ -49,7 +49,8 @@ export const ModerationPage: React.FC = () => {
     const preview = rowData.contentPreview || rowData.content || '';
     return (
       <div className="max-w-md truncate" title={rowData.content}>
-        {preview.substring(0, 100)}{preview.length > 100 ? '...' : ''}
+        {preview.substring(0, 100)}
+        {preview.length > 100 ? '...' : ''}
       </div>
     );
   };
@@ -63,12 +64,12 @@ export const ModerationPage: React.FC = () => {
     const s = (rowData.status || '').toUpperCase();
     const isApproved = s === 'ANSWERED' || s === 'APPROVED';
     const isRejected = s === 'MODERATED';
-    const colorClass = isApproved ? 'text-green-600' : isRejected ? 'text-red-600' : 'text-yellow-600';
-    return (
-      <span className={`font-semibold ${colorClass}`}>
-        {rowData.status}
-      </span>
-    );
+    const colorClass = isApproved
+      ? 'text-green-600'
+      : isRejected
+        ? 'text-red-600'
+        : 'text-yellow-600';
+    return <span className={`font-semibold ${colorClass}`}>{rowData.status}</span>;
   };
 
   const actionsBodyTemplate = (rowData: any) => {
@@ -157,9 +158,7 @@ export const ModerationPage: React.FC = () => {
             <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
               <Button label={t('cancel')} variant="secondary" onClick={hideConfirmDialog} />
               <Button
-                label={
-                  pendingAction?.action === 'approve' ? t('approve') : t('reject')
-                }
+                label={pendingAction?.action === 'approve' ? t('approve') : t('reject')}
                 variant={pendingAction?.action === 'approve' ? 'primary' : 'danger'}
                 onClick={executeAction}
               />
@@ -172,11 +171,19 @@ export const ModerationPage: React.FC = () => {
             <p className="text-gray-700 dark:text-gray-300">
               {pendingAction?.action === 'approve'
                 ? t('approveConfirmBody', 'Are you sure you want to approve this item?')
-                : t('rejectConfirmBody', 'Are you sure you want to reject this item? It will be hidden from users.')}
+                : t(
+                    'rejectConfirmBody',
+                    'Are you sure you want to reject this item? It will be hidden from users.'
+                  )}
             </p>
             {pendingAction?.item && (
               <p className="text-sm text-gray-500 dark:text-gray-400 italic truncate">
-                &ldquo;{(pendingAction.item.contentPreview || pendingAction.item.content || '').substring(0, 120)}&rdquo;
+                &ldquo;
+                {(pendingAction.item.contentPreview || pendingAction.item.content || '').substring(
+                  0,
+                  120
+                )}
+                &rdquo;
               </p>
             )}
           </div>

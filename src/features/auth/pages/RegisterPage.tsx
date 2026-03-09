@@ -6,10 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import {
-  registerRequested,
-  clearRegisterCompleted,
-} from '@/features/auth/redux/auth.slice';
+import { registerRequested, clearRegisterCompleted } from '@/features/auth/redux/auth.slice';
 import {
   selectAuthLoading,
   selectAuthError,
@@ -62,8 +59,18 @@ export const RegisterPage: React.FC = () => {
       >
         <Form className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <FormikInputText name="firstName" label={t('common:firstName')} placeholder="John" data-cy="register-first-name" />
-            <FormikInputText name="lastName" label={t('common:lastName')} placeholder="Doe" data-cy="register-last-name" />
+            <FormikInputText
+              name="firstName"
+              label={t('common:firstName')}
+              placeholder="John"
+              data-cy="register-first-name"
+            />
+            <FormikInputText
+              name="lastName"
+              label={t('common:lastName')}
+              placeholder="Doe"
+              data-cy="register-last-name"
+            />
           </div>
           <FormikInputText
             name="email"
@@ -80,7 +87,13 @@ export const RegisterPage: React.FC = () => {
             data-cy="register-password"
           />
           <div className="pt-2">
-            <Button type="submit" className="w-full" loading={loading} disabled={loading} data-cy="register-submit">
+            <Button
+              type="submit"
+              className="w-full"
+              loading={loading}
+              disabled={loading}
+              data-cy="register-submit"
+            >
               {t('common:register')}
             </Button>
           </div>

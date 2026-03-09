@@ -127,4 +127,3 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
     </DataTable>
   );
 };
-

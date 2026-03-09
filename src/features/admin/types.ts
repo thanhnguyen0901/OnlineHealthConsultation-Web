@@ -1,7 +1,7 @@
 import type { Id, User } from '@/types/common';
 
 export interface Patient extends User {
-  profileId: Id;  // PatientProfile.id
+  profileId: Id; // PatientProfile.id
   isActive: boolean;
   phone?: string | null;
   gender?: string | null;

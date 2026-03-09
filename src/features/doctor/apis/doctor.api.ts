@@ -45,10 +45,7 @@ export const updateAppointment = async (
   return response.data.data;
 };
 
-export const rescheduleAppointment = async (
-  id: string,
-  scheduledAt: string
-): Promise<unknown> => {
+export const rescheduleAppointment = async (id: string, scheduledAt: string): Promise<unknown> => {
   const response = await apiClient.put(`/doctors/appointments/${id}`, { scheduledAt });
   return response.data.data;
 };

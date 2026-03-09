@@ -16,7 +16,6 @@ import {
 import { ScheduleTable, type EditableSlot } from '../components/ScheduleTable';
 import type { Schedule } from '../types';
 
-
 let keyCounter = 0;
 const makeKey = () => `slot-${++keyCounter}-${Date.now()}`;
 
@@ -72,9 +71,7 @@ export const SchedulePage: React.FC = () => {
 
   // ── slot mutation helpers ──────────────────────────────────────────────────
   const handleChange = (key: string, field: keyof Schedule, value: string | boolean) => {
-    setLocalSlots((prev) =>
-      prev.map((s) => (s._key === key ? { ...s, [field]: value } : s))
-    );
+    setLocalSlots((prev) => prev.map((s) => (s._key === key ? { ...s, [field]: value } : s)));
     setIsDirty(true);
   };
 
@@ -93,10 +90,22 @@ export const SchedulePage: React.FC = () => {
   };
 
   const handleAddConfirm = () => {
-    if (!newDate) { setAddError('Date is required'); return; }
-    if (!isValidTime(newStart)) { setAddError('Start time must be HH:MM'); return; }
-    if (!isValidTime(newEnd)) { setAddError('End time must be HH:MM'); return; }
-    if (newEnd <= newStart) { setAddError('End time must be after start time'); return; }
+    if (!newDate) {
+      setAddError('Date is required');
+      return;
+    }
+    if (!isValidTime(newStart)) {
+      setAddError('Start time must be HH:MM');
+      return;
+    }
+    if (!isValidTime(newEnd)) {
+      setAddError('End time must be HH:MM');
+      return;
+    }
+    if (newEnd <= newStart) {
+      setAddError('End time must be after start time');
+      return;
+    }
 
     setLocalSlots((prev) => [
       ...prev,
@@ -184,9 +193,7 @@ export const SchedulePage: React.FC = () => {
         modal
       >
         <div className="p-4 space-y-4">
-          {addError && (
-            <p className="text-sm text-red-600 dark:text-red-400">{addError}</p>
-          )}
+          {addError && <p className="text-sm text-red-600 dark:text-red-400">{addError}</p>}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('scheduleDate')}
@@ -194,7 +201,10 @@ export const SchedulePage: React.FC = () => {
             <input
               type="date"
               value={newDate}
-              onChange={(e) => { setNewDate(e.target.value); setAddError(''); }}
+              onChange={(e) => {
+                setNewDate(e.target.value);
+                setAddError('');
+              }}
               className={INPUT_BASE}
             />
           </div>
@@ -205,7 +215,10 @@ export const SchedulePage: React.FC = () => {
             <input
               type="time"
               value={newStart}
-              onChange={(e) => { setNewStart(e.target.value); setAddError(''); }}
+              onChange={(e) => {
+                setNewStart(e.target.value);
+                setAddError('');
+              }}
               className={INPUT_BASE}
             />
           </div>
@@ -216,7 +229,10 @@ export const SchedulePage: React.FC = () => {
             <input
               type="time"
               value={newEnd}
-              onChange={(e) => { setNewEnd(e.target.value); setAddError(''); }}
+              onChange={(e) => {
+                setNewEnd(e.target.value);
+                setAddError('');
+              }}
               className={INPUT_BASE}
             />
           </div>
@@ -233,4 +249,3 @@ export const SchedulePage: React.FC = () => {
     </div>
   );
 };
-

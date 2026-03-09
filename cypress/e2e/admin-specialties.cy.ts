@@ -71,7 +71,9 @@ describe('Admin – Manage Specialties', () => {
     cy.get('.p-dialog-footer [data-cy="btn-save-specialty"]').click();
 
     // SpecialtiesManagePage sets `submitted=true` on save; error text appears next to empty fields.
-    cy.get('.p-dialog').contains(/required|name/i).should('be.visible');
+    cy.get('.p-dialog')
+      .contains(/required|name/i)
+      .should('be.visible');
   });
 
   it('opens the edit dialog with pre-filled values', () => {

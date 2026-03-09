@@ -7,8 +7,16 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import { loadQuestionsRequested, answerQuestionRequested, clearAnswerSubmitted } from '../redux/doctor.slice';
-import { selectQuestions, selectDoctorLoading, selectAnswerSubmitted } from '../redux/doctor.selectors';
+import {
+  loadQuestionsRequested,
+  answerQuestionRequested,
+  clearAnswerSubmitted,
+} from '../redux/doctor.slice';
+import {
+  selectQuestions,
+  selectDoctorLoading,
+  selectAnswerSubmitted,
+} from '../redux/doctor.selectors';
 import type { DoctorQuestion } from '../types';
 
 export const InboxQuestionsPage: React.FC = () => {
