@@ -80,7 +80,7 @@ export const MainLayout: React.FC = () => {
         },
         {
           label: t('doctor:appointments'),
-          icon: 'pi pi-calendar-check',
+          icon: 'pi pi-calendar-times',
           path: ROUTE_PATHS.DOCTOR_APPOINTMENTS,
         },
         {

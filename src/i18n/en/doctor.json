@@ -69,5 +69,7 @@
   "refresh": "Refresh",
   "time": "Time",
   "reason": "Reason",
-  "noAppointments": "No appointments found"
+  "noAppointments": "No appointments found",
+  "totalAppointments": "Total Appointments",
+  "totalQuestions": "Total Questions"
 }

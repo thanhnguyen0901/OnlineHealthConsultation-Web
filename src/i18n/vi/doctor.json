@@ -69,5 +69,7 @@
   "refresh": "Làm mới",
   "time": "Giờ",
   "reason": "Lý do",
-  "noAppointments": "Không có lịch hẹn nào"
+  "noAppointments": "Không có lịch hẹn nào",
+  "totalAppointments": "Tổng số lịch khám",
+  "totalQuestions": "Tổng số câu hỏi"
 }

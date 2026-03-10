@@ -191,8 +191,9 @@ export const SchedulePage: React.FC = () => {
         style={{ width: '380px' }}
         onHide={() => setAddDialogVisible(false)}
         modal
+        className="p-dialog-custom"
       >
-        <div className="p-4 space-y-4">
+        <div className="px-6 pt-2 pb-5 space-y-4">
           {addError && <p className="text-sm text-red-600 dark:text-red-400">{addError}</p>}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
