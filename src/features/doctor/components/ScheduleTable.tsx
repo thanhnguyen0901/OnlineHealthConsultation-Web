@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Checkbox } from 'primereact/checkbox';
+import { Calendar } from 'primereact/calendar';
 import { Button as PrimeButton } from 'primereact/button';
 import type { Schedule } from '../types';
 
@@ -17,11 +18,19 @@ interface ScheduleTableProps {
   onDelete: (key: string) => void;
 }
 
-const TIME_CLASS = [
-  'border border-gray-300 dark:border-gray-600 rounded px-2 py-1',
-  'text-center w-24 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100',
-  'focus:outline-none focus:ring-2 focus:ring-blue-500',
-].join(' ');
+const toTimeOnly = (value: string): Date | null => {
+  if (!value) return null;
+  const [h, m] = value.split(':').map(Number);
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return null;
+  return new Date(1970, 0, 1, h, m, 0, 0);
+};
+
+const toTimeString = (value: Date | null): string => {
+  if (!value || Number.isNaN(value.getTime())) return '';
+  const h = String(value.getHours()).padStart(2, '0');
+  const m = String(value.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+};
 
 export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   slots,
@@ -40,20 +49,22 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   );
 
   const startTimeTemplate = (rowData: EditableSlot) => (
-    <input
-      type="time"
-      value={rowData.startTime}
-      onChange={(e) => onChange(rowData._key, 'startTime', e.target.value)}
-      className={TIME_CLASS}
+    <Calendar
+      value={toTimeOnly(rowData.startTime)}
+      onChange={(e) => onChange(rowData._key, 'startTime', toTimeString((e.value as Date) ?? null))}
+      timeOnly
+      hourFormat="24"
+      className="w-28"
     />
   );
 
   const endTimeTemplate = (rowData: EditableSlot) => (
-    <input
-      type="time"
-      value={rowData.endTime}
-      onChange={(e) => onChange(rowData._key, 'endTime', e.target.value)}
-      className={TIME_CLASS}
+    <Calendar
+      value={toTimeOnly(rowData.endTime)}
+      onChange={(e) => onChange(rowData._key, 'endTime', toTimeString((e.value as Date) ?? null))}
+      timeOnly
+      hourFormat="24"
+      className="w-28"
     />
   );
 

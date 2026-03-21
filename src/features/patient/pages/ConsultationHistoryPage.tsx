@@ -348,7 +348,7 @@ export const ConsultationHistoryPage: React.FC = () => {
               </span>
             </div>
             <div className="flex justify-end pt-2">
-              <Button variant="secondary" onClick={() => setDetailDialog(false)}>
+              <Button size="sm" variant="secondary" onClick={() => setDetailDialog(false)}>
                 {t('cancel')}
               </Button>
             </div>
@@ -390,10 +390,10 @@ export const ConsultationHistoryPage: React.FC = () => {
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setRatingDialog(false)}>
+            <Button size="sm" variant="secondary" onClick={() => setRatingDialog(false)}>
               {t('cancel')}
             </Button>
-            <Button onClick={handleSubmitRating} disabled={ratingValue === 0} loading={loading}>
+            <Button size="sm" onClick={handleSubmitRating} disabled={ratingValue === 0} loading={loading}>
               {t('submit')}
             </Button>
           </div>

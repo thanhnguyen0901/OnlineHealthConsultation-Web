@@ -50,6 +50,8 @@
   "questions": "Câu hỏi",
   "appointments": "Lịch hẹn",
   "question": "Câu hỏi",
+  "noQuestions": "Không có câu hỏi nào",
+  "noAppointments": "Không có lịch hẹn nào",
   "status": "Trạng thái",
   "pending": "Chờ xử lý",
   "specialties": {

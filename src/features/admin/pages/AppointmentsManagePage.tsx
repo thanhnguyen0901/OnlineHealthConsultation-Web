@@ -183,6 +183,7 @@ export const AppointmentsManagePage: React.FC = () => {
               <div>
                 <Button
                   icon="pi pi-times"
+                  size="sm"
                   variant="secondary"
                   onClick={() => {
                     setStatusFilter('');
@@ -245,8 +246,20 @@ export const AppointmentsManagePage: React.FC = () => {
           focusOnShow
           footer={
             <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-              <Button label={t('cancel')} variant="secondary" onClick={cancelChange} disabled={loading} />
-              <Button label={t('confirm')} onClick={confirmChange} loading={loading} disabled={loading} />
+              <Button
+                label={t('cancel')}
+                size="sm"
+                variant="secondary"
+                onClick={cancelChange}
+                disabled={loading}
+              />
+              <Button
+                label={t('confirm')}
+                size="sm"
+                onClick={confirmChange}
+                loading={loading}
+                disabled={loading}
+              />
             </div>
           }
           onHide={cancelChange}

@@ -32,6 +32,11 @@ export const SpecialtiesManagePage: React.FC = () => {
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [specialty, setSpecialty] = useState<Partial<Specialty>>({});
+  const [editingSnapshot, setEditingSnapshot] = useState<{
+    nameEn: string;
+    nameVi: string;
+    description: string;
+  } | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -40,6 +45,7 @@ export const SpecialtiesManagePage: React.FC = () => {
 
   const openNew = () => {
     setSpecialty({});
+    setEditingSnapshot(null);
     setSubmitted(false);
     setDialog(true);
   };
@@ -84,6 +90,11 @@ export const SpecialtiesManagePage: React.FC = () => {
 
   const editSpecialty = (specialty: Specialty) => {
     setSpecialty({ ...specialty });
+    setEditingSnapshot({
+      nameEn: (specialty.nameEn ?? '').trim(),
+      nameVi: (specialty.nameVi ?? '').trim(),
+      description: (specialty.description ?? '').trim(),
+    });
     setDialog(true);
   };
 
@@ -121,14 +132,28 @@ export const SpecialtiesManagePage: React.FC = () => {
     );
   };
 
+  const isEditDirty = specialty.id
+    ? !!editingSnapshot &&
+      ((specialty.nameEn ?? '').trim() !== editingSnapshot.nameEn ||
+        (specialty.nameVi ?? '').trim() !== editingSnapshot.nameVi ||
+        (specialty.description ?? '').trim() !== editingSnapshot.description)
+    : true;
+
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
+      <Button
+        label={t('cancel')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDialog}
+        disabled={loading}
+      />
       <Button
         label={t('save')}
+        size="sm"
         onClick={saveSpecialty}
         loading={loading}
-        disabled={loading}
+        disabled={loading || !isEditDirty}
         data-cy="btn-save-specialty"
       />
     </div>
@@ -136,9 +161,16 @@ export const SpecialtiesManagePage: React.FC = () => {
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
+      <Button
+        label={t('no')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDeleteDialog}
+        disabled={loading}
+      />
       <Button
         label={t('yes')}
+        size="sm"
         variant="danger"
         onClick={deleteSpecialty}
         loading={loading}
@@ -169,7 +201,7 @@ export const SpecialtiesManagePage: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
-            <Button icon="pi pi-plus" onClick={openNew} data-cy="btn-new-specialty">
+            <Button icon="pi pi-plus" size="sm" onClick={openNew} data-cy="btn-new-specialty">
               {t('addSpecialty')}
             </Button>
           </div>

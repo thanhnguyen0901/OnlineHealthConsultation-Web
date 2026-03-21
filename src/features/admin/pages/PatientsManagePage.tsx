@@ -41,6 +41,12 @@ export const PatientsManagePage: React.FC = () => {
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [patient, setPatient] = useState<Partial<Patient>>({});
+  const [editingSnapshot, setEditingSnapshot] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    isActive: boolean;
+  } | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -70,6 +76,7 @@ export const PatientsManagePage: React.FC = () => {
 
   const openNew = () => {
     setPatient({ isActive: true });
+    setEditingSnapshot(null);
     setSubmitted(false);
     setDialog(true);
   };
@@ -110,6 +117,12 @@ export const PatientsManagePage: React.FC = () => {
 
   const editPatient = (p: Patient) => {
     setPatient({ ...p });
+    setEditingSnapshot({
+      firstName: (p.firstName ?? '').trim(),
+      lastName: (p.lastName ?? '').trim(),
+      email: (p.email ?? '').trim(),
+      isActive: p.isActive ?? true,
+    });
     setDialog(true);
   };
 
@@ -160,17 +173,49 @@ export const PatientsManagePage: React.FC = () => {
   const genderBodyTemplate = (rowData: Patient) =>
     rowData.gender ? translateEnumValue(t, 'gender', rowData.gender) : '—';
 
+  const isEditDirty = patient.id
+    ? !!editingSnapshot &&
+      ((patient.firstName ?? '').trim() !== editingSnapshot.firstName ||
+        (patient.lastName ?? '').trim() !== editingSnapshot.lastName ||
+        (patient.email ?? '').trim() !== editingSnapshot.email ||
+        (patient.isActive ?? true) !== editingSnapshot.isActive)
+    : true;
+
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
-      <Button label={t('save')} onClick={savePatient} loading={loading} disabled={loading} />
+      <Button
+        label={t('cancel')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDialog}
+        disabled={loading}
+      />
+      <Button
+        label={t('save')}
+        size="sm"
+        onClick={savePatient}
+        loading={loading}
+        disabled={loading || !isEditDirty}
+      />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
-      <Button label={t('yes')} variant="danger" onClick={doDeletePatient} loading={loading} />
+      <Button
+        label={t('no')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDeleteDialog}
+        disabled={loading}
+      />
+      <Button
+        label={t('yes')}
+        size="sm"
+        variant="danger"
+        onClick={doDeletePatient}
+        loading={loading}
+      />
     </div>
   );
 
@@ -202,7 +247,7 @@ export const PatientsManagePage: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           {/* Search toolbar */}
           <div className="mb-4 flex gap-2 items-center">
-            <Button icon="pi pi-plus" size="sm" onClick={openNew}>
+            <Button icon="pi pi-plus" size="sm" onClick={openNew} className="shrink-0 whitespace-nowrap">
               {t('addPatient')}
             </Button>
             <InputText
@@ -212,11 +257,17 @@ export const PatientsManagePage: React.FC = () => {
               placeholder={`${t('name')} / ${t('email')}`}
               className="w-64"
             />
-            <Button icon="pi pi-search" size="sm" onClick={handleSearch}>
+            <Button icon="pi pi-search" size="sm" onClick={handleSearch} className="shrink-0 whitespace-nowrap">
               {t('common:search')}
             </Button>
             {search && (
-              <Button icon="pi pi-times" size="sm" variant="secondary" onClick={handleClearSearch}>
+              <Button
+                icon="pi pi-times"
+                size="sm"
+                variant="secondary"
+                onClick={handleClearSearch}
+                className="shrink-0 whitespace-nowrap"
+              >
                 {t('clearFilters')}
               </Button>
             )}

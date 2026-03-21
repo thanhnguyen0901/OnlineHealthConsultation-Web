@@ -215,10 +215,10 @@ export const InboxQuestionsPage: React.FC = () => {
             )}
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setAnswerDialog(false)}>
+            <Button size="sm" variant="secondary" onClick={() => setAnswerDialog(false)}>
               {t('cancel')}
             </Button>
-            <Button onClick={handleSubmitAnswer} disabled={!answerText.trim()} loading={loading}>
+            <Button size="sm" onClick={handleSubmitAnswer} disabled={!answerText.trim()} loading={loading}>
               {t('submit')}
             </Button>
           </div>

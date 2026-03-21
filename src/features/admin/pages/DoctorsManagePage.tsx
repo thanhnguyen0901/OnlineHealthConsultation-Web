@@ -39,6 +39,13 @@ export const DoctorsManagePage: React.FC = () => {
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [doctor, setDoctor] = useState<Partial<Doctor> & { password?: string }>({});
+  const [editingSnapshot, setEditingSnapshot] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    specialtyId: string;
+    bio: string;
+  } | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [first, setFirst] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -60,6 +67,7 @@ export const DoctorsManagePage: React.FC = () => {
 
   const openNew = () => {
     setDoctor({});
+    setEditingSnapshot(null);
     setSubmitted(false);
     setDialog(true);
   };
@@ -115,6 +123,13 @@ export const DoctorsManagePage: React.FC = () => {
 
   const editDoctor = (doctor: Doctor) => {
     setDoctor({ ...doctor });
+    setEditingSnapshot({
+      firstName: (doctor.firstName ?? '').trim(),
+      lastName: (doctor.lastName ?? '').trim(),
+      email: (doctor.email ?? '').trim(),
+      specialtyId: doctor.specialtyId ?? '',
+      bio: (doctor.bio ?? '').trim(),
+    });
     setDialog(true);
   };
 
@@ -165,17 +180,50 @@ export const DoctorsManagePage: React.FC = () => {
     return translateEnumValue(t, 'specialty', rowData.specialtyName);
   };
 
+  const isEditDirty = doctor.id
+    ? !!editingSnapshot &&
+      ((doctor.firstName ?? '').trim() !== editingSnapshot.firstName ||
+        (doctor.lastName ?? '').trim() !== editingSnapshot.lastName ||
+        (doctor.email ?? '').trim() !== editingSnapshot.email ||
+        (doctor.specialtyId ?? '') !== editingSnapshot.specialtyId ||
+        (doctor.bio ?? '').trim() !== editingSnapshot.bio)
+    : true;
+
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
-      <Button label={t('save')} onClick={saveDoctor} loading={loading} disabled={loading} />
+      <Button
+        label={t('cancel')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDialog}
+        disabled={loading}
+      />
+      <Button
+        label={t('save')}
+        size="sm"
+        onClick={saveDoctor}
+        loading={loading}
+        disabled={loading || !isEditDirty}
+      />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
-      <Button label={t('yes')} variant="danger" onClick={deleteDoctor} loading={loading} />
+      <Button
+        label={t('no')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDeleteDialog}
+        disabled={loading}
+      />
+      <Button
+        label={t('yes')}
+        size="sm"
+        variant="danger"
+        onClick={deleteDoctor}
+        loading={loading}
+      />
     </div>
   );
 
@@ -204,7 +252,7 @@ export const DoctorsManagePage: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
-            <Button icon="pi pi-plus" onClick={openNew}>
+            <Button icon="pi pi-plus" size="sm" onClick={openNew}>
               {t('addDoctor')}
             </Button>
           </div>

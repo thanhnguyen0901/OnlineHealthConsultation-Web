@@ -106,11 +106,22 @@ export const DoctorPatientsPage: React.FC = () => {
               placeholder={t('searchPatients')}
               className="w-72"
             />
-            <Button icon="pi pi-search" size="sm" onClick={handleSearch}>
+            <Button
+              icon="pi pi-search"
+              size="sm"
+              onClick={handleSearch}
+              className="shrink-0 whitespace-nowrap"
+            >
               {t('common:search')}
             </Button>
             {search && (
-              <Button icon="pi pi-times" size="sm" variant="secondary" onClick={handleClearSearch}>
+              <Button
+                icon="pi pi-times"
+                size="sm"
+                variant="secondary"
+                onClick={handleClearSearch}
+                className="shrink-0 whitespace-nowrap"
+              >
                 {t('clearFilters')}
               </Button>
             )}

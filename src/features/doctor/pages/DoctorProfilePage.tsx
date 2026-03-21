@@ -84,6 +84,15 @@ export const DoctorProfilePage: React.FC = () => {
     value: s.id,
   }));
 
+  const resetFormToProfile = () => {
+    if (!profile) return;
+    setForm({
+      bio: profile.bio ?? '',
+      yearsOfExperience: profile.yearsOfExperience ?? null,
+      specialtyId: profile.specialtyId ?? '',
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const payload: { bio?: string; yearsOfExperience?: number; specialtyId?: string } = {};
@@ -98,8 +107,13 @@ export const DoctorProfilePage: React.FC = () => {
     dispatch(updateProfileRequested(payload));
   };
 
-  const isSubmitDisabled =
-    loading || (!form.bio.trim() && !form.yearsOfExperience && !form.specialtyId);
+  const isDirty = !!profile && (
+    (form.bio ?? '').trim() !== (profile.bio ?? '').trim() ||
+    (form.yearsOfExperience ?? null) !== (profile.yearsOfExperience ?? null) ||
+    (form.specialtyId ?? '') !== (profile.specialtyId ?? '')
+  );
+
+  const isSubmitDisabled = loading || !isDirty;
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
@@ -225,7 +239,6 @@ export const DoctorProfilePage: React.FC = () => {
                 placeholder={specialtiesLoading ? t('loadingSpecialties') : t('selectSpecialty')}
                 className="w-full"
                 disabled={specialtiesLoading}
-                showClear
               />
               {!specialtiesLoading && specialtyOptions.length === 0 && (
                 <small className="block mt-1 text-amber-600 dark:text-amber-400">
@@ -234,9 +247,18 @@ export const DoctorProfilePage: React.FC = () => {
               )}
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                label={t('discardChanges')}
+                onClick={resetFormToProfile}
+                disabled={loading || !isDirty || !profile}
+              />
               <Button
                 type="submit"
+                size="sm"
                 icon="pi pi-save"
                 label={t('saveProfile')}
                 loading={loading}

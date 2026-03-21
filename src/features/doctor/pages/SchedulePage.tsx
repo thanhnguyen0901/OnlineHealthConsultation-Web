@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from 'primereact/dialog';
+import { Calendar } from 'primereact/calendar';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
@@ -27,15 +28,30 @@ const toEditable = (slots: Schedule[]): EditableSlot[] =>
 
 const isValidTime = (t: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
 
-const INPUT_BASE = [
-  'w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2',
-  'bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100',
-  'focus:outline-none focus:ring-2 focus:ring-blue-500',
-].join(' ');
+const formatLocalDate = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+const toTimeOnly = (value: string): Date | null => {
+  if (!value) return null;
+  const [h, m] = value.split(':').map(Number);
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return null;
+  return new Date(1970, 0, 1, h, m, 0, 0);
+};
+
+const toTimeString = (value: Date | null): string => {
+  if (!value || Number.isNaN(value.getTime())) return '';
+  const h = String(value.getHours()).padStart(2, '0');
+  const m = String(value.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+};
 
 // ── component ─────────────────────────────────────────────────────────────────
 export const SchedulePage: React.FC = () => {
-  const { t } = useTranslation(['doctor', 'common']);
+  const { t, i18n } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
   const serverSchedule = useAppSelector(selectSchedules);
   const loading = useAppSelector(selectDoctorLoading);
@@ -46,11 +62,12 @@ export const SchedulePage: React.FC = () => {
   const [isDirty, setIsDirty] = useState(false);
 
   const [addDialogVisible, setAddDialogVisible] = useState(false);
-  const [newDate, setNewDate] = useState('');
+  const [newDate, setNewDate] = useState<Date | null>(null);
   const [newStart, setNewStart] = useState('08:00');
   const [newEnd, setNewEnd] = useState('17:00');
   const [addError, setAddError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const todayDate = useRef(new Date()).current;
 
   const initialised = useRef(false);
 
@@ -93,7 +110,7 @@ export const SchedulePage: React.FC = () => {
 
   // ── add-slot dialog ────────────────────────────────────────────────────────
   const openAddDialog = () => {
-    setNewDate('');
+    setNewDate(null);
     setNewStart('08:00');
     setNewEnd('17:00');
     setAddError('');
@@ -120,7 +137,13 @@ export const SchedulePage: React.FC = () => {
 
     setLocalSlots((prev) => [
       ...prev,
-      { _key: makeKey(), date: newDate, startTime: newStart, endTime: newEnd, available: true },
+      {
+        _key: makeKey(),
+        date: formatLocalDate(newDate),
+        startTime: newStart,
+        endTime: newEnd,
+        available: true,
+      },
     ]);
     setIsDirty(true);
     setAddDialogVisible(false);
@@ -231,42 +254,48 @@ export const SchedulePage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('scheduleDate')}
             </label>
-            <input
-              type="date"
+            <Calendar
               value={newDate}
               onChange={(e) => {
-                setNewDate(e.target.value);
+                setNewDate((e.value as Date) ?? null);
                 setAddError('');
               }}
-              className={INPUT_BASE}
+              minDate={todayDate}
+              dateFormat={i18n.language === 'vi' ? 'dd/mm/yy' : 'mm/dd/yy'}
+              showIcon
+              className="w-full"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('startTime')}
             </label>
-            <input
-              type="time"
-              value={newStart}
+            <Calendar
+              value={toTimeOnly(newStart)}
               onChange={(e) => {
-                setNewStart(e.target.value);
+                setNewStart(toTimeString((e.value as Date) ?? null));
                 setAddError('');
               }}
-              className={INPUT_BASE}
+              timeOnly
+              hourFormat="24"
+              showIcon
+              className="w-full"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('endTime')}
             </label>
-            <input
-              type="time"
-              value={newEnd}
+            <Calendar
+              value={toTimeOnly(newEnd)}
               onChange={(e) => {
-                setNewEnd(e.target.value);
+                setNewEnd(toTimeString((e.value as Date) ?? null));
                 setAddError('');
               }}
-              className={INPUT_BASE}
+              timeOnly
+              hourFormat="24"
+              showIcon
+              className="w-full"
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">

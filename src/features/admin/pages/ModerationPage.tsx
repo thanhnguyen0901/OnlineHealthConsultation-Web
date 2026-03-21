@@ -56,12 +56,18 @@ export const ModerationPage: React.FC = () => {
   const snippetBodyTemplate = (rowData: any) => {
     const preview = rowData.contentPreview || rowData.content || '';
     return (
-      <div className="max-w-md truncate" title={rowData.content}>
-        {preview.substring(0, 100)}
-        {preview.length > 100 ? '...' : ''}
+      <div className="max-w-[360px] whitespace-normal break-words leading-5" title={rowData.content}>
+        {preview.substring(0, 160)}
+        {preview.length > 160 ? '...' : ''}
       </div>
     );
   };
+
+  const authorBodyTemplate = (rowData: any) => (
+    <div className="max-w-[180px] truncate whitespace-nowrap" title={rowData.author}>
+      {rowData.author}
+    </div>
+  );
 
   const createdAtBodyTemplate = (rowData: any) => {
     return new Date(rowData.createdAt).toLocaleString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
@@ -156,8 +162,19 @@ export const ModerationPage: React.FC = () => {
               style={{ width: '120px' }}
               sortable
             />
-            <Column field="content" header={t('snippet')} body={snippetBodyTemplate} />
-            <Column field="author" header={t('user')} sortable style={{ width: '150px' }} />
+            <Column
+              field="content"
+              header={t('snippet')}
+              body={snippetBodyTemplate}
+              style={{ width: '360px' }}
+            />
+            <Column
+              field="author"
+              header={t('user')}
+              body={authorBodyTemplate}
+              sortable
+              style={{ width: '180px' }}
+            />
             <Column
               field="createdAt"
               header={t('createdAt')}
@@ -186,9 +203,10 @@ export const ModerationPage: React.FC = () => {
           focusOnShow
           footer={
             <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-              <Button label={t('cancel')} variant="secondary" onClick={hideConfirmDialog} />
+              <Button label={t('cancel')} size="sm" variant="secondary" onClick={hideConfirmDialog} />
               <Button
                 label={pendingAction?.action === 'approve' ? t('approve') : t('reject')}
+                size="sm"
                 variant={pendingAction?.action === 'approve' ? 'primary' : 'danger'}
                 onClick={executeAction}
                 loading={loading}

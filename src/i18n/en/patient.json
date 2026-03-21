@@ -50,6 +50,8 @@
   "questions": "Questions",
   "appointments": "Appointments",
   "question": "Question",
+  "noQuestions": "No questions available",
+  "noAppointments": "No appointments found",
   "status": "Status",
   "pending": "Pending",
   "specialties": {

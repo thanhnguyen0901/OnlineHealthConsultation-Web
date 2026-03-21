@@ -4,6 +4,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
+import { Calendar } from 'primereact/calendar';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
@@ -47,15 +48,18 @@ const getNextStatuses = (
 const canReschedule = (status: DoctorAppointment['status']): boolean =>
   status === 'pending' || status === 'confirmed';
 
-const toDateInputValue = (iso: string | null | undefined): string => {
-  if (!iso) return '';
-  return iso.slice(0, 10);
+const toDateOnly = (iso: string | null | undefined): Date | null => {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 };
 
-const toTimeInputValue = (iso: string | null | undefined): string => {
-  if (!iso) return '';
+const toTimeOnly = (iso: string | null | undefined): Date | null => {
+  if (!iso) return null;
   const d = new Date(iso);
-  return d.toTimeString().slice(0, 5);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Date(1970, 0, 1, d.getHours(), d.getMinutes(), 0, 0);
 };
 
 export const DoctorAppointmentsPage: React.FC = () => {
@@ -68,12 +72,12 @@ export const DoctorAppointmentsPage: React.FC = () => {
   const error = useAppSelector(selectDoctorError);
 
   const [rescheduleTarget, setRescheduleTarget] = useState<DoctorAppointment | null>(null);
-  const [rescheduleDate, setRescheduleDate] = useState('');
-  const [rescheduleTime, setRescheduleTime] = useState('');
+  const [rescheduleDate, setRescheduleDate] = useState<Date | null>(null);
+  const [rescheduleTime, setRescheduleTime] = useState<Date | null>(null);
   const [rescheduleError, setRescheduleError] = useState('');
   const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
 
-  const todayStr = useRef(new Date().toISOString().slice(0, 10)).current;
+  const todayDate = useRef(new Date()).current;
 
   useEffect(() => {
     dispatch(loadDoctorAppointmentsRequested());
@@ -83,8 +87,8 @@ export const DoctorAppointmentsPage: React.FC = () => {
     let timer: ReturnType<typeof setTimeout> | null = null;
     if (rescheduleSubmitted) {
       setRescheduleTarget(null);
-      setRescheduleDate('');
-      setRescheduleTime('');
+      setRescheduleDate(null);
+      setRescheduleTime(null);
       setRescheduleError('');
       setRescheduleSuccess(true);
       timer = setTimeout(() => setRescheduleSuccess(false), 2000);
@@ -105,15 +109,15 @@ export const DoctorAppointmentsPage: React.FC = () => {
 
   const openRescheduleDialog = (row: DoctorAppointment) => {
     setRescheduleTarget(row);
-    setRescheduleDate(toDateInputValue(row.scheduledAt));
-    setRescheduleTime(toTimeInputValue(row.scheduledAt));
+    setRescheduleDate(toDateOnly(row.scheduledAt));
+    setRescheduleTime(toTimeOnly(row.scheduledAt));
     setRescheduleError('');
   };
 
   const closeRescheduleDialog = () => {
     setRescheduleTarget(null);
-    setRescheduleDate('');
-    setRescheduleTime('');
+    setRescheduleDate(null);
+    setRescheduleTime(null);
     setRescheduleError('');
   };
 
@@ -124,7 +128,8 @@ export const DoctorAppointmentsPage: React.FC = () => {
       return;
     }
     // Combine date + time into ISO string using local timezone.
-    const localDt = new Date(`${rescheduleDate}T${rescheduleTime}:00`);
+    const localDt = new Date(rescheduleDate);
+    localDt.setHours(rescheduleTime.getHours(), rescheduleTime.getMinutes(), 0, 0);
     if (isNaN(localDt.getTime())) {
       setRescheduleError(t('validationInvalidDateTime'));
       return;
@@ -310,8 +315,9 @@ export const DoctorAppointmentsPage: React.FC = () => {
         visible={rescheduleTarget !== null}
         style={{ width: '420px' }}
         onHide={closeRescheduleDialog}
+        className="p-dialog-custom"
         footer={
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
             <Button
               label={t('cancel')}
               variant="secondary"
@@ -330,7 +336,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
         }
       >
         {rescheduleTarget && (
-          <div className="space-y-4">
+          <div className="px-6 pt-2 pb-1 space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">{t('rescheduleInfo')}</p>
             <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {rescheduleTarget.patientName} &mdash;{' '}
@@ -344,23 +350,26 @@ export const DoctorAppointmentsPage: React.FC = () => {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('rescheduleDate')}
               </label>
-              <input
-                type="date"
-                className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                min={todayStr}
+              <Calendar
                 value={rescheduleDate}
-                onChange={(e) => setRescheduleDate(e.target.value)}
+                onChange={(e) => setRescheduleDate((e.value as Date) ?? null)}
+                minDate={todayDate}
+                dateFormat={i18n.language === 'vi' ? 'dd/mm/yy' : 'mm/dd/yy'}
+                showIcon
+                className="w-full"
               />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('rescheduleTime')}
               </label>
-              <input
-                type="time"
-                className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <Calendar
                 value={rescheduleTime}
-                onChange={(e) => setRescheduleTime(e.target.value)}
+                onChange={(e) => setRescheduleTime((e.value as Date) ?? null)}
+                timeOnly
+                hourFormat="24"
+                showIcon
+                className="w-full"
               />
             </div>
             {rescheduleError && (

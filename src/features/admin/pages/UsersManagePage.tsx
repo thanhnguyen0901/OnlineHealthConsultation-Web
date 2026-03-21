@@ -40,6 +40,12 @@ export const UsersManagePage: React.FC = () => {
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [user, setUser] = useState<Partial<User> & { password?: string }>({});
+  const [editingSnapshot, setEditingSnapshot] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  } | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const roleOptions = [
@@ -55,6 +61,7 @@ export const UsersManagePage: React.FC = () => {
 
   const openNew = () => {
     setUser({});
+    setEditingSnapshot(null);
     setSubmitted(false);
     setDialog(true);
   };
@@ -90,6 +97,7 @@ export const UsersManagePage: React.FC = () => {
       setFirst(0);
       setRevision((r) => r + 1);
     } else {
+      if (!editingSnapshot) return;
       dispatch(
         updateUserRequested({
           id: user.id!,
@@ -108,6 +116,12 @@ export const UsersManagePage: React.FC = () => {
 
   const editUser = (user: User) => {
     setUser({ ...user });
+    setEditingSnapshot({
+      firstName: (user.firstName ?? '').trim(),
+      lastName: (user.lastName ?? '').trim(),
+      email: (user.email ?? '').trim(),
+      role: user.role ?? ROLES.PATIENT,
+    });
     setDialog(true);
   };
 
@@ -146,17 +160,43 @@ export const UsersManagePage: React.FC = () => {
 
   const roleBodyTemplate = (rowData: User) => translateEnumValue(t, 'role', rowData.role);
 
+  const isEditDirty = user.id
+    ? !!editingSnapshot &&
+      ((user.firstName ?? '').trim() !== editingSnapshot.firstName ||
+        (user.lastName ?? '').trim() !== editingSnapshot.lastName ||
+        (user.email ?? '').trim() !== editingSnapshot.email ||
+        (user.role ?? ROLES.PATIENT) !== editingSnapshot.role)
+    : true;
+
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
-      <Button label={t('save')} onClick={saveUser} loading={loading} disabled={loading} />
+      <Button
+        label={t('cancel')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDialog}
+        disabled={loading}
+      />
+      <Button
+        label={t('save')}
+        size="sm"
+        onClick={saveUser}
+        loading={loading}
+        disabled={loading || !isEditDirty}
+      />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
-      <Button label={t('yes')} variant="danger" onClick={deleteUser} loading={loading} />
+      <Button
+        label={t('no')}
+        size="sm"
+        variant="secondary"
+        onClick={hideDeleteDialog}
+        disabled={loading}
+      />
+      <Button label={t('yes')} size="sm" variant="danger" onClick={deleteUser} loading={loading} />
     </div>
   );
 
@@ -185,7 +225,7 @@ export const UsersManagePage: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
-            <Button icon="pi pi-plus" onClick={openNew}>
+            <Button icon="pi pi-plus" size="sm" onClick={openNew}>
               {t('addUser')}
             </Button>
           </div>

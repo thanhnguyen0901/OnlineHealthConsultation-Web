@@ -123,6 +123,7 @@ export const PatientProfilePage: React.FC = () => {
               dispatch(updateProfileRequested(profileData));
             }}
           >
+            {({ dirty, isValid }) => (
             <Form className="space-y-8">
               <section>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
@@ -189,11 +190,17 @@ export const PatientProfilePage: React.FC = () => {
               </section>
 
               <div className="flex justify-end gap-2 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <Button type="submit" loading={loading}>
+                <Button
+                  type="submit"
+                  size="sm"
+                  loading={loading}
+                  disabled={loading || !dirty || !isValid}
+                >
                   {t('common:save')}
                 </Button>
               </div>
             </Form>
+            )}
           </Formik>
         </div>
       </div>
