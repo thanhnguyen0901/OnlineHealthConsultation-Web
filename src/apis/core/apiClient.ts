@@ -34,11 +34,6 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 403) {
-      window.location.href = ROUTE_PATHS.HOME;
-      return Promise.reject(error);
-    }
-
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Skip auth endpoints to prevent infinite 401 retry loops.
       if (

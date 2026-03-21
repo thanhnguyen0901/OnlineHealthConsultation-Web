@@ -73,5 +73,8 @@
   "actions": "Actions",
   "cancel": "Cancel",
   "submit": "Submit",
-  "notAvailable": "N/A"
+  "notAvailable": "N/A",
+  "noSpecialties": "No specialties available. Please try again later.",
+  "noDoctorsAvailable": "No doctors available for this specialty.",
+  "appointmentCancelled": "Appointment cancelled"
 }

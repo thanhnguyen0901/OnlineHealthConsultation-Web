@@ -36,4 +36,7 @@ export interface Statistics {
   completedAppointments: number;
   answeredQuestions: number;
   pendingQuestions: number;
+  activePatients: number;
+  activeDoctors: number;
+  totalActiveUsers: number;
 }

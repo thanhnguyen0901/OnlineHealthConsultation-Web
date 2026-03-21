@@ -11,6 +11,7 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   role?: 'PATIENT' | 'DOCTOR';
+  specialty?: string;
 }
 
 export interface AuthResponse {

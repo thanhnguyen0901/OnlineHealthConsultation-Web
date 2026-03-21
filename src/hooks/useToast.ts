@@ -1,12 +1,14 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '@/state/hooks';
 import { addToast } from '@/redux/slices/ui.slice';
 
 export const useToast = () => {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation('common');
 
   const showSuccess = useCallback(
-    (message: string, summary: string = 'Success') => {
+    (message: string, summary: string = t('success')) => {
       dispatch(
         addToast({
           severity: 'success',
@@ -15,11 +17,11 @@ export const useToast = () => {
         })
       );
     },
-    [dispatch]
+    [dispatch, t]
   );
 
   const showError = useCallback(
-    (message: string, summary: string = 'Error') => {
+    (message: string, summary: string = t('error')) => {
       dispatch(
         addToast({
           severity: 'error',
@@ -28,11 +30,11 @@ export const useToast = () => {
         })
       );
     },
-    [dispatch]
+    [dispatch, t]
   );
 
   const showInfo = useCallback(
-    (message: string, summary: string = 'Info') => {
+    (message: string, summary: string = t('info')) => {
       dispatch(
         addToast({
           severity: 'info',
@@ -41,11 +43,11 @@ export const useToast = () => {
         })
       );
     },
-    [dispatch]
+    [dispatch, t]
   );
 
   const showWarn = useCallback(
-    (message: string, summary: string = 'Warning') => {
+    (message: string, summary: string = t('warning')) => {
       dispatch(
         addToast({
           severity: 'warn',
@@ -54,7 +56,7 @@ export const useToast = () => {
         })
       );
     },
-    [dispatch]
+    [dispatch, t]
   );
 
   return {

@@ -13,6 +13,7 @@ export const ROUTE_PATHS = {
   // Doctor routes
   DOCTOR_DASHBOARD: '/doctor',
   INBOX_QUESTIONS: '/doctor/inbox',
+  DOCTOR_PATIENTS: '/doctor/patients',
   DOCTOR_APPOINTMENTS: '/doctor/appointments',
   SCHEDULE: '/doctor/schedule',
   DOCTOR_RATINGS: '/doctor/ratings',

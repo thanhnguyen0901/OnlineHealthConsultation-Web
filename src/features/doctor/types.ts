@@ -32,11 +32,25 @@ export interface DoctorQuestion {
   patientMedicalHistory?: string | null;
 }
 
+export interface DoctorPatient {
+  id: Id;
+  profileId: Id;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  gender?: string | null;
+  dateOfBirth?: string | null;
+  address?: string | null;
+  isActive: boolean;
+}
+
 export interface DoctorAppointment {
   id: Id;
   patientId: Id;
   patientName: string;
   specialtyName?: string;
+  specialtyNameVi?: string;
   // ISO date-time string (replaces separate date/time fields).
   scheduledAt: string;
   reason?: string;
@@ -57,6 +71,13 @@ export interface DoctorRating {
 }
 
 export interface RatingsPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface DoctorPatientsPagination {
   page: number;
   limit: number;
   total: number;

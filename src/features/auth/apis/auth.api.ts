@@ -52,6 +52,7 @@ export const register = async (data: {
   firstName: string;
   lastName: string;
   role: 'PATIENT' | 'DOCTOR';
+  specialty?: string;
 }): Promise<AuthResult> => {
   const response = await apiClient.post<AuthResponse>('/auth/register', data);
   return {

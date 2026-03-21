@@ -4,6 +4,7 @@ import { store } from '@/state/store';
 import { setAccessToken } from '@/features/auth/redux/auth.slice';
 import { saveAuthToStorage } from '@/utils/authStorage';
 import type { User } from '@/types/common';
+import i18n from '@/i18n/initI18n';
 
 interface BackendUser {
   id: string;
@@ -76,7 +77,7 @@ async function executeRefresh(): Promise<AuthPayload> {
   const { accessToken, user } = response.data.data;
 
   if (!user) {
-    throw new Error('Refresh response did not include user data');
+    throw new Error(i18n.t('common:unexpectedError'));
   }
 
   store.dispatch(setAccessToken(accessToken));

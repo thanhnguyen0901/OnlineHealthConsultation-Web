@@ -19,6 +19,7 @@ import { resetRefreshState } from '@/apis/core/refreshManager';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
 import { saveAuthToStorage, loadAuthFromStorage, clearAuthStorage } from '@/utils/authStorage';
+import i18n from '@/i18n/initI18n';
 
 function* handleLogin(action: PayloadAction<{ email: string; password: string }>) {
   try {
@@ -27,9 +28,11 @@ function* handleLogin(action: PayloadAction<{ email: string; password: string }>
     // Persist so the next page load can hydrate from sessionStorage instead of POST /auth/refresh.
     saveAuthToStorage(result.accessToken);
   } catch (error) {
-    const msg = extractErrorMessage(error, 'Invalid email or password');
+    const msg = extractErrorMessage(error, i18n.t('auth:loginInvalidCredentials'));
     yield put(loginFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Login Failed', detail: msg }));
+    yield put(
+      addToast({ severity: 'error', summary: i18n.t('auth:loginFailedTitle'), detail: msg })
+    );
   }
 }
 
@@ -40,19 +43,29 @@ function* handleRegister(
     firstName: string;
     lastName: string;
     role: 'PATIENT' | 'DOCTOR';
+    specialty?: string;
   }>
 ) {
   try {
     const result: AuthResult = yield call(authApi.register, action.payload);
     yield put(registerSucceeded(result));
     yield put(
-      addToast({ severity: 'success', summary: 'Welcome!', detail: 'Account created successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('auth:welcomeTitle'),
+        detail:
+          action.payload.role === 'DOCTOR'
+            ? i18n.t('auth:registerDoctorPendingApproval')
+            : i18n.t('auth:registerCreated'),
+      })
     );
     // registerSucceeded does not set isAuthenticated; user must log in explicitly.
   } catch (error) {
-    const msg = extractErrorMessage(error, 'Registration failed. Please try again.');
+    const msg = extractErrorMessage(error, i18n.t('auth:registerFailedFallback'));
     yield put(registerFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Registration Failed', detail: msg }));
+    yield put(
+      addToast({ severity: 'error', summary: i18n.t('auth:registerFailedTitle'), detail: msg })
+    );
   }
 }
 

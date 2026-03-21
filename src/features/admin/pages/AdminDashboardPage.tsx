@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card } from 'primereact/card';
 import { Spinner } from '@/components/common/Spinner';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loadStatsRequested } from '../redux/admin.slice';
-import { selectAdminStats, selectAdminLoading } from '../redux/admin.selectors';
+import { selectAdminStats, selectAdminLoading, selectAdminError } from '../redux/admin.selectors';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 type StatCardProps = {
   icon: string;
@@ -26,11 +28,12 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, gradient, textM
 );
 
 export const AdminDashboardPage: React.FC = () => {
-  const { t } = useTranslation('admin');
+  const { t } = useTranslation(['admin', 'common']);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const stats = useAppSelector(selectAdminStats);
   const loading = useAppSelector(selectAdminLoading);
+  const error = useAppSelector(selectAdminError);
 
   useEffect(() => {
     dispatch(loadStatsRequested());
@@ -50,6 +53,19 @@ export const AdminDashboardPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('dashboard')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadStatsRequested())}
+            className="mb-4"
+          />
+        )}
 
         {/* ── Section 1: Users & Resources ───────────────────────────── */}
         <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">
@@ -83,6 +99,34 @@ export const AdminDashboardPage: React.FC = () => {
             value={stats?.totalSpecialties}
             gradient="bg-gradient-to-br from-indigo-500 to-indigo-600"
             textMuted="text-indigo-100"
+          />
+        </div>
+
+        {/* ── Section 1b: Active Users ──────────────────────────────── */}
+        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">
+          {t('statsActiveUsers')}
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <StatCard
+            icon="pi pi-bolt"
+            label={t('totalActiveUsers')}
+            value={stats?.totalActiveUsers}
+            gradient="bg-gradient-to-br from-cyan-500 to-cyan-600"
+            textMuted="text-cyan-100"
+          />
+          <StatCard
+            icon="pi pi-heart"
+            label={t('activePatients')}
+            value={stats?.activePatients}
+            gradient="bg-gradient-to-br from-sky-500 to-sky-600"
+            textMuted="text-sky-100"
+          />
+          <StatCard
+            icon="pi pi-user-plus"
+            label={t('activeDoctors')}
+            value={stats?.activeDoctors}
+            gradient="bg-gradient-to-br from-violet-500 to-violet-600"
+            textMuted="text-violet-100"
           />
         </div>
 
@@ -199,9 +243,31 @@ export const AdminDashboardPage: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
               {t('recentActivity')}
             </h2>
-            <div className="text-center py-8">
-              <i className="pi pi-inbox text-5xl text-gray-400 mb-3" />
-              <p className="text-gray-600 dark:text-gray-400">{t('noRecentActivity')}</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-lg border border-gray-100 dark:border-slate-700 px-4 py-3">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
+                  {t('pendingAppointments')}
+                </span>
+                <span className="font-semibold text-amber-600 dark:text-amber-400">
+                  {stats?.pendingAppointments ?? 0}
+                </span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-gray-100 dark:border-slate-700 px-4 py-3">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
+                  {t('pendingQuestions')}
+                </span>
+                <span className="font-semibold text-rose-600 dark:text-rose-400">
+                  {stats?.pendingQuestions ?? 0}
+                </span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-gray-100 dark:border-slate-700 px-4 py-3">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
+                  {t('totalRatings')}
+                </span>
+                <span className="font-semibold text-pink-600 dark:text-pink-400">
+                  {stats?.totalRatings ?? 0}
+                </span>
+              </div>
             </div>
           </Card>
         </div>

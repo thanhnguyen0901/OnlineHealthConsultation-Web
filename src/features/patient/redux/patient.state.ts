@@ -12,6 +12,7 @@ export interface PatientState {
   error: string | null;
   questionSubmitted: boolean;
   appointmentSubmitted: boolean;
+  profileUpdated: boolean;
 }
 
 export const initialPatientState: PatientState = {
@@ -25,4 +26,5 @@ export const initialPatientState: PatientState = {
   error: null,
   questionSubmitted: false,
   appointmentSubmitted: false,
+  profileUpdated: false,
 };

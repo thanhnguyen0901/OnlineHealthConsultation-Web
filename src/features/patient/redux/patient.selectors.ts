@@ -11,3 +11,4 @@ export const selectPatientLoading = (state: RootState) => state.patient.loading;
 export const selectPatientError = (state: RootState) => state.patient.error;
 export const selectQuestionSubmitted = (state: RootState) => state.patient.questionSubmitted;
 export const selectAppointmentSubmitted = (state: RootState) => state.patient.appointmentSubmitted;
+export const selectProfileUpdated = (state: RootState) => state.patient.profileUpdated;

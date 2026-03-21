@@ -4,21 +4,29 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadModerationItemsRequested,
   approveModerationRequested,
   rejectModerationRequested,
 } from '../redux/admin.slice';
-import { selectAdminModerationItems, selectAdminLoading } from '../redux/admin.selectors';
+import {
+  selectAdminModerationItems,
+  selectAdminLoading,
+  selectAdminError,
+} from '../redux/admin.selectors';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 type PendingAction = { item: any; action: 'approve' | 'reject' } | null;
 
 export const ModerationPage: React.FC = () => {
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation(['admin', 'common']);
   const dispatch = useAppDispatch();
   const moderationItems = useAppSelector(selectAdminModerationItems);
   const loading = useAppSelector(selectAdminLoading);
+  const error = useAppSelector(selectAdminError);
 
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
 
@@ -42,7 +50,7 @@ export const ModerationPage: React.FC = () => {
   };
 
   const typeBodyTemplate = (rowData: any) => {
-    return <span className="capitalize">{rowData.type}</span>;
+    return <span>{translateEnumValue(t, 'type', rowData.type)}</span>;
   };
 
   const snippetBodyTemplate = (rowData: any) => {
@@ -56,45 +64,55 @@ export const ModerationPage: React.FC = () => {
   };
 
   const createdAtBodyTemplate = (rowData: any) => {
-    return new Date(rowData.createdAt).toLocaleString();
+    return new Date(rowData.createdAt).toLocaleString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
   const statusBodyTemplate = (rowData: any) => {
-    // Only QUESTION and ANSWER types appear in the moderation queue; ratings are excluded.
     const s = (rowData.status || '').toUpperCase();
-    const isApproved = s === 'ANSWERED' || s === 'APPROVED';
-    const isRejected = s === 'MODERATED';
+    const isApproved = s === 'ANSWERED' || s === 'APPROVED' || s === 'VISIBLE';
+    const isRejected = s === 'MODERATED' || s === 'HIDDEN';
     const colorClass = isApproved
       ? 'text-green-600'
       : isRejected
         ? 'text-red-600'
         : 'text-yellow-600';
-    return <span className={`font-semibold ${colorClass}`}>{rowData.status}</span>;
+    return (
+      <span className={`font-semibold ${colorClass}`}>
+        {translateEnumValue(t, 'status', rowData.status)}
+      </span>
+    );
   };
 
   const actionsBodyTemplate = (rowData: any) => {
     const s = (rowData.status || '').toUpperCase();
-    const isPending = s === 'PENDING';
-    if (!isPending) return null;
+    const isQuestionOrAnswerPending = rowData.type !== 'RATING' && s === 'PENDING';
+    const isRating = rowData.type === 'RATING';
+    if (!isQuestionOrAnswerPending && !isRating) return null;
     const dialogOpen = pendingAction !== null;
+    const canApprove = !isRating || s !== 'VISIBLE';
+    const canReject = !isRating || s !== 'HIDDEN';
     return (
       <div className="flex gap-2">
-        <Button
-          icon="pi pi-check"
-          size="sm"
-          variant="primary"
-          onClick={() => confirmApprove(rowData)}
-          label={t('approve')}
-          disabled={dialogOpen}
-        />
-        <Button
-          icon="pi pi-times"
-          size="sm"
-          variant="danger"
-          onClick={() => confirmReject(rowData)}
-          label={t('reject')}
-          disabled={dialogOpen}
-        />
+        {canApprove && (
+          <Button
+            icon="pi pi-check"
+            size="sm"
+            variant="primary"
+            onClick={() => confirmApprove(rowData)}
+            label={t('approve')}
+            disabled={dialogOpen}
+          />
+        )}
+        {canReject && (
+          <Button
+            icon="pi pi-times"
+            size="sm"
+            variant="danger"
+            onClick={() => confirmReject(rowData)}
+            label={t('reject')}
+            disabled={dialogOpen}
+          />
+        )}
       </div>
     );
   };
@@ -107,9 +125,23 @@ export const ModerationPage: React.FC = () => {
             {t('moderation')}
           </h1>
         </div>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadModerationItemsRequested())}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <DataTable
+            key={`moderation-table-${i18n.language}`}
             value={moderationItems}
             paginator
             rows={10}
@@ -148,9 +180,7 @@ export const ModerationPage: React.FC = () => {
           visible={pendingAction !== null}
           style={{ width: '30rem' }}
           header={
-            pendingAction?.action === 'approve'
-              ? t('approveConfirmTitle', 'Confirm Approval')
-              : t('rejectConfirmTitle', 'Confirm Rejection')
+            pendingAction?.action === 'approve' ? t('approveConfirmTitle') : t('rejectConfirmTitle')
           }
           modal
           focusOnShow
@@ -161,6 +191,8 @@ export const ModerationPage: React.FC = () => {
                 label={pendingAction?.action === 'approve' ? t('approve') : t('reject')}
                 variant={pendingAction?.action === 'approve' ? 'primary' : 'danger'}
                 onClick={executeAction}
+                loading={loading}
+                disabled={loading}
               />
             </div>
           }
@@ -170,11 +202,8 @@ export const ModerationPage: React.FC = () => {
           <div className="px-6 pt-2 pb-1 space-y-2">
             <p className="text-gray-700 dark:text-gray-300">
               {pendingAction?.action === 'approve'
-                ? t('approveConfirmBody', 'Are you sure you want to approve this item?')
-                : t(
-                    'rejectConfirmBody',
-                    'Are you sure you want to reject this item? It will be hidden from users.'
-                  )}
+                ? t('approveConfirmBody')
+                : t('rejectConfirmBody')}
             </p>
             {pendingAction?.item && (
               <p className="text-sm text-gray-500 dark:text-gray-400 italic truncate">

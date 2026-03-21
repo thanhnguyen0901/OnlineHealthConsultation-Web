@@ -17,6 +17,7 @@ interface BackendUser {
 interface BackendDoctor extends BackendUser {
   specialtyId: Id;
   specialtyName: string;
+  specialtyNameVi?: string;
   bio?: string;
 }
 
@@ -156,12 +157,28 @@ export const updatePatient = async (id: Id, data: Partial<Patient>): Promise<Pat
   return normalizePatient(response.data.data);
 };
 
+export const createPatient = async (
+  data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    gender?: string;
+    phone?: string;
+    address?: string;
+  }
+): Promise<Patient> => {
+  const response = await apiClient.post<{ data: BackendPatient }>('/admin/patients', data);
+  return normalizePatient(response.data.data);
+};
+
 export const deletePatient = async (id: Id): Promise<void> => {
   await apiClient.delete(`/admin/patients/${id}`);
 };
 
 export const getSpecialties = async (): Promise<Specialty[]> => {
-  const response = await apiClient.get<{ data: Specialty[] }>('/admin/specialties');
+  const response = await apiClient.get<{ data: Specialty[] }>('/specialties');
   return response.data.data;
 };
 
@@ -187,6 +204,7 @@ export interface Appointment {
   doctorName: string;
   specialtyId: Id;
   specialtyName: string;
+  specialtyNameVi?: string;
   date: string;
   time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';

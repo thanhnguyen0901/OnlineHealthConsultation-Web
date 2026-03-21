@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadSpecialtiesRequested,
@@ -13,14 +14,20 @@ import {
   updateSpecialtyRequested,
   deleteSpecialtyRequested,
 } from '../redux/admin.slice';
-import { selectAdminSpecialties, selectAdminLoading } from '../redux/admin.selectors';
+import {
+  selectAdminSpecialties,
+  selectAdminLoading,
+  selectAdminError,
+} from '../redux/admin.selectors';
 import type { Specialty } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 export const SpecialtiesManagePage: React.FC = () => {
-  const { t } = useTranslation('admin');
+  const { t } = useTranslation(['admin', 'common']);
   const dispatch = useAppDispatch();
   const specialties = useAppSelector(selectAdminSpecialties);
   const loading = useAppSelector(selectAdminLoading);
+  const error = useAppSelector(selectAdminError);
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -116,18 +123,25 @@ export const SpecialtiesManagePage: React.FC = () => {
 
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} />
-      <Button label={t('save')} onClick={saveSpecialty} data-cy="btn-save-specialty" />
+      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
+      <Button
+        label={t('save')}
+        onClick={saveSpecialty}
+        loading={loading}
+        disabled={loading}
+        data-cy="btn-save-specialty"
+      />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} />
+      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
       <Button
         label={t('yes')}
         variant="danger"
         onClick={deleteSpecialty}
+        loading={loading}
         data-cy="btn-confirm-delete"
       />
     </div>
@@ -139,6 +153,19 @@ export const SpecialtiesManagePage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageSpecialties')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadSpecialtiesRequested())}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
@@ -187,7 +214,7 @@ export const SpecialtiesManagePage: React.FC = () => {
                 required
                 autoFocus
                 className={`w-full ${submitted && !specialty.nameEn ? 'p-invalid' : ''}`}
-                placeholder="e.g., Cardiology"
+                placeholder={t('specialtyNameEnExample')}
               />
               {submitted && !specialty.nameEn && (
                 <small className="text-red-500 text-xs mt-1">{t('nameEnglishRequired')}</small>
@@ -203,7 +230,7 @@ export const SpecialtiesManagePage: React.FC = () => {
                 onChange={(e) => setSpecialty({ ...specialty, nameVi: e.target.value })}
                 required
                 className={`w-full ${submitted && !specialty.nameVi ? 'p-invalid' : ''}`}
-                placeholder="e.g., Tim mạch"
+                placeholder={t('specialtyNameViExample')}
               />
               {submitted && !specialty.nameVi && (
                 <small className="text-red-500 text-xs mt-1">{t('nameVietnameseRequired')}</small>
@@ -217,14 +244,10 @@ export const SpecialtiesManagePage: React.FC = () => {
                 id="description"
                 value={specialty.description || ''}
                 onChange={(e) => setSpecialty({ ...specialty, description: e.target.value })}
-                required
                 rows={4}
-                className={`w-full ${submitted && !specialty.description ? 'p-invalid' : ''}`}
+                className="w-full"
                 placeholder={t('descriptionPlaceholder')}
               />
-              {submitted && !specialty.description && (
-                <small className="text-red-500 text-xs mt-1">{t('descriptionRequired')}</small>
-              )}
             </div>
           </div>
         </Dialog>

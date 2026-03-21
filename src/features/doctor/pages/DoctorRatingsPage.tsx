@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Rating } from 'primereact/rating';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loadRatingsRequested } from '../redux/doctor.slice';
 import {
@@ -10,16 +11,19 @@ import {
   selectDoctorRatingsPagination,
   selectDoctorLoading,
   selectDoctorProfile,
+  selectDoctorError,
 } from '../redux/doctor.selectors';
 import type { DoctorRating } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 export const DoctorRatingsPage: React.FC = () => {
-  const { t } = useTranslation('doctor');
+  const { t, i18n } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
   const ratings = useAppSelector(selectDoctorRatings);
   const pagination = useAppSelector(selectDoctorRatingsPagination);
   const loading = useAppSelector(selectDoctorLoading);
   const profile = useAppSelector(selectDoctorProfile);
+  const error = useAppSelector(selectDoctorError);
 
   useEffect(() => {
     dispatch(loadRatingsRequested({ page: 1, limit: 20 }));
@@ -52,7 +56,7 @@ export const DoctorRatingsPage: React.FC = () => {
     );
 
   const dateTemplate = (rowData: DoctorRating) =>
-    new Date(rowData.createdAt).toLocaleDateString('vi-VN');
+    new Date(rowData.createdAt).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
@@ -60,6 +64,19 @@ export const DoctorRatingsPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('ratings')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadRatingsRequested({ page: 1, limit: 20 }))}
+            className="mb-4"
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-5 flex flex-col items-center gap-1">

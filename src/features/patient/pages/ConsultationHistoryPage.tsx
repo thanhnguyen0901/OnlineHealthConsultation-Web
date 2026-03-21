@@ -7,6 +7,7 @@ import { Rating } from 'primereact/rating';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadHistoryRequested,
@@ -17,26 +18,30 @@ import {
   selectQuestions,
   selectAppointments,
   selectPatientLoading,
+  selectPatientError,
 } from '@/features/patient/redux/patient.selectors';
 import type { Question, Appointment } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 export const ConsultationHistoryPage: React.FC = () => {
-  const { t } = useTranslation('patient');
+  const { t, i18n } = useTranslation('patient');
   const dispatch = useAppDispatch();
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
   const loading = useAppSelector(selectPatientLoading);
+  const error = useAppSelector(selectPatientError);
   // Ref tracks previous ratings count; detects new entries without triggering re-render.
   const ratingsRef = React.useRef<number | null>(null);
   const ratings = useAppSelector((s) => s.patient.ratings);
 
   const [ratingDialog, setRatingDialog] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [ratingValue, setRatingValue] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
   const [detailDialog, setDetailDialog] = useState(false);
   const [detailAppointment, setDetailAppointment] = useState<Appointment | null>(null);
+  const [ratingSuccess, setRatingSuccess] = useState(false);
 
   useEffect(() => {
     dispatch(loadHistoryRequested());
@@ -44,10 +49,16 @@ export const ConsultationHistoryPage: React.FC = () => {
 
   // Saga dispatches toast; dialog closes when ratings.length increases.
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     if (ratingsRef.current !== null && ratings.length > ratingsRef.current) {
       setRatingDialog(false);
+      setRatingSuccess(true);
+      timer = setTimeout(() => setRatingSuccess(false), 2000);
     }
     ratingsRef.current = ratings.length;
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [ratings.length]);
 
   const handleOpenDetail = (appointment: Appointment) => {
@@ -57,7 +68,6 @@ export const ConsultationHistoryPage: React.FC = () => {
 
   const handleOpenAppointmentRating = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
-    setSelectedQuestion(null);
     setRatingValue(0);
     setComment('');
     setRatingDialog(true);
@@ -69,18 +79,8 @@ export const ConsultationHistoryPage: React.FC = () => {
     if (selectedAppointment && selectedAppointment.doctorId) {
       dispatch(
         rateConsultationRequested({
-          consultationId: selectedAppointment.id,
+          appointmentId: selectedAppointment.id,
           doctorId: selectedAppointment.doctorId,
-          rating: ratingValue,
-          comment: comment || undefined,
-        })
-      );
-    } else if (selectedQuestion && selectedQuestion.doctorId) {
-      // Question ratings are not yet supported by backend.
-      dispatch(
-        rateConsultationRequested({
-          consultationId: selectedQuestion.id,
-          doctorId: selectedQuestion.doctorId,
           rating: ratingValue,
           comment: comment || undefined,
         })
@@ -89,7 +89,7 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   const dateTemplate = (rowData: Question) => {
-    return new Date(rowData.createdAt).toLocaleDateString('vi-VN');
+    return new Date(rowData.createdAt).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
   const questionStatusTemplate = (rowData: Question) => {
@@ -99,12 +99,15 @@ export const ConsultationHistoryPage: React.FC = () => {
       moderated: { severity: 'info', label: t('moderated') },
     };
 
-    const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
+    const config = statusMap[rowData.status] || {
+      severity: 'info',
+      label: translateEnumValue(t, 'status', rowData.status),
+    };
     return <Tag value={config.label} severity={config.severity} />;
   };
 
   const appointmentDateTemplate = (rowData: any) => {
-    return new Date(rowData.date).toLocaleDateString('vi-VN');
+    return new Date(rowData.date).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
   const appointmentStatusTemplate = (rowData: any) => {
@@ -119,7 +122,10 @@ export const ConsultationHistoryPage: React.FC = () => {
       cancelled: { severity: 'danger', label: t('cancelled') },
     };
 
-    const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
+    const config = statusMap[rowData.status] || {
+      severity: 'info',
+      label: translateEnumValue(t, 'status', rowData.status),
+    };
     return <Tag value={config.label} severity={config.severity} />;
   };
 
@@ -180,6 +186,27 @@ export const ConsultationHistoryPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('consultationHistory')}
         </h1>
+        {ratingSuccess && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('ratingSubmitted')}
+            className="mb-4"
+          />
+        )}
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadHistoryRequested())}
+            className="mb-4"
+          />
+        )}
 
         <div className="space-y-8">
           <section>
@@ -298,7 +325,9 @@ export const ConsultationHistoryPage: React.FC = () => {
 
               <span className="font-medium text-gray-600 dark:text-gray-400">{t('date')}</span>
               <span className="text-gray-900 dark:text-gray-100">
-                {new Date(detailAppointment.date).toLocaleString()}
+                {new Date(detailAppointment.date).toLocaleString(
+                  i18n.language === 'vi' ? 'vi-VN' : 'en-US'
+                )}
               </span>
 
               <span className="font-medium text-gray-600 dark:text-gray-400">{t('status')}</span>

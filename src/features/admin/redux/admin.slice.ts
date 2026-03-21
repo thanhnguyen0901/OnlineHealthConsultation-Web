@@ -70,6 +70,28 @@ const adminSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    createPatientRequested: (
+      state,
+      _action: PayloadAction<{
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+        dateOfBirth?: string;
+        gender?: string;
+        phone?: string;
+        address?: string;
+      }>
+    ) => {
+      state.loading = true;
+    },
+    createPatientSucceeded: (state, _action: PayloadAction<Patient>) => {
+      state.loading = false;
+    },
+    createPatientFailed: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
     updatePatientRequested: (
       state,
       _action: PayloadAction<{ id: string; data: Partial<Patient> }>
@@ -318,6 +340,9 @@ export const {
   loadPatientsRequested,
   loadPatientsSucceeded,
   loadPatientsFailed,
+  createPatientRequested,
+  createPatientSucceeded,
+  createPatientFailed,
   updatePatientRequested,
   updatePatientSucceeded,
   updatePatientFailed,

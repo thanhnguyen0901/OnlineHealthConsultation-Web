@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadQuestionsRequested,
@@ -16,39 +17,54 @@ import {
   selectQuestions,
   selectDoctorLoading,
   selectAnswerSubmitted,
+  selectDoctorError,
 } from '../redux/doctor.selectors';
 import type { DoctorQuestion } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 export const InboxQuestionsPage: React.FC = () => {
-  const { t } = useTranslation('doctor');
+  const { t, i18n } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
   const questions = useAppSelector(selectQuestions);
   const loading = useAppSelector(selectDoctorLoading);
   const answerSubmitted = useAppSelector(selectAnswerSubmitted);
+  const error = useAppSelector(selectDoctorError);
 
   const [answerDialog, setAnswerDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<DoctorQuestion | null>(null);
   const [answerText, setAnswerText] = useState('');
+  const [answerSuccess, setAnswerSuccess] = useState(false);
+  const [answerAttempted, setAnswerAttempted] = useState(false);
 
   useEffect(() => {
     dispatch(loadQuestionsRequested());
   }, [dispatch]);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     if (answerSubmitted) {
       setAnswerDialog(false);
       setAnswerText('');
+      setAnswerSuccess(true);
+      setAnswerAttempted(false);
+      timer = setTimeout(() => setAnswerSuccess(false), 2000);
       dispatch(clearAnswerSubmitted());
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [answerSubmitted, dispatch]);
 
   const handleOpenAnswer = (question: DoctorQuestion) => {
     setSelectedQuestion(question);
     setAnswerText('');
+    setAnswerAttempted(false);
     setAnswerDialog(true);
   };
 
   const handleSubmitAnswer = () => {
+    setAnswerAttempted(true);
     if (selectedQuestion && answerText.trim()) {
       dispatch(
         answerQuestionRequested({
@@ -75,7 +91,7 @@ export const InboxQuestionsPage: React.FC = () => {
   };
 
   const dateTemplate = (rowData: DoctorQuestion) => {
-    return new Date(rowData.createdAt).toLocaleDateString('vi-VN');
+    return new Date(rowData.createdAt).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
   const statusTemplate = (rowData: DoctorQuestion) => {
@@ -85,7 +101,10 @@ export const InboxQuestionsPage: React.FC = () => {
       moderated: { severity: 'info', label: t('moderated') },
     };
 
-    const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
+    const config = statusMap[rowData.status] || {
+      severity: 'info',
+      label: translateEnumValue(t, 'status', rowData.status),
+    };
     return <Tag value={config.label} severity={config.severity} />;
   };
 
@@ -95,6 +114,27 @@ export const InboxQuestionsPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('inbox')}
         </h1>
+        {answerSuccess && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('answerSubmitted')}
+            className="mb-4"
+          />
+        )}
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadQuestionsRequested())}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <DataTable
@@ -148,7 +188,7 @@ export const InboxQuestionsPage: React.FC = () => {
           {selectedQuestion?.patientMedicalHistory && (
             <details className="rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 overflow-hidden">
               <summary className="cursor-pointer px-4 py-2 text-sm font-medium text-amber-800 dark:text-amber-300 select-none hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors">
-                {t('patientMedicalHistory', 'Patient Medical History')}
+                {t('patientMedicalHistory')}
               </summary>
               <div className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap border-t border-amber-200 dark:border-amber-700">
                 {selectedQuestion.patientMedicalHistory}
@@ -162,11 +202,17 @@ export const InboxQuestionsPage: React.FC = () => {
             </label>
             <InputTextarea
               value={answerText}
-              onChange={(e) => setAnswerText(e.target.value)}
+              onChange={(e) => {
+                setAnswerText(e.target.value);
+                if (answerAttempted) setAnswerAttempted(false);
+              }}
               rows={6}
               className="w-full"
               placeholder={t('enterAnswer')}
             />
+            {answerAttempted && !answerText.trim() && (
+              <small className="block mt-1 text-red-500">{t('enterAnswer')}</small>
+            )}
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setAnswerDialog(false)}>

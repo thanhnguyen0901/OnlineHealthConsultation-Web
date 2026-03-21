@@ -5,19 +5,25 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadDoctorAppointmentsRequested,
   updateDoctorAppointmentRequested,
   rescheduleAppointmentRequested,
   clearRescheduleSubmitted,
+  clearAppointmentUpdated,
 } from '../redux/doctor.slice';
 import {
   selectDoctorAppointments,
   selectDoctorLoading,
   selectRescheduleSubmitted,
+  selectAppointmentUpdated,
+  selectDoctorError,
 } from '../redux/doctor.selectors';
 import type { DoctorAppointment } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 const getNextStatuses = (
   current: DoctorAppointment['status']
@@ -25,13 +31,13 @@ const getNextStatuses = (
   switch (current) {
     case 'pending':
       return [
-        { label: 'Confirm', value: 'confirmed' },
-        { label: 'Cancel', value: 'cancelled' },
+        { label: 'confirmAction', value: 'confirmed' },
+        { label: 'cancel', value: 'cancelled' },
       ];
     case 'confirmed':
       return [
-        { label: 'Complete', value: 'completed' },
-        { label: 'Cancel', value: 'cancelled' },
+        { label: 'completeAction', value: 'completed' },
+        { label: 'cancel', value: 'cancelled' },
       ];
     default:
       return [];
@@ -53,16 +59,19 @@ const toTimeInputValue = (iso: string | null | undefined): string => {
 };
 
 export const DoctorAppointmentsPage: React.FC = () => {
-  const { t } = useTranslation('doctor');
+  const { t, i18n } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
   const appointments = useAppSelector(selectDoctorAppointments);
   const loading = useAppSelector(selectDoctorLoading);
   const rescheduleSubmitted = useAppSelector(selectRescheduleSubmitted);
+  const appointmentUpdated = useAppSelector(selectAppointmentUpdated);
+  const error = useAppSelector(selectDoctorError);
 
   const [rescheduleTarget, setRescheduleTarget] = useState<DoctorAppointment | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
   const [rescheduleError, setRescheduleError] = useState('');
+  const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
 
   const todayStr = useRef(new Date().toISOString().slice(0, 10)).current;
 
@@ -71,14 +80,28 @@ export const DoctorAppointmentsPage: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     if (rescheduleSubmitted) {
       setRescheduleTarget(null);
       setRescheduleDate('');
       setRescheduleTime('');
       setRescheduleError('');
+      setRescheduleSuccess(true);
+      timer = setTimeout(() => setRescheduleSuccess(false), 2000);
       dispatch(clearRescheduleSubmitted());
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [rescheduleSubmitted, dispatch]);
+
+  useEffect(() => {
+    if (!appointmentUpdated) return;
+    const timer = window.setTimeout(() => {
+      dispatch(clearAppointmentUpdated());
+    }, 2000);
+    return () => window.clearTimeout(timer);
+  }, [appointmentUpdated, dispatch]);
 
   const openRescheduleDialog = (row: DoctorAppointment) => {
     setRescheduleTarget(row);
@@ -97,17 +120,17 @@ export const DoctorAppointmentsPage: React.FC = () => {
   const handleRescheduleSubmit = () => {
     if (!rescheduleTarget) return;
     if (!rescheduleDate || !rescheduleTime) {
-      setRescheduleError('Please select both date and time.');
+      setRescheduleError(t('validationTimeRequired'));
       return;
     }
     // Combine date + time into ISO string using local timezone.
     const localDt = new Date(`${rescheduleDate}T${rescheduleTime}:00`);
     if (isNaN(localDt.getTime())) {
-      setRescheduleError('Invalid date or time.');
+      setRescheduleError(t('validationInvalidDateTime'));
       return;
     }
     if (localDt <= new Date()) {
-      setRescheduleError('The new time must be in the future.');
+      setRescheduleError(t('validationFutureTime'));
       return;
     }
     setRescheduleError('');
@@ -121,12 +144,12 @@ export const DoctorAppointmentsPage: React.FC = () => {
 
   const dateTemplate = (rowData: DoctorAppointment) => {
     if (!rowData.scheduledAt) return '—';
-    return new Date(rowData.scheduledAt).toLocaleDateString('vi-VN');
+    return new Date(rowData.scheduledAt).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
   const timeTemplate = (rowData: DoctorAppointment) => {
     if (!rowData.scheduledAt) return '—';
-    return new Date(rowData.scheduledAt).toLocaleTimeString('vi-VN', {
+    return new Date(rowData.scheduledAt).toLocaleTimeString(i18n.language === 'vi' ? 'vi-VN' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -142,9 +165,18 @@ export const DoctorAppointmentsPage: React.FC = () => {
       completed: { severity: 'success', label: t('completed') },
       cancelled: { severity: 'danger', label: t('cancelled') },
     };
-    const config = statusMap[rowData.status] || { severity: 'info', label: rowData.status };
+    const config = statusMap[rowData.status] || {
+      severity: 'info',
+      label: translateEnumValue(t, 'status', rowData.status),
+    };
     return <Tag value={config.label} severity={config.severity} />;
   };
+
+  const specialtyTemplate = (rowData: DoctorAppointment) =>
+    i18n.language === 'vi'
+      ? rowData.specialtyNameVi ||
+        translateEnumValue(t, 'specialty', rowData.specialtyName)
+      : rowData.specialtyName || translateEnumValue(t, 'specialty', rowData.specialtyName);
 
   const actionsTemplate = (rowData: DoctorAppointment) => {
     const options = getNextStatuses(rowData.status);
@@ -159,12 +191,13 @@ export const DoctorAppointmentsPage: React.FC = () => {
         {options.map((opt) => (
           <Button
             key={opt.value}
-            label={opt.label}
+            label={t(opt.label)}
             size="sm"
             variant={opt.value === 'cancelled' ? 'danger' : 'primary'}
             onClick={() =>
               dispatch(updateDoctorAppointmentRequested({ id: rowData.id, status: opt.value }))
             }
+            disabled={loading}
           />
         ))}
         {showReschedule && (
@@ -174,6 +207,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
             variant="secondary"
             icon="pi pi-calendar"
             onClick={() => openRescheduleDialog(rowData)}
+            disabled={loading}
           />
         )}
       </div>
@@ -188,13 +222,43 @@ export const DoctorAppointmentsPage: React.FC = () => {
             {t('appointments')}
           </h1>
           <Button
-            label={t('refresh') || 'Refresh'}
+            label={t('refresh')}
             icon="pi pi-refresh"
             size="sm"
             variant="secondary"
             onClick={() => dispatch(loadDoctorAppointmentsRequested())}
+            disabled={loading}
           />
         </div>
+        {rescheduleSuccess && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('rescheduleSuccess')}
+            className="mb-4"
+          />
+        )}
+        {appointmentUpdated && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('appointmentUpdated')}
+            className="mb-4"
+          />
+        )}
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadDoctorAppointmentsRequested())}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <DataTable
@@ -211,6 +275,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
             <Column
               field="specialtyName"
               header={t('specialty')}
+              body={specialtyTemplate}
               sortable
               style={{ width: '160px' }}
             />
@@ -258,6 +323,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
               variant="primary"
               size="sm"
               disabled={loading}
+              loading={loading}
               onClick={handleRescheduleSubmit}
             />
           </div>
@@ -269,7 +335,9 @@ export const DoctorAppointmentsPage: React.FC = () => {
             <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {rescheduleTarget.patientName} &mdash;{' '}
               {rescheduleTarget.scheduledAt
-                ? new Date(rescheduleTarget.scheduledAt).toLocaleString('vi-VN')
+                ? new Date(rescheduleTarget.scheduledAt).toLocaleString(
+                    i18n.language === 'vi' ? 'vi-VN' : 'en-US'
+                  )
                 : '—'}
             </div>
             <div className="flex flex-col gap-1">

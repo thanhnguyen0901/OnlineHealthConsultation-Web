@@ -4,11 +4,23 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import { loadProfileRequested, updateProfileRequested } from '../redux/doctor.slice';
-import { selectDoctorProfile, selectDoctorLoading } from '../redux/doctor.selectors';
+import {
+  loadProfileRequested,
+  updateProfileRequested,
+  clearProfileUpdated,
+} from '../redux/doctor.slice';
+import {
+  selectDoctorProfile,
+  selectDoctorLoading,
+  selectDoctorError,
+  selectDoctorProfileUpdated,
+} from '../redux/doctor.selectors';
 import { getSpecialties } from '@/features/admin/apis/admin.api';
 import type { Specialty } from '@/features/admin/types';
+import { extractErrorMessage } from '@/utils/errorMessage';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 interface ProfileFormState {
   bio: string;
@@ -17,10 +29,12 @@ interface ProfileFormState {
 }
 
 export const DoctorProfilePage: React.FC = () => {
-  const { t, i18n } = useTranslation('doctor');
+  const { t, i18n } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
   const profile = useAppSelector(selectDoctorProfile);
   const loading = useAppSelector(selectDoctorLoading);
+  const error = useAppSelector(selectDoctorError);
+  const profileUpdated = useAppSelector(selectDoctorProfileUpdated);
 
   const [form, setForm] = useState<ProfileFormState>({
     bio: '',
@@ -29,6 +43,7 @@ export const DoctorProfilePage: React.FC = () => {
   });
   const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [specialtiesLoading, setSpecialtiesLoading] = useState(false);
+  const [specialtiesError, setSpecialtiesError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!profile) {
@@ -46,12 +61,21 @@ export const DoctorProfilePage: React.FC = () => {
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (!profileUpdated) return;
+    const timer = window.setTimeout(() => {
+      dispatch(clearProfileUpdated());
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [dispatch, profileUpdated]);
+
   // Reuses admin getSpecialties endpoint (no dedicated doctor-facing endpoint exists).
   useEffect(() => {
     setSpecialtiesLoading(true);
+    setSpecialtiesError(null);
     getSpecialties()
       .then(setSpecialties)
-      .catch(() => {})
+      .catch((e) => setSpecialtiesError(extractErrorMessage(e)))
       .finally(() => setSpecialtiesLoading(false));
   }, []);
 
@@ -83,6 +107,35 @@ export const DoctorProfilePage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('editProfile')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadProfileRequested())}
+            className="mb-4"
+          />
+        )}
+        {profileUpdated && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('profileSaved')}
+            className="mb-4"
+          />
+        )}
+        {specialtiesError && (
+          <InlineAlert
+            variant="error"
+            title={t('common:error')}
+            message={specialtiesError}
+            className="mb-4"
+          />
+        )}
 
         {/* read-only: personal info changes are admin-only */}
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 mb-6">
@@ -105,7 +158,7 @@ export const DoctorProfilePage: React.FC = () => {
             </div>
             <div>
               <span className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                Email
+                {t('common:email')}
               </span>
               {profile ? (
                 <span className="text-gray-900 dark:text-gray-100">{profile.email}</span>
@@ -169,11 +222,16 @@ export const DoctorProfilePage: React.FC = () => {
                 value={form.specialtyId || null}
                 options={specialtyOptions}
                 onChange={(e) => setForm((prev) => ({ ...prev, specialtyId: e.value ?? '' }))}
-                placeholder={specialtiesLoading ? 'Loading…' : t('selectSpecialty')}
+                placeholder={specialtiesLoading ? t('loadingSpecialties') : t('selectSpecialty')}
                 className="w-full"
                 disabled={specialtiesLoading}
                 showClear
               />
+              {!specialtiesLoading && specialtyOptions.length === 0 && (
+                <small className="block mt-1 text-amber-600 dark:text-amber-400">
+                  {t('common:noData')}
+                </small>
+              )}
             </div>
 
             <div className="flex justify-end pt-2">

@@ -4,8 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Card } from 'primereact/card';
 import { Button } from '@/components/common/Button';
 import { Spinner } from '@/components/common/Spinner';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 import apiClient from '@/apis/core/apiClient';
+import { extractErrorMessage } from '@/utils/errorMessage';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 interface FeaturedDoctor {
   id: string;
@@ -21,22 +24,25 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [doctors, setDoctors] = useState<FeaturedDoctor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const fetchFeaturedDoctors = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const response = await apiClient.get<{ success: boolean; data: FeaturedDoctor[] }>(
+        '/doctors/featured'
+      );
+      setDoctors(response.data.data || []);
+    } catch (error) {
+      setDoctors([]);
+      setLoadError(extractErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchFeaturedDoctors = async () => {
-      try {
-        const response = await apiClient.get<{ success: boolean; data: FeaturedDoctor[] }>(
-          '/doctors/featured'
-        );
-        setDoctors(response.data.data || []);
-      } catch (error) {
-        // Silently fail - featured doctors are optional on home page
-        setDoctors([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchFeaturedDoctors();
   }, []);
 
@@ -123,6 +129,13 @@ export const HomePage: React.FC = () => {
             <div className="flex justify-center py-12">
               <Spinner size="lg" />
             </div>
+          ) : loadError ? (
+            <InlineAlert
+              variant="warning"
+              title={t('error')}
+              message={loadError}
+              onRetry={fetchFeaturedDoctors}
+            />
           ) : doctors.length === 0 ? (
             <p className="text-center text-gray-600 dark:text-gray-300">
               {t('home.noDoctorsAvailable')}
@@ -147,7 +160,7 @@ export const HomePage: React.FC = () => {
                       {doctor.name}
                     </h3>
                     <p className="text-blue-600 dark:text-blue-400 font-medium mb-2">
-                      {doctor.specialty}
+                      {translateEnumValue(t, 'specialty', doctor.specialty)}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                       {doctor.experienceYears} {t('home.yearsExperience')}

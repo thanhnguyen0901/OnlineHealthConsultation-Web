@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from 'primereact/dialog';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadScheduleRequested,
@@ -12,9 +13,11 @@ import {
   selectSchedules,
   selectDoctorLoading,
   selectScheduleUpdated,
+  selectDoctorError,
 } from '../redux/doctor.selectors';
 import { ScheduleTable, type EditableSlot } from '../components/ScheduleTable';
 import type { Schedule } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 let keyCounter = 0;
 const makeKey = () => `slot-${++keyCounter}-${Date.now()}`;
@@ -32,11 +35,12 @@ const INPUT_BASE = [
 
 // ── component ─────────────────────────────────────────────────────────────────
 export const SchedulePage: React.FC = () => {
-  const { t } = useTranslation('doctor');
+  const { t } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
   const serverSchedule = useAppSelector(selectSchedules);
   const loading = useAppSelector(selectDoctorLoading);
   const scheduleUpdated = useAppSelector(selectScheduleUpdated);
+  const error = useAppSelector(selectDoctorError);
 
   const [localSlots, setLocalSlots] = useState<EditableSlot[]>([]);
   const [isDirty, setIsDirty] = useState(false);
@@ -46,6 +50,7 @@ export const SchedulePage: React.FC = () => {
   const [newStart, setNewStart] = useState('08:00');
   const [newEnd, setNewEnd] = useState('17:00');
   const [addError, setAddError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const initialised = useRef(false);
 
@@ -62,11 +67,17 @@ export const SchedulePage: React.FC = () => {
   }, [serverSchedule]);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     if (scheduleUpdated) {
       setLocalSlots(toEditable(serverSchedule));
       setIsDirty(false);
+      setSaveSuccess(true);
+      timer = setTimeout(() => setSaveSuccess(false), 2000);
       dispatch(clearScheduleUpdated());
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [scheduleUpdated, serverSchedule, dispatch]);
 
   // ── slot mutation helpers ──────────────────────────────────────────────────
@@ -91,19 +102,19 @@ export const SchedulePage: React.FC = () => {
 
   const handleAddConfirm = () => {
     if (!newDate) {
-      setAddError('Date is required');
+      setAddError(t('validationDateRequired'));
       return;
     }
     if (!isValidTime(newStart)) {
-      setAddError('Start time must be HH:MM');
+      setAddError(t('validationStartTimeFormat'));
       return;
     }
     if (!isValidTime(newEnd)) {
-      setAddError('End time must be HH:MM');
+      setAddError(t('validationEndTimeFormat'));
       return;
     }
     if (newEnd <= newStart) {
-      setAddError('End time must be after start time');
+      setAddError(t('validationEndAfterStart'));
       return;
     }
 
@@ -167,6 +178,27 @@ export const SchedulePage: React.FC = () => {
             />
           </div>
         </div>
+        {saveSuccess && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('scheduleSaved')}
+            className="mb-4"
+          />
+        )}
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadScheduleRequested())}
+            className="mb-4"
+          />
+        )}
 
         {isDirty && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-2 text-sm text-amber-800 dark:text-amber-300">

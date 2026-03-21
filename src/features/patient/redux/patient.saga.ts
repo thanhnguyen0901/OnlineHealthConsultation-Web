@@ -34,6 +34,7 @@ import type { Question, Appointment, PatientProfile, Rating } from '../types';
 import type { Doctor, Specialty } from '@/features/admin/types';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
+import i18n from '@/i18n/initI18n';
 
 function* handleAskQuestion(action: PayloadAction<{ question: string; specialtyId?: string }>) {
   try {
@@ -42,14 +43,14 @@ function* handleAskQuestion(action: PayloadAction<{ question: string; specialtyI
     yield put(
       addToast({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Question submitted successfully',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('patient:questionSubmitted'),
       })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(askQuestionFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -62,14 +63,14 @@ function* handleBookAppointment(
     yield put(
       addToast({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Appointment booked successfully',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('patient:appointmentBooked'),
       })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(bookAppointmentFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -98,18 +99,22 @@ function* handleUpdateProfile(action: PayloadAction<Partial<PatientProfile>>) {
     const profile: PatientProfile = yield call(patientApi.updateProfile, action.payload);
     yield put(updateProfileSucceeded(profile));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('patient:profileUpdated'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateProfileFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
 function* handleRateConsultation(
   action: PayloadAction<{
-    consultationId: string;
+    appointmentId: string;
     doctorId: string;
     rating: number;
     comment?: string;
@@ -119,12 +124,16 @@ function* handleRateConsultation(
     const rating: Rating = yield call(patientApi.rateConsultation, action.payload);
     yield put(rateConsultationSucceeded(rating));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Rating submitted successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('patient:ratingSubmitted'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(rateConsultationFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -133,12 +142,16 @@ function* handleCancelAppointment(action: PayloadAction<string>) {
     yield call(patientApi.cancelAppointment, action.payload);
     yield put(cancelAppointmentSucceeded(action.payload));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Appointment cancelled' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('patient:appointmentCancelled'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(cancelAppointmentFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 

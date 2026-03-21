@@ -3,10 +3,28 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card } from 'primereact/card';
 import { ROUTE_PATHS } from '@/constants/routePaths';
+import { Spinner } from '@/components/common/Spinner';
+import { InlineAlert } from '@/components/common/InlineAlert';
+import { useAppDispatch, useAppSelector } from '@/state/hooks';
+import { loadProfileRequested } from '@/features/patient/redux/patient.slice';
+import {
+  selectProfile,
+  selectPatientLoading,
+  selectPatientError,
+} from '@/features/patient/redux/patient.selectors';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 export const PatientDashboardPage: React.FC = () => {
-  const { t } = useTranslation('patient');
+  const { t } = useTranslation(['patient', 'common']);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const profile = useAppSelector(selectProfile);
+  const loading = useAppSelector(selectPatientLoading);
+  const error = useAppSelector(selectPatientError);
+
+  React.useEffect(() => {
+    dispatch(loadProfileRequested());
+  }, [dispatch]);
 
   const quickActions = [
     {
@@ -32,12 +50,41 @@ export const PatientDashboardPage: React.FC = () => {
     },
   ];
 
+  if (loading && !profile) {
+    return (
+      <div className="flex items-center justify-center min-h-[320px]">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('dashboard')}
         </h1>
+        {profile && (
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            {t('common:welcome')},{' '}
+            <span className="font-semibold text-gray-900 dark:text-gray-100">
+              {profile.firstName} {profile.lastName}
+            </span>
+          </p>
+        )}
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadProfileRequested())}
+            className="mb-4"
+          />
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {quickActions.map((action) => (

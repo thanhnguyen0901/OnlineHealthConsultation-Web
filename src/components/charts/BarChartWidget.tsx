@@ -15,12 +15,13 @@ interface BarChartWidgetProps {
   dataKeys: string[];
   xAxisKey: string;
   colors?: string[];
+  seriesLabels?: Record<string, string>;
 }
 
 const DEFAULT_COLORS = ['#3b82f6', '#10b981', '#f59e0b'];
 
 export const BarChartWidget: React.FC<BarChartWidgetProps> = memo(
-  ({ data, dataKeys, xAxisKey, colors = DEFAULT_COLORS }) => {
+  ({ data, dataKeys, xAxisKey, colors = DEFAULT_COLORS, seriesLabels }) => {
     return (
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
@@ -30,7 +31,12 @@ export const BarChartWidget: React.FC<BarChartWidgetProps> = memo(
           <Tooltip />
           <Legend />
           {dataKeys.map((key, index) => (
-            <Bar key={key} dataKey={key} fill={colors[index % colors.length]} />
+            <Bar
+              key={key}
+              dataKey={key}
+              name={seriesLabels?.[key] ?? key}
+              fill={colors[index % colors.length]}
+            />
           ))}
         </BarChart>
       </ResponsiveContainer>

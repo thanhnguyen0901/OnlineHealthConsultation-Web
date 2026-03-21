@@ -7,6 +7,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadDoctorsRequested,
@@ -20,16 +21,20 @@ import {
   selectAdminSpecialties,
   selectAdminLoading,
   selectAdminDoctorsPagination,
+  selectAdminError,
 } from '../redux/admin.selectors';
 import type { Doctor } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 export const DoctorsManagePage: React.FC = () => {
-  const { t, i18n } = useTranslation('admin');
+  const { t, i18n } = useTranslation(['admin', 'common']);
   const dispatch = useAppDispatch();
   const doctors = useAppSelector(selectAdminDoctors);
   const specialties = useAppSelector(selectAdminSpecialties);
   const loading = useAppSelector(selectAdminLoading);
   const doctorsPagination = useAppSelector(selectAdminDoctorsPagination);
+  const error = useAppSelector(selectAdminError);
 
   const [dialog, setDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -146,17 +151,31 @@ export const DoctorsManagePage: React.FC = () => {
     );
   };
 
+  const specialtyBodyTemplate = (rowData: Doctor) => {
+    if (i18n.language === 'vi' && rowData.specialtyNameVi) {
+      return rowData.specialtyNameVi;
+    }
+    if (i18n.language !== 'vi' && rowData.specialtyName) {
+      return rowData.specialtyName;
+    }
+    const specialty = specialties.find((s) => s.id === rowData.specialtyId);
+    if (specialty) {
+      return i18n.language === 'vi' ? specialty.nameVi : specialty.nameEn;
+    }
+    return translateEnumValue(t, 'specialty', rowData.specialtyName);
+  };
+
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} />
-      <Button label={t('save')} onClick={saveDoctor} />
+      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
+      <Button label={t('save')} onClick={saveDoctor} loading={loading} disabled={loading} />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} />
-      <Button label={t('yes')} variant="danger" onClick={deleteDoctor} />
+      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
+      <Button label={t('yes')} variant="danger" onClick={deleteDoctor} loading={loading} />
     </div>
   );
 
@@ -166,6 +185,22 @@ export const DoctorsManagePage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageDoctors')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => {
+              const page = Math.floor(first / pageSize) + 1;
+              dispatch(loadDoctorsRequested({ page, limit: pageSize }));
+            }}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
@@ -174,6 +209,7 @@ export const DoctorsManagePage: React.FC = () => {
             </Button>
           </div>
           <DataTable
+            key={`doctors-table-${i18n.language}`}
             value={doctors}
             lazy
             paginator
@@ -194,6 +230,7 @@ export const DoctorsManagePage: React.FC = () => {
             <Column
               field="specialtyName"
               header={t('specialty')}
+              body={specialtyBodyTemplate}
               sortable
               style={{ width: '180px' }}
             />

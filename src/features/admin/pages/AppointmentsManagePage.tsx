@@ -6,6 +6,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 
 type PendingChange = {
   appointmentId: string;
@@ -19,14 +20,18 @@ import {
   selectAdminAppointments,
   selectAdminLoading,
   selectAdminAppointmentsPagination,
+  selectAdminError,
 } from '../redux/admin.selectors';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 export const AppointmentsManagePage: React.FC = () => {
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation(['admin', 'common']);
   const dispatch = useAppDispatch();
   const appointments = useAppSelector(selectAdminAppointments);
   const loading = useAppSelector(selectAdminLoading);
   const appointmentsPagination = useAppSelector(selectAdminAppointmentsPagination);
+  const error = useAppSelector(selectAdminError);
 
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [dateRange, setDateRange] = useState<Date[]>([]);
@@ -95,7 +100,7 @@ export const AppointmentsManagePage: React.FC = () => {
         value={rowData.status}
         options={statusOptions.filter((opt) => opt.value !== '')}
         onChange={(e) => handleStatusChange(rowData, e.value)}
-        disabled={pendingChange !== null}
+        disabled={pendingChange !== null || loading}
         className="w-full"
       />
     );
@@ -105,12 +110,38 @@ export const AppointmentsManagePage: React.FC = () => {
     return new Date(rowData.date).toLocaleDateString();
   };
 
+  const specialtyBodyTemplate = (rowData: any) => {
+    if (i18n.language === 'vi' && rowData.specialtyNameVi) {
+      return rowData.specialtyNameVi;
+    }
+    if (i18n.language !== 'vi' && rowData.specialtyName) {
+      return rowData.specialtyName;
+    }
+    return translateEnumValue(t, 'specialty', rowData.specialtyName);
+  };
+
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageAppointments')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => {
+              const page = Math.floor(first / pageSize) + 1;
+              dispatch(loadAppointmentsRequested({ page, limit: pageSize }));
+            }}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <div className="mb-6 flex gap-4 flex-wrap items-end">
@@ -144,7 +175,7 @@ export const AppointmentsManagePage: React.FC = () => {
                 selectionMode="range"
                 readOnlyInput
                 showIcon
-                placeholder="Select date range"
+                placeholder={t('selectDateRange')}
                 className="w-72"
               />
             </div>
@@ -164,6 +195,7 @@ export const AppointmentsManagePage: React.FC = () => {
             )}
           </div>
           <DataTable
+            key={`appointments-table-${i18n.language}`}
             value={filteredAppointments}
             lazy
             paginator
@@ -184,6 +216,7 @@ export const AppointmentsManagePage: React.FC = () => {
             <Column
               field="specialtyName"
               header={t('specialty')}
+              body={specialtyBodyTemplate}
               sortable
               style={{ width: '150px' }}
             />
@@ -207,13 +240,13 @@ export const AppointmentsManagePage: React.FC = () => {
         <Dialog
           visible={pendingChange !== null}
           style={{ width: '32rem' }}
-          header={t('statusChangeConfirmTitle', 'Confirm Status Change')}
+          header={t('statusChangeConfirmTitle')}
           modal
           focusOnShow
           footer={
             <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-              <Button label={t('cancel')} variant="secondary" onClick={cancelChange} />
-              <Button label={t('confirm')} onClick={confirmChange} />
+              <Button label={t('cancel')} variant="secondary" onClick={cancelChange} disabled={loading} />
+              <Button label={t('confirm')} onClick={confirmChange} loading={loading} disabled={loading} />
             </div>
           }
           onHide={cancelChange}
@@ -221,10 +254,7 @@ export const AppointmentsManagePage: React.FC = () => {
         >
           <div className="px-6 pt-2 pb-1 space-y-3">
             <p className="text-gray-700 dark:text-gray-300">
-              {t(
-                'statusChangeConfirmBody',
-                "Are you sure you want to change this appointment's status?"
-              )}
+              {t('statusChangeConfirmBody')}
             </p>
             <dl className="text-sm space-y-1">
               <div className="flex gap-2">
@@ -238,9 +268,13 @@ export const AppointmentsManagePage: React.FC = () => {
                   {t('status')}:
                 </dt>
                 <dd className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                  <span className="capitalize">{pendingChange?.oldStatus}</span>
+                  <span className="capitalize">
+                    {translateEnumValue(t, 'status', pendingChange?.oldStatus)}
+                  </span>
                   <span className="text-gray-400">→</span>
-                  <span className="capitalize font-semibold">{pendingChange?.newStatus}</span>
+                  <span className="capitalize font-semibold">
+                    {translateEnumValue(t, 'status', pendingChange?.newStatus)}
+                  </span>
                 </dd>
               </div>
             </dl>

@@ -13,6 +13,7 @@ export interface Patient extends User {
 export interface Doctor extends User {
   specialtyId: Id;
   specialtyName: string;
+  specialtyNameVi?: string;
   bio?: string;
 }
 
@@ -36,4 +37,7 @@ export interface AdminStats {
   completedAppointments: number;
   answeredQuestions: number;
   pendingQuestions: number;
+  activePatients: number;
+  activeDoctors: number;
+  totalActiveUsers: number;
 }

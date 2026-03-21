@@ -3,8 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loadProfileRequested } from '../redux/doctor.slice';
-import { selectDoctorProfile, selectDoctorLoading } from '../redux/doctor.selectors';
+import {
+  selectDoctorProfile,
+  selectDoctorLoading,
+  selectDoctorError,
+} from '../redux/doctor.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
+import { InlineAlert } from '@/components/common/InlineAlert';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 interface StatCardProps {
   icon: string;
@@ -47,11 +53,12 @@ const QuickLink: React.FC<QuickLinkProps> = ({ icon, label, description, onClick
 );
 
 export const DoctorDashboardPage: React.FC = () => {
-  const { t } = useTranslation('doctor');
+  const { t } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const profile = useAppSelector(selectDoctorProfile);
   const loading = useAppSelector(selectDoctorLoading);
+  const error = useAppSelector(selectDoctorError);
 
   useEffect(() => {
     dispatch(loadProfileRequested());
@@ -69,13 +76,25 @@ export const DoctorDashboardPage: React.FC = () => {
           </h1>
           {profile && (
             <p className="text-gray-500 dark:text-gray-400 mt-1">
-              {t('welcomeBack') || 'Welcome back'},{' '}
+              {t('welcomeBack')},{' '}
               <span className="font-medium text-gray-700 dark:text-gray-200">
                 {profile.firstName} {profile.lastName}
               </span>
             </p>
           )}
         </div>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadProfileRequested())}
+          />
+        )}
 
         {loading && !profile ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -90,25 +109,25 @@ export const DoctorDashboardPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               icon="pi pi-inbox"
-              label={t('totalQuestions') || 'Total Questions'}
+              label={t('totalQuestions')}
               value={stats?.questionCount ?? '—'}
               color="bg-blue-500"
             />
             <StatCard
               icon="pi pi-calendar"
-              label={t('totalAppointments') || 'Total Appointments'}
+              label={t('totalAppointments')}
               value={stats?.appointmentCount ?? '—'}
               color="bg-indigo-500"
             />
             <StatCard
               icon="pi pi-star"
-              label={t('averageRating') || 'Average Rating'}
+              label={t('averageRating')}
               value={ratingAvg}
               color="bg-yellow-500"
             />
             <StatCard
               icon="pi pi-users"
-              label={t('totalRatings') || 'Total Ratings'}
+              label={t('totalRatings')}
               value={stats?.ratingCount ?? '—'}
               color="bg-green-500"
             />
@@ -117,25 +136,31 @@ export const DoctorDashboardPage: React.FC = () => {
 
         <div>
           <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
-            {t('quickLinks') || 'Quick Links'}
+            {t('quickLinks')}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <QuickLink
               icon="pi pi-inbox"
-              label={t('inbox') || 'Inbox'}
-              description={t('viewIncomingQuestions') || 'View and answer patient questions'}
+              label={t('inbox')}
+              description={t('viewIncomingQuestions')}
               onClick={() => navigate(ROUTE_PATHS.INBOX_QUESTIONS)}
             />
             <QuickLink
+              icon="pi pi-users"
+              label={t('patientsList')}
+              description={t('viewPatientsList')}
+              onClick={() => navigate(ROUTE_PATHS.DOCTOR_PATIENTS)}
+            />
+            <QuickLink
               icon="pi pi-calendar-times"
-              label={t('appointments') || 'Appointments'}
-              description={t('manageAppointments') || 'Confirm, complete or cancel bookings'}
+              label={t('appointments')}
+              description={t('manageAppointments')}
               onClick={() => navigate(ROUTE_PATHS.DOCTOR_APPOINTMENTS)}
             />
             <QuickLink
               icon="pi pi-clock"
-              label={t('schedule') || 'Schedule'}
-              description={t('viewSchedule') || 'View your available time slots'}
+              label={t('schedule')}
+              description={t('viewSchedule')}
               onClick={() => navigate(ROUTE_PATHS.SCHEDULE)}
             />
           </div>

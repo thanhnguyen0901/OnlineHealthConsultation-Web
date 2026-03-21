@@ -7,6 +7,7 @@ import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
 import { FormikCalendar } from '@/components/form-controls/FormikCalendar';
 import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadSpecialtiesRequested,
@@ -19,8 +20,10 @@ import {
   selectDoctors,
   selectPatientLoading,
   selectAppointmentSubmitted,
+  selectPatientError,
 } from '../redux/patient.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 // Local calendar date, not UTC (avoids day-off-by-one for negative-UTC-offset timezones).
 const formatLocalDate = (d: Date): string => {
@@ -75,6 +78,7 @@ export const BookAppointmentPage: React.FC = () => {
   const doctors = useAppSelector(selectDoctors);
   const loading = useAppSelector(selectPatientLoading);
   const appointmentSubmitted = useAppSelector(selectAppointmentSubmitted);
+  const error = useAppSelector(selectPatientError);
   const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>('');
 
   useEffect(() => {
@@ -84,8 +88,11 @@ export const BookAppointmentPage: React.FC = () => {
   // Saga dispatches toasts; navigate only.
   useEffect(() => {
     if (appointmentSubmitted) {
-      dispatch(clearAppointmentSubmitted());
-      navigate(ROUTE_PATHS.CONSULTATION_HISTORY);
+      const timer = setTimeout(() => {
+        dispatch(clearAppointmentSubmitted());
+        navigate(ROUTE_PATHS.CONSULTATION_HISTORY);
+      }, 600);
+      return () => clearTimeout(timer);
     }
   }, [appointmentSubmitted, dispatch, navigate]);
 
@@ -116,6 +123,26 @@ export const BookAppointmentPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('bookAppointment')}
         </h1>
+        {appointmentSubmitted && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('appointmentBooked')}
+            className="mb-4"
+          />
+        )}
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik
@@ -156,6 +183,13 @@ export const BookAppointmentPage: React.FC = () => {
                     disabled={!selectedSpecialtyId || doctors.length === 0}
                   />
                 </div>
+                {!loading && selectedSpecialtyId && doctors.length === 0 && (
+                  <InlineAlert
+                    variant="warning"
+                    title={t('common:noData')}
+                    message={t('noDoctorsAvailable')}
+                  />
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormikCalendar
@@ -188,7 +222,12 @@ export const BookAppointmentPage: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button type="submit" loading={loading} data-cy="book-appointment-submit">
+                  <Button
+                    type="submit"
+                    loading={loading}
+                    disabled={loading}
+                    data-cy="book-appointment-submit"
+                  >
                     {t('bookAppointment')}
                   </Button>
                 </div>

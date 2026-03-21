@@ -3,8 +3,10 @@ import { initialDoctorState } from './doctor.state';
 import type {
   DoctorQuestion,
   DoctorAppointment,
+  DoctorPatient,
   DoctorProfile,
   DoctorRating,
+  DoctorPatientsPagination,
   RatingsPagination,
   Schedule,
 } from '../types';
@@ -81,11 +83,31 @@ const doctorSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    loadDoctorPatientsRequested: (
+      state,
+      _action: PayloadAction<{ page?: number; limit?: number; search?: string } | undefined>
+    ) => {
+      state.loading = true;
+      state.error = null;
+    },
+    loadDoctorPatientsSucceeded: (
+      state,
+      action: PayloadAction<{ patients: DoctorPatient[]; pagination: DoctorPatientsPagination | null }>
+    ) => {
+      state.loading = false;
+      state.patients = action.payload.patients;
+      state.patientsPagination = action.payload.pagination;
+    },
+    loadDoctorPatientsFailed: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
     updateDoctorAppointmentRequested: (
       state,
       _action: PayloadAction<{ id: string; status: string; notes?: string }>
     ) => {
       state.loading = true;
+      state.appointmentUpdated = false;
     },
     updateDoctorAppointmentSucceeded: (state, action: PayloadAction<DoctorAppointment>) => {
       state.loading = false;
@@ -93,10 +115,15 @@ const doctorSlice = createSlice({
       if (idx !== -1) {
         state.appointments[idx] = action.payload;
       }
+      state.appointmentUpdated = true;
     },
     updateDoctorAppointmentFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
+      state.appointmentUpdated = false;
+    },
+    clearAppointmentUpdated: (state) => {
+      state.appointmentUpdated = false;
     },
     loadScheduleRequested: (state) => {
       state.loading = true;
@@ -131,6 +158,7 @@ const doctorSlice = createSlice({
     updateProfileRequested: (state, _action: PayloadAction<UpdateProfilePayload>) => {
       state.loading = true;
       state.error = null;
+      state.profileUpdated = false;
     },
     updateProfileSucceeded: (state, action: PayloadAction<Partial<DoctorProfile>>) => {
       state.loading = false;
@@ -139,10 +167,15 @@ const doctorSlice = createSlice({
       } else {
         state.profile = action.payload as DoctorProfile;
       }
+      state.profileUpdated = true;
     },
     updateProfileFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
+      state.profileUpdated = false;
+    },
+    clearProfileUpdated: (state) => {
+      state.profileUpdated = false;
     },
     updateScheduleRequested: (state, _action: PayloadAction<Schedule[]>) => {
       state.loading = true;
@@ -201,9 +234,13 @@ export const {
   loadDoctorAppointmentsRequested,
   loadDoctorAppointmentsSucceeded,
   loadDoctorAppointmentsFailed,
+  loadDoctorPatientsRequested,
+  loadDoctorPatientsSucceeded,
+  loadDoctorPatientsFailed,
   updateDoctorAppointmentRequested,
   updateDoctorAppointmentSucceeded,
   updateDoctorAppointmentFailed,
+  clearAppointmentUpdated,
   loadScheduleRequested,
   loadScheduleSucceeded,
   loadScheduleFailed,
@@ -213,6 +250,7 @@ export const {
   updateProfileRequested,
   updateProfileSucceeded,
   updateProfileFailed,
+  clearProfileUpdated,
   updateScheduleRequested,
   updateScheduleSucceeded,
   updateScheduleFailed,

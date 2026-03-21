@@ -73,5 +73,8 @@
   "actions": "Hành động",
   "cancel": "Hủy",
   "submit": "Gửi",
-  "notAvailable": "Không khả dụng"
+  "notAvailable": "Không khả dụng",
+  "noSpecialties": "Hiện chưa có chuyên khoa. Vui lòng thử lại sau.",
+  "noDoctorsAvailable": "Không có bác sĩ cho chuyên khoa này.",
+  "appointmentCancelled": "Đã hủy lịch hẹn"
 }

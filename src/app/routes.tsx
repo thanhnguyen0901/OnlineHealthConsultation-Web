@@ -58,6 +58,11 @@ const DoctorAppointmentsPage = lazy(() =>
     default: m.DoctorAppointmentsPage,
   }))
 );
+const DoctorPatientsPage = lazy(() =>
+  import('@/features/doctor/pages/DoctorPatientsPage').then((m) => ({
+    default: m.DoctorPatientsPage,
+  }))
+);
 const DoctorRatingsPage = lazy(() =>
   import('@/features/doctor/pages/DoctorRatingsPage').then((m) => ({
     default: m.DoctorRatingsPage,
@@ -210,6 +215,14 @@ export const RoutesConfig: React.FC = () => {
             element={
               <RoleGuard roles={['DOCTOR']}>
                 <SchedulePage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_PATIENTS}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <DoctorPatientsPage />
               </RoleGuard>
             }
           />

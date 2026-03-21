@@ -67,7 +67,7 @@ export const updateProfile = async (data: Partial<PatientProfile>): Promise<Pati
 };
 
 export const rateConsultation = async (data: {
-  consultationId: string;
+  appointmentId: string;
   doctorId: string;
   rating: number;
   comment?: string;

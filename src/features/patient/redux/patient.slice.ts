@@ -87,6 +87,7 @@ const patientSlice = createSlice({
     loadProfileRequested: (state) => {
       state.loading = true;
       state.error = null;
+      state.profileUpdated = false;
     },
     loadProfileSucceeded: (state, action: PayloadAction<PatientProfile>) => {
       state.loading = false;
@@ -99,19 +100,25 @@ const patientSlice = createSlice({
     updateProfileRequested: (state, _action: PayloadAction<Partial<PatientProfile>>) => {
       state.loading = true;
       state.error = null;
+      state.profileUpdated = false;
     },
     updateProfileSucceeded: (state, action: PayloadAction<PatientProfile>) => {
       state.loading = false;
       state.profile = action.payload;
+      state.profileUpdated = true;
     },
     updateProfileFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
+      state.profileUpdated = false;
+    },
+    clearProfileUpdated: (state) => {
+      state.profileUpdated = false;
     },
     rateConsultationRequested: (
       state,
       _action: PayloadAction<{
-        consultationId: string;
+        appointmentId: string;
         doctorId: string;
         rating: number;
         comment?: string;
@@ -181,6 +188,7 @@ export const {
   updateProfileRequested,
   updateProfileSucceeded,
   updateProfileFailed,
+  clearProfileUpdated,
   rateConsultationRequested,
   rateConsultationSucceeded,
   rateConsultationFailed,

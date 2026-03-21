@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
@@ -16,15 +17,10 @@ import {
   selectPatientLoading,
   selectQuestionSubmitted,
   selectSpecialties,
+  selectPatientError,
 } from '@/features/patient/redux/patient.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
-
-const questionSchema = Yup.object({
-  specialtyId: Yup.string().required('Specialty is required'),
-  question: Yup.string()
-    .min(10, 'Question must be at least 10 characters')
-    .required('Question is required'),
-});
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 const FormikTextArea: React.FC<{
   name: string;
@@ -57,12 +53,24 @@ const FormikTextArea: React.FC<{
 };
 
 export const AskQuestionPage: React.FC = () => {
-  const { t, i18n } = useTranslation('patient');
+  const { t, i18n } = useTranslation(['patient', 'validation']);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const loading = useAppSelector(selectPatientLoading);
   const questionSubmitted = useAppSelector(selectQuestionSubmitted);
   const specialties = useAppSelector(selectSpecialties);
+  const error = useAppSelector(selectPatientError);
+
+  const questionSchema = React.useMemo(
+    () =>
+      Yup.object({
+        specialtyId: Yup.string().required(t('validation:specialtyRequired')),
+        question: Yup.string()
+          .min(10, t('validation:questionMin', { min: 10 }))
+          .required(t('validation:questionRequired')),
+      }),
+    [t]
+  );
 
   React.useEffect(() => {
     dispatch(loadSpecialtiesRequested());
@@ -76,8 +84,11 @@ export const AskQuestionPage: React.FC = () => {
   // Saga dispatches toasts; clear flag to prevent re-trigger on re-visit.
   React.useEffect(() => {
     if (questionSubmitted) {
-      dispatch(clearQuestionSubmitted());
-      navigate(ROUTE_PATHS.CONSULTATION_HISTORY);
+      const timer = setTimeout(() => {
+        dispatch(clearQuestionSubmitted());
+        navigate(ROUTE_PATHS.CONSULTATION_HISTORY);
+      }, 600);
+      return () => clearTimeout(timer);
     }
   }, [questionSubmitted, dispatch, navigate]);
 
@@ -87,6 +98,27 @@ export const AskQuestionPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('askQuestion')}
         </h1>
+        {questionSubmitted && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('questionSubmitted')}
+            className="mb-4"
+          />
+        )}
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadSpecialtiesRequested())}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik
@@ -107,6 +139,13 @@ export const AskQuestionPage: React.FC = () => {
                   placeholder={t('selectSpecialty')}
                   options={specialtyOptions}
                 />
+                {!loading && specialties.length === 0 && (
+                  <InlineAlert
+                    variant="warning"
+                    title={t('common:noData')}
+                    message={t('noSpecialties')}
+                  />
+                )}
 
                 <div>
                   <label

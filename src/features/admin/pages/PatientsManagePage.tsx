@@ -6,9 +6,11 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadPatientsRequested,
+  createPatientRequested,
   updatePatientRequested,
   deletePatientRequested,
 } from '../redux/admin.slice';
@@ -16,15 +18,19 @@ import {
   selectAdminPatients,
   selectAdminLoading,
   selectAdminPatientsPagination,
+  selectAdminError,
 } from '../redux/admin.selectors';
 import type { Patient } from '../types';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 export const PatientsManagePage: React.FC = () => {
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation(['admin', 'common']);
   const dispatch = useAppDispatch();
   const patients = useAppSelector(selectAdminPatients);
   const loading = useAppSelector(selectAdminLoading);
   const patientsPagination = useAppSelector(selectAdminPatientsPagination);
+  const error = useAppSelector(selectAdminError);
 
   const [first, setFirst] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -62,23 +68,42 @@ export const PatientsManagePage: React.FC = () => {
     setDeleteDialog(false);
   };
 
+  const openNew = () => {
+    setPatient({ isActive: true });
+    setSubmitted(false);
+    setDialog(true);
+  };
+
   const savePatient = () => {
     setSubmitted(true);
-    if (!patient.id) return;
     const valid =
       !!patient.firstName?.trim() && !!patient.lastName?.trim() && !!patient.email?.trim();
     if (!valid) return;
-    dispatch(
-      updatePatientRequested({
-        id: patient.id as string,
-        data: {
-          firstName: patient.firstName,
-          lastName: patient.lastName,
-          email: patient.email,
-          isActive: patient.isActive,
-        },
-      })
-    );
+    if (patient.id) {
+      dispatch(
+        updatePatientRequested({
+          id: patient.id as string,
+          data: {
+            firstName: patient.firstName,
+            lastName: patient.lastName,
+            email: patient.email,
+            isActive: patient.isActive,
+          },
+        })
+      );
+    } else {
+      const password = (patient as any).password as string | undefined;
+      if (!password?.trim() || password.trim().length < 6) return;
+      dispatch(
+        createPatientRequested({
+          firstName: patient.firstName!.trim(),
+          lastName: patient.lastName!.trim(),
+          email: patient.email!.trim(),
+          password: password.trim(),
+        })
+      );
+      setRevision((r) => r + 1);
+    }
     setDialog(false);
     setPatient({});
   };
@@ -132,17 +157,20 @@ export const PatientsManagePage: React.FC = () => {
     </div>
   );
 
+  const genderBodyTemplate = (rowData: Patient) =>
+    rowData.gender ? translateEnumValue(t, 'gender', rowData.gender) : '—';
+
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} />
-      <Button label={t('save')} onClick={savePatient} />
+      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
+      <Button label={t('save')} onClick={savePatient} loading={loading} disabled={loading} />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} />
-      <Button label={t('yes')} variant="danger" onClick={doDeletePatient} />
+      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
+      <Button label={t('yes')} variant="danger" onClick={doDeletePatient} loading={loading} />
     </div>
   );
 
@@ -152,10 +180,31 @@ export const PatientsManagePage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('managePatients')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => {
+              const page = Math.floor(first / pageSize) + 1;
+              dispatch(
+                loadPatientsRequested({ page, limit: pageSize, search: search || undefined })
+              );
+            }}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           {/* Search toolbar */}
           <div className="mb-4 flex gap-2 items-center">
+            <Button icon="pi pi-plus" size="sm" onClick={openNew}>
+              {t('addPatient')}
+            </Button>
             <InputText
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -164,7 +213,7 @@ export const PatientsManagePage: React.FC = () => {
               className="w-64"
             />
             <Button icon="pi pi-search" size="sm" onClick={handleSearch}>
-              Search
+              {t('common:search')}
             </Button>
             {search && (
               <Button icon="pi pi-times" size="sm" variant="secondary" onClick={handleClearSearch}>
@@ -174,6 +223,7 @@ export const PatientsManagePage: React.FC = () => {
           </div>
 
           <DataTable
+            key={`patients-table-${i18n.language}`}
             value={patients}
             lazy
             paginator
@@ -192,7 +242,12 @@ export const PatientsManagePage: React.FC = () => {
             <Column field="name" header={t('name')} sortable />
             <Column field="email" header={t('email')} sortable />
             <Column field="phone" header={t('phone')} />
-            <Column field="gender" header={t('gender')} style={{ width: '100px' }} />
+            <Column
+              field="gender"
+              header={t('gender')}
+              body={genderBodyTemplate}
+              style={{ width: '100px' }}
+            />
             <Column body={statusBodyTemplate} header={t('status')} style={{ width: '120px' }} />
             <Column body={actionBodyTemplate} header={t('actions')} style={{ width: '140px' }} />
           </DataTable>
@@ -202,7 +257,7 @@ export const PatientsManagePage: React.FC = () => {
         <Dialog
           visible={dialog}
           style={{ width: '32rem' }}
-          header={t('editPatient')}
+          header={patient.id ? t('editPatient') : t('addPatient')}
           modal
           footer={dialogFooter}
           onHide={hideDialog}
@@ -254,6 +309,31 @@ export const PatientsManagePage: React.FC = () => {
                 <small className="text-red-500 text-xs mt-1">{t('emailRequired')}</small>
               )}
             </div>
+            {!patient.id && (
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('password')}
+                </label>
+                <InputText
+                  type="password"
+                  value={(patient as any).password || ''}
+                  onChange={(e) => setPatient({ ...patient, password: e.target.value } as any)}
+                  required
+                  className={`w-full ${
+                    submitted &&
+                    (!(patient as any).password || (patient as any).password.length < 6)
+                      ? 'p-invalid'
+                      : ''
+                  }`}
+                />
+                {submitted &&
+                  (!(patient as any).password || (patient as any).password.length < 6) && (
+                    <small className="text-red-500 text-xs mt-1">
+                      {t('passwordRequired')}
+                    </small>
+                  )}
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('active')}

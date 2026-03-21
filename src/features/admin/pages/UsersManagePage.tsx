@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadUsersRequested,
@@ -17,16 +18,20 @@ import {
   selectAdminUsers,
   selectAdminLoading,
   selectAdminUsersPagination,
+  selectAdminError,
 } from '../redux/admin.selectors';
 import type { User } from '@/types/common';
 import { ROLES } from '@/constants/roles';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 export const UsersManagePage: React.FC = () => {
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation(['admin', 'common']);
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAdminUsers);
   const loading = useAppSelector(selectAdminLoading);
   const usersPagination = useAppSelector(selectAdminUsersPagination);
+  const error = useAppSelector(selectAdminError);
 
   const [first, setFirst] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -38,9 +43,9 @@ export const UsersManagePage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const roleOptions = [
-    { label: 'Patient', value: ROLES.PATIENT },
-    { label: 'Doctor', value: ROLES.DOCTOR },
-    { label: 'Admin', value: ROLES.ADMIN },
+    { label: t('common:roles.patient'), value: ROLES.PATIENT },
+    { label: t('common:roles.doctor'), value: ROLES.DOCTOR },
+    { label: t('common:roles.admin'), value: ROLES.ADMIN },
   ];
 
   useEffect(() => {
@@ -139,17 +144,19 @@ export const UsersManagePage: React.FC = () => {
     );
   };
 
+  const roleBodyTemplate = (rowData: User) => translateEnumValue(t, 'role', rowData.role);
+
   const dialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} />
-      <Button label={t('save')} onClick={saveUser} />
+      <Button label={t('cancel')} variant="secondary" onClick={hideDialog} disabled={loading} />
+      <Button label={t('save')} onClick={saveUser} loading={loading} disabled={loading} />
     </div>
   );
 
   const deleteDialogFooter = (
     <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} />
-      <Button label={t('yes')} variant="danger" onClick={deleteUser} />
+      <Button label={t('no')} variant="secondary" onClick={hideDeleteDialog} disabled={loading} />
+      <Button label={t('yes')} variant="danger" onClick={deleteUser} loading={loading} />
     </div>
   );
 
@@ -159,6 +166,22 @@ export const UsersManagePage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageUsers')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => {
+              const page = Math.floor(first / pageSize) + 1;
+              dispatch(loadUsersRequested({ page, limit: pageSize }));
+            }}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
@@ -167,6 +190,7 @@ export const UsersManagePage: React.FC = () => {
             </Button>
           </div>
           <DataTable
+            key={`users-table-${i18n.language}`}
             value={users}
             lazy
             paginator
@@ -184,7 +208,13 @@ export const UsersManagePage: React.FC = () => {
           >
             <Column field="name" header={t('name')} sortable />
             <Column field="email" header={t('email')} sortable />
-            <Column field="role" header={t('role')} sortable style={{ width: '140px' }} />
+            <Column
+              field="role"
+              header={t('role')}
+              body={roleBodyTemplate}
+              sortable
+              style={{ width: '140px' }}
+            />
             <Column body={actionBodyTemplate} header={t('actions')} style={{ width: '140px' }} />
           </DataTable>
         </div>

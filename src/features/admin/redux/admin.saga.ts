@@ -13,6 +13,9 @@ import {
   loadPatientsRequested,
   loadPatientsSucceeded,
   loadPatientsFailed,
+  createPatientRequested,
+  createPatientSucceeded,
+  createPatientFailed,
   updatePatientRequested,
   updatePatientSucceeded,
   updatePatientFailed,
@@ -70,6 +73,7 @@ import type { User } from '@/types/common';
 import type { Doctor, Patient, Specialty, AdminStats } from '../types';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
+import i18n from '@/i18n/initI18n';
 
 function* handleLoadStats() {
   try {
@@ -78,7 +82,7 @@ function* handleLoadStats() {
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(loadStatsFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -89,7 +93,7 @@ function* handleLoadUsers(action: PayloadAction<any>) {
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(loadUsersFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -103,7 +107,7 @@ function* handleLoadDoctors(action: PayloadAction<any>) {
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(loadDoctorsFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -117,7 +121,7 @@ function* handleLoadPatients(action: PayloadAction<any>) {
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(loadPatientsFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -130,12 +134,45 @@ function* handleUpdatePatient(action: PayloadAction<{ id: string; data: Partial<
     );
     yield put(updatePatientSucceeded(patient));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Patient updated successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:patientUpdated'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updatePatientFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
+  }
+}
+
+function* handleCreatePatient(
+  action: PayloadAction<{
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    gender?: string;
+    phone?: string;
+    address?: string;
+  }>
+) {
+  try {
+    const patient: Patient = yield call(adminApi.createPatient, action.payload);
+    yield put(createPatientSucceeded(patient));
+    yield put(
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:patientCreated'),
+      })
+    );
+  } catch (error) {
+    const msg = extractErrorMessage(error);
+    yield put(createPatientFailed(msg));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -146,14 +183,14 @@ function* handleDeletePatient(action: PayloadAction<string>) {
     yield put(
       addToast({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Patient deactivated successfully',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:patientDeactivated'),
       })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(deletePatientFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -164,7 +201,7 @@ function* handleLoadSpecialties() {
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(loadSpecialtiesFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -173,12 +210,16 @@ function* handleCreateUser(action: PayloadAction<Partial<User> & { password: str
     const user: User = yield call(adminApi.createUser, action.payload);
     yield put(createUserSucceeded(user));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'User created successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:userCreated'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(createUserFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -187,12 +228,16 @@ function* handleUpdateUser(action: PayloadAction<{ id: string; data: Partial<Use
     const user: User = yield call(adminApi.updateUser, action.payload.id, action.payload.data);
     yield put(updateUserSucceeded(user));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'User updated successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:userUpdated'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateUserFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -201,12 +246,16 @@ function* handleDeleteUser(action: PayloadAction<string>) {
     yield call(adminApi.deleteUser, action.payload);
     yield put(deleteUserSucceeded(action.payload));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'User deleted successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:userDeleted'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(deleteUserFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -215,12 +264,16 @@ function* handleCreateDoctor(action: PayloadAction<Partial<Doctor> & { password:
     const doctor: Doctor = yield call(adminApi.createDoctor, action.payload);
     yield put(createDoctorSucceeded(doctor));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Doctor created successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:doctorCreated'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(createDoctorFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -233,12 +286,16 @@ function* handleUpdateDoctor(action: PayloadAction<{ id: string; data: Partial<D
     );
     yield put(updateDoctorSucceeded(doctor));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Doctor updated successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:doctorUpdated'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateDoctorFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -247,12 +304,16 @@ function* handleDeleteDoctor(action: PayloadAction<string>) {
     yield call(adminApi.deleteDoctor, action.payload);
     yield put(deleteDoctorSucceeded(action.payload));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Doctor deleted successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:doctorDeleted'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(deleteDoctorFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -263,14 +324,14 @@ function* handleCreateSpecialty(action: PayloadAction<Partial<Specialty>>) {
     yield put(
       addToast({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Specialty created successfully',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:specialtyCreated'),
       })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(createSpecialtyFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -285,14 +346,14 @@ function* handleUpdateSpecialty(action: PayloadAction<{ id: string; data: Partia
     yield put(
       addToast({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Specialty updated successfully',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:specialtyUpdated'),
       })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateSpecialtyFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -303,14 +364,14 @@ function* handleDeleteSpecialty(action: PayloadAction<string>) {
     yield put(
       addToast({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Specialty deleted successfully',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:specialtyDeleted'),
       })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(deleteSpecialtyFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -326,7 +387,7 @@ function* handleLoadAppointments(action: PayloadAction<any>) {
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(loadAppointmentsFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -341,12 +402,16 @@ function* handleUpdateAppointmentStatus(
     );
     yield put(updateAppointmentStatusSucceeded(appointment));
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Appointment status updated' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:appointmentStatusUpdated'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(updateAppointmentStatusFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -357,7 +422,7 @@ function* handleLoadModerationItems() {
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(loadModerationItemsFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -367,12 +432,16 @@ function* handleApproveModeration(action: PayloadAction<string>): Generator<any,
     yield put(approveModerationSucceeded(item));
     yield put(loadModerationItemsRequested());
     yield put(
-      addToast({ severity: 'success', summary: 'Success', detail: 'Item approved successfully' })
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:moderationApproved'),
+      })
     );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(approveModerationFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -381,11 +450,17 @@ function* handleRejectModeration(action: PayloadAction<string>): Generator<any, 
     const item: any = yield call(adminApi.rejectModeration, action.payload);
     yield put(rejectModerationSucceeded(item));
     yield put(loadModerationItemsRequested());
-    yield put(addToast({ severity: 'success', summary: 'Success', detail: 'Item rejected' }));
+    yield put(
+      addToast({
+        severity: 'success',
+        summary: i18n.t('common:success'),
+        detail: i18n.t('admin:moderationRejected'),
+      })
+    );
   } catch (error) {
     const msg = extractErrorMessage(error);
     yield put(rejectModerationFailed(msg));
-    yield put(addToast({ severity: 'error', summary: 'Error', detail: msg }));
+    yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
   }
 }
 
@@ -394,6 +469,7 @@ export function* adminSaga() {
   yield takeLatest(loadUsersRequested.type, handleLoadUsers);
   yield takeLatest(loadDoctorsRequested.type, handleLoadDoctors);
   yield takeLatest(loadPatientsRequested.type, handleLoadPatients);
+  yield takeLatest(createPatientRequested.type, handleCreatePatient);
   yield takeLatest(updatePatientRequested.type, handleUpdatePatient);
   yield takeLatest(deletePatientRequested.type, handleDeletePatient);
   yield takeLatest(loadSpecialtiesRequested.type, handleLoadSpecialties);

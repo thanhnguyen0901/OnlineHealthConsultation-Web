@@ -6,3 +6,4 @@ export const selectReportsStatistics = (state: RootState) => state.reports.stati
 export const selectReportsAppointmentsChart = (state: RootState) => state.reports.appointmentsChart;
 export const selectReportsQuestionsChart = (state: RootState) => state.reports.questionsChart;
 export const selectReportsLoading = (state: RootState) => state.reports.loading;
+export const selectReportsError = (state: RootState) => state.reports.error;

@@ -79,6 +79,11 @@ export const MainLayout: React.FC = () => {
           path: ROUTE_PATHS.INBOX_QUESTIONS,
         },
         {
+          label: t('doctor:patientsList'),
+          icon: 'pi pi-users',
+          path: ROUTE_PATHS.DOCTOR_PATIENTS,
+        },
+        {
           label: t('doctor:appointments'),
           icon: 'pi pi-calendar-times',
           path: ROUTE_PATHS.DOCTOR_APPOINTMENTS,

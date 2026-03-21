@@ -6,14 +6,22 @@ import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
 import { FormikCalendar } from '@/components/form-controls/FormikCalendar';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { Spinner } from '@/components/common/Spinner';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadProfileRequested,
   updateProfileRequested,
+  clearProfileUpdated,
 } from '@/features/patient/redux/patient.slice';
-import { selectProfile, selectPatientLoading } from '@/features/patient/redux/patient.selectors';
+import {
+  selectProfile,
+  selectPatientLoading,
+  selectPatientError,
+  selectProfileUpdated,
+} from '@/features/patient/redux/patient.selectors';
 import type { PatientProfile } from '@/features/patient/types';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 const profileSchema = Yup.object({
   firstName: Yup.string().required(),
@@ -30,10 +38,20 @@ export const PatientProfilePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const profile = useAppSelector(selectProfile);
   const loading = useAppSelector(selectPatientLoading);
+  const error = useAppSelector(selectPatientError);
+  const profileUpdated = useAppSelector(selectProfileUpdated);
 
   useEffect(() => {
     dispatch(loadProfileRequested());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!profileUpdated) return;
+    const timer = window.setTimeout(() => {
+      dispatch(clearProfileUpdated());
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [dispatch, profileUpdated]);
 
   const genderOptions = [
     { label: t('patient:male'), value: 'male' },
@@ -55,6 +73,27 @@ export const PatientProfilePage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('patient:profile')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(error)
+                ? t('common:errorUnauthorized')
+                : t('common:error')
+            }
+            message={error}
+            onRetry={() => dispatch(loadProfileRequested())}
+            className="mb-4"
+          />
+        )}
+        {profileUpdated && (
+          <InlineAlert
+            variant="success"
+            title={t('common:success')}
+            message={t('patient:profileUpdated')}
+            className="mb-4"
+          />
+        )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik

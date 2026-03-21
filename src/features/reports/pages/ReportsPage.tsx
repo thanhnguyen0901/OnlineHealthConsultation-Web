@@ -4,6 +4,7 @@ import { Card } from 'primereact/card';
 import { PieChartWidget } from '@/components/charts/PieChartWidget';
 import { BarChartWidget } from '@/components/charts/BarChartWidget';
 import { Spinner } from '@/components/common/Spinner';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   loadStatisticsRequested,
@@ -15,15 +16,24 @@ import {
   selectReportsAppointmentsChart,
   selectReportsQuestionsChart,
   selectReportsLoading,
+  selectReportsError,
 } from '../redux/reports.selectors';
+import { isUnauthorizedMessage } from '@/utils/authz';
+import { translateEnumValue } from '@/utils/enumI18n';
 
 export const ReportsPage: React.FC = () => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation(['common']);
   const dispatch = useAppDispatch();
   const statistics = useAppSelector(selectReportsStatistics);
   const appointmentsChart = useAppSelector(selectReportsAppointmentsChart);
   const questionsChart = useAppSelector(selectReportsQuestionsChart);
   const loading = useAppSelector(selectReportsLoading);
+  const error = useAppSelector(selectReportsError);
+
+  const localizedQuestionsChart = questionsChart.map((entry) => ({
+    ...entry,
+    name: translateEnumValue(t, 'status', entry.name),
+  }));
 
   useEffect(() => {
     dispatch(loadStatisticsRequested());
@@ -45,6 +55,19 @@ export const ReportsPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('reports')}
         </h1>
+        {error && (
+          <InlineAlert
+            variant="error"
+            title={isUnauthorizedMessage(error) ? t('errorUnauthorized') : t('error')}
+            message={error}
+            onRetry={() => {
+              dispatch(loadStatisticsRequested());
+              dispatch(loadAppointmentsChartRequested());
+              dispatch(loadQuestionsChartRequested());
+            }}
+            className="mb-4"
+          />
+        )}
 
         {statistics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -76,6 +99,38 @@ export const ReportsPage: React.FC = () => {
                 <p className="text-4xl font-bold">{statistics.totalQuestions}</p>
               </div>
             </Card>
+            <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white shadow-lg">
+              <div className="text-center p-4">
+                <i className="pi pi-bolt text-5xl mb-3 opacity-90"></i>
+                <p className="text-cyan-100 text-sm font-medium mb-2">{t('totalActiveUsers')}</p>
+                <p className="text-4xl font-bold">{statistics.totalActiveUsers}</p>
+              </div>
+            </Card>
+            <Card className="bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg">
+              <div className="text-center p-4">
+                <i className="pi pi-clock text-5xl mb-3 opacity-90"></i>
+                <p className="text-amber-100 text-sm font-medium mb-2">
+                  {t('pendingAppointments')}
+                </p>
+                <p className="text-4xl font-bold">{statistics.pendingAppointments}</p>
+              </div>
+            </Card>
+            <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg">
+              <div className="text-center p-4">
+                <i className="pi pi-check-circle text-5xl mb-3 opacity-90"></i>
+                <p className="text-emerald-100 text-sm font-medium mb-2">
+                  {t('completedAppointments')}
+                </p>
+                <p className="text-4xl font-bold">{statistics.completedAppointments}</p>
+              </div>
+            </Card>
+            <Card className="bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg">
+              <div className="text-center p-4">
+                <i className="pi pi-star text-5xl mb-3 opacity-90"></i>
+                <p className="text-pink-100 text-sm font-medium mb-2">{t('totalRatings')}</p>
+                <p className="text-4xl font-bold">{statistics.totalRatings}</p>
+              </div>
+            </Card>
           </div>
         )}
 
@@ -86,7 +141,7 @@ export const ReportsPage: React.FC = () => {
             </h2>
             <div className="p-4">
               {questionsChart.length > 0 ? (
-                <PieChartWidget data={questionsChart} />
+                <PieChartWidget data={localizedQuestionsChart} />
               ) : (
                 <div className="text-center py-12">
                   <i className="pi pi-chart-pie text-5xl text-gray-400 mb-3" />
@@ -103,9 +158,14 @@ export const ReportsPage: React.FC = () => {
             <div className="p-4">
               {appointmentsChart.length > 0 ? (
                 <BarChartWidget
+                  key={`reports-bar-${i18n.language}`}
                   data={appointmentsChart}
                   dataKeys={['appointments', 'questions']}
                   xAxisKey="date"
+                  seriesLabels={{
+                    appointments: t('totalAppointments'),
+                    questions: t('totalQuestions'),
+                  }}
                 />
               ) : (
                 <div className="text-center py-12">

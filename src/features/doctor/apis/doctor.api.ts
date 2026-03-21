@@ -1,5 +1,11 @@
 import apiClient from '@/apis/core/apiClient';
-import type { DoctorQuestion, DoctorProfile, Schedule } from '../types';
+import type {
+  DoctorQuestion,
+  DoctorProfile,
+  Schedule,
+  DoctorPatient,
+  DoctorPatientsPagination,
+} from '../types';
 
 export const getMe = async (): Promise<DoctorProfile> => {
   const response = await apiClient.get<{ data: DoctorProfile }>('/doctors/me');
@@ -34,6 +40,15 @@ export const getAppointments = async (params?: {
   limit?: number;
 }): Promise<{ data: unknown[]; meta?: unknown }> => {
   const response = await apiClient.get('/doctors/appointments', { params });
+  return response.data;
+};
+
+export const getPatients = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<{ data: DoctorPatient[]; meta?: DoctorPatientsPagination }> => {
+  const response = await apiClient.get('/doctors/patients', { params });
   return response.data;
 };
 

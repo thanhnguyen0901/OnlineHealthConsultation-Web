@@ -29,11 +29,13 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   onChange,
   onDelete,
 }) => {
-  const { t } = useTranslation('doctor');
+  const { t, i18n } = useTranslation('doctor');
 
   const dateTemplate = (rowData: EditableSlot) => (
     <span className="text-gray-800 dark:text-gray-200 tabular-nums">
-      {new Date(rowData.date + 'T00:00:00').toLocaleDateString('vi-VN')}
+      {new Date(rowData.date + 'T00:00:00').toLocaleDateString(
+        i18n.language === 'vi' ? 'vi-VN' : 'en-US'
+      )}
     </span>
   );
 

@@ -5,16 +5,19 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import { loginRequested } from '@/features/auth/redux/auth.slice';
 import {
   selectAuthLoading,
   selectIsAuthenticated,
   selectUser,
+  selectAuthError,
 } from '@/features/auth/redux/auth.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 import { ROLES } from '@/constants/roles';
 import { useEffect } from 'react';
+import { isUnauthorizedMessage } from '@/utils/authz';
 
 const loginSchema = Yup.object({
   email: Yup.string().email().required(),
@@ -28,6 +31,7 @@ export const LoginPage: React.FC = () => {
   const loading = useAppSelector(selectAuthLoading);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
+  const authError = useAppSelector(selectAuthError);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -42,6 +46,18 @@ export const LoginPage: React.FC = () => {
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
         {t('common:login')}
       </h2>
+      {authError && (
+        <InlineAlert
+          variant="error"
+          title={
+            isUnauthorizedMessage(authError)
+              ? t('common:errorUnauthorized')
+              : t('common:error')
+          }
+          message={authError}
+          className="mb-4"
+        />
+      )}
 
       <Formik
         initialValues={{
@@ -58,7 +74,7 @@ export const LoginPage: React.FC = () => {
             name="email"
             label={t('common:email')}
             type="email"
-            placeholder="you@example.com"
+            placeholder={t('common:emailPlaceholder')}
             autoComplete="email"
             data-cy="login-email"
           />
@@ -66,7 +82,7 @@ export const LoginPage: React.FC = () => {
             name="password"
             label={t('common:password')}
             type="password"
-            placeholder="••••••••"
+            placeholder={t('common:passwordPlaceholder')}
             autoComplete="current-password"
             data-cy="login-password"
           />
