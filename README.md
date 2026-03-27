@@ -1,53 +1,31 @@
-# Ứng dụng Tư vấn Sức khỏe Trực tuyến - Frontend
+# OnlineHealthConsultation-Web
 
-## Online Health Consultation System - Web Frontend
+Frontend cho hệ thống tư vấn sức khỏe trực tuyến, xây dựng bằng React + TypeScript + Vite.
 
-Ứng dụng web React TypeScript cho Hệ thống Tư vấn Sức khỏe Trực tuyến.
+## Tổng quan
 
-### Thông tin Đề tài
+Ứng dụng hỗ trợ 3 vai trò chính:
 
-- **Đề tài số**: 8
-- **Học viện**: Công nghệ Bưu chính Viễn thông
-- **Khoa**: Công nghệ Thông tin
-- **Học phần**: Lập Trình Website
-- **Số lượng sinh viên**: 3-4 sinh viên
+- `PATIENT`: hỏi đáp sức khỏe, đặt lịch, theo dõi lịch sử tư vấn, cập nhật hồ sơ cá nhân.
+- `DOCTOR`: xử lý câu hỏi, quản lý lịch làm việc, quản lý lịch hẹn, xem đánh giá, cập nhật hồ sơ bác sĩ.
+- `ADMIN`: dashboard quản trị, quản lý users/patients/doctors/specialties/appointments, moderation nội dung.
 
----
+Ngoài ra có trang `Reports` dùng chung cho `ADMIN` và `DOCTOR`.
 
-## ✨ Tính năng Chính
+## Công nghệ chính
 
-### 🔐 Xác thực & Phân quyền
+- React 18 + TypeScript 5
+- Vite 5
+- React Router v6
+- Redux Toolkit + Redux Saga
+- PrimeReact + Tailwind CSS
+- Axios (request/response interceptor)
+- i18next (`vi`, `en`)
+- Formik + Yup
+- Recharts
+- Cypress E2E
 
-- Đăng ký, đăng nhập tài khoản
-- Phân quyền theo vai trò: Bệnh nhân, Bác sĩ, Quản trị viên
-- Bảo vệ route với AuthGuard và RoleGuard
-- Tự động làm mới token (refresh token)
-
-### 🏥 Chức năng Bệnh nhân (Patient)
-
-- **Dashboard**: Tổng quan nhanh với các hành động chính
-- **Gửi câu hỏi**: Hỏi bác sĩ về vấn đề sức khỏe
-- **Đặt lịch hẹn**: Đặt lịch tư vấn với bác sĩ theo chuyên khoa
-- **Lịch sử tư vấn**: Xem lại câu hỏi đã gửi, câu trả lời và lịch hẹn
-- **Hồ sơ cá nhân**: Cập nhật thông tin sức khỏe
-
-### 👨‍⚕️ Chức năng Bác sĩ (Doctor)
-
-- **Dashboard**: Thống kê nhanh về câu hỏi và lịch hẹn
-- **Hộp thư câu hỏi**: Xem danh sách câu hỏi từ bệnh nhân
-- **Trả lời câu hỏi**: Gửi hướng dẫn, tư vấn điều trị cho bệnh nhân
-- **Quản lý lịch làm việc**: Thiết lập thời gian có sẵn để tư vấn
-
-### 👑 Chức năng Quản trị viên (Admin)
-
-- **Dashboard**: Thống kê tổng quan hệ thống
-- **Quản lý người dùng**: CRUD thông tin bệnh nhân
-- **Quản lý bác sĩ**: CRUD thông tin bác sĩ, chuyên khoa
-- **Quản lý chuyên khoa**: CRUD danh mục chuyên khoa y tế
-- **Quản lý lịch hẹn**: Xem, kiểm duyệt, cập nhật trạng thái lịch hẹn
-- **Báo cáo thống kê**: Biểu đồ số lượt tư vấn, người dùng hoạt động
-
-### 📊 Tính năng Nâng cao
+## Tính năng nổi bật
 
 - ✅ **Dark Mode**: Chế độ tối, lưu preference tự động
 - ✅ **Đa ngôn ngữ (i18n)**: Tiếng Việt & English
@@ -56,635 +34,363 @@
 - ✅ **Toast Notifications**: Thông báo người dùng thời gian thực
 - ✅ **Form Validation**: Validate form với Formik + Yup
 
----
+## Kiến trúc thư mục (thực tế hiện tại)
 
-## 🛠 Công nghệ Sử dụng
-
-### Frontend Stack
-
-- **Framework**: React 18.3.1 + TypeScript 5.6.2
-- **Build Tool**: Vite 5.4.8
-- **Routing**: React Router v6.26.2
-- **State Management**: Redux Toolkit 2.2.7 + Redux Saga 1.3.0
-- **UI Library**: PrimeReact 10.8.3 + PrimeIcons 7.0.0
-- **Styling**: Tailwind CSS 3.4.11 + PostCSS 8.4.47
-- **Forms**: Formik 2.4.6 + Yup 1.4.0
-- **Charts**: Recharts 2.12.7
-- **HTTP Client**: Axios 1.7.7
-- **Internationalization**: i18next 23.15.1 + react-i18next 15.0.2
-- **Date Utilities**: Day.js 1.11.13
-- **Utilities**: clsx 2.1.1
-
-### Development Tools
-
-- **Linter**: ESLint 8.57.0 + TypeScript ESLint 7.18.0
-- **Formatter**: Prettier 3.3.3
-- **Type Checking**: TypeScript (strict mode)
-
----
-
-## 📁 Cấu trúc Dự án
-
-```
+```text
 OnlineHealthConsultation-Web/
-├── public/                     # Static assets
+├── .github/workflows/
+│   └── fe-ci.yml
+├── cypress/
+│   ├── e2e/
+│   │   ├── admin-dashboard.cy.ts
+│   │   ├── admin-specialties.cy.ts
+│   │   ├── auth.cy.ts
+│   │   ├── doctor-dashboard.cy.ts
+│   │   ├── patient-ask-question.cy.ts
+│   │   ├── patient-book-appointment.cy.ts
+│   │   ├── patient-dashboard.cy.ts
+│   │   └── role-guard.cy.ts
+│   ├── fixtures/
+│   └── support/
+├── public/
 ├── src/
-│   ├── apis/                   # API clients
-│   │   └── core/              # Core API setup
-│   │       ├── apiClient.ts   # Axios instance with interceptors
-│   │       └── httpError.ts   # Error handling utilities
-│   │
-│   ├── app/                    # App configuration
-│   │   ├── guards/            # Route guards
-│   │   │   ├── AuthGuard.tsx  # Authentication guard
-│   │   │   └── RoleGuard.tsx  # Role-based access guard
-│   │   ├── App.tsx            # Root component
-│   │   └── routes.tsx         # Route definitions
-│   │
-│   ├── components/            # Reusable components
-│   │   ├── common/           # Common UI components
-│   │   │   ├── Button.tsx
-│   │   │   ├── Spinner.tsx
-│   │   │   ├── EmptyState.tsx
-│   │   │   └── ToastPortal.tsx
-│   │   ├── charts/           # Chart widgets
+│   ├── apis/core/
+│   │   ├── apiClient.ts
+│   │   ├── httpError.ts
+│   │   └── refreshManager.ts
+│   ├── app/
+│   │   ├── guards/
+│   │   │   ├── AuthGuard.tsx
+│   │   │   └── RoleGuard.tsx
+│   │   ├── App.tsx
+│   │   └── routes.tsx
+│   ├── components/
+│   │   ├── charts/
 │   │   │   ├── BarChartWidget.tsx
 │   │   │   └── PieChartWidget.tsx
-│   │   └── form-controls/    # Formik form controls
-│   │       ├── FormikInputText.tsx
+│   │   ├── common/
+│   │   │   ├── Button.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── InlineAlert.tsx
+│   │   │   ├── Spinner.tsx
+│   │   │   └── ToastPortal.tsx
+│   │   └── form-controls/
+│   │       ├── FormikCalendar.tsx
 │   │       ├── FormikDropdown.tsx
-│   │       └── FormikCalendar.tsx
-│   │
-│   ├── constants/             # Application constants
-│   │   ├── routePaths.ts     # Route path definitions
-│   │   ├── permissionConstants.ts
-│   │   └── userKeys.ts       # LocalStorage keys
-│   │
-│   ├── features/              # Feature modules (domain-driven)
-│   │   ├── auth/             # Authentication feature
-│   │   │   ├── apis/
-│   │   │   │   └── auth.api.ts
+│   │       └── FormikInputText.tsx
+│   ├── config/
+│   │   └── api.config.ts
+│   ├── constants/
+│   │   ├── roles.ts
+│   │   ├── routePaths.ts
+│   │   └── userKeys.ts
+│   ├── features/
+│   │   ├── admin/
+│   │   │   ├── apis/admin.api.ts
+│   │   │   ├── components/
+│   │   │   │   ├── DoctorTable.tsx
+│   │   │   │   ├── SpecialtyTable.tsx
+│   │   │   │   └── UserTable.tsx
+│   │   │   ├── pages/
+│   │   │   │   ├── AdminDashboardPage.tsx
+│   │   │   │   ├── AppointmentsManagePage.tsx
+│   │   │   │   ├── DoctorsManagePage.tsx
+│   │   │   │   ├── ModerationPage.tsx
+│   │   │   │   ├── PatientsManagePage.tsx
+│   │   │   │   ├── SpecialtiesManagePage.tsx
+│   │   │   │   └── UsersManagePage.tsx
+│   │   │   ├── redux/
+│   │   │   │   ├── admin.saga.ts
+│   │   │   │   ├── admin.selectors.ts
+│   │   │   │   ├── admin.slice.ts
+│   │   │   │   └── admin.state.ts
+│   │   │   └── types.ts
+│   │   ├── auth/
+│   │   │   ├── apis/auth.api.ts
 │   │   │   ├── pages/
 │   │   │   │   ├── LoginPage.tsx
 │   │   │   │   └── RegisterPage.tsx
 │   │   │   ├── redux/
-│   │   │   │   ├── auth.slice.ts
 │   │   │   │   ├── auth.saga.ts
 │   │   │   │   ├── auth.selectors.ts
+│   │   │   │   ├── auth.slice.ts
 │   │   │   │   └── auth.state.ts
 │   │   │   └── types.ts
-│   │   │
-│   │   ├── patient/          # Patient feature
-│   │   │   ├── apis/
-│   │   │   │   └── patient.api.ts
-│   │   │   ├── components/
-│   │   │   │   ├── QuestionForm.tsx
-│   │   │   │   └── AppointmentForm.tsx
-│   │   │   ├── pages/
-│   │   │   │   ├── PatientDashboardPage.tsx
-│   │   │   │   ├── AskQuestionPage.tsx
-│   │   │   │   ├── BookAppointmentPage.tsx
-│   │   │   │   └── ConsultationHistoryPage.tsx
-│   │   │   ├── redux/
-│   │   │   │   ├── patient.slice.ts
-│   │   │   │   ├── patient.saga.ts
-│   │   │   │   ├── patient.selectors.ts
-│   │   │   │   └── patient.state.ts
-│   │   │   └── types.ts
-│   │   │
-│   │   ├── doctor/           # Doctor feature
-│   │   │   ├── apis/
-│   │   │   │   └── doctor.api.ts
+│   │   ├── doctor/
+│   │   │   ├── apis/doctor.api.ts
 │   │   │   ├── components/
 │   │   │   │   ├── AnswerEditor.tsx
 │   │   │   │   └── ScheduleTable.tsx
 │   │   │   ├── pages/
+│   │   │   │   ├── DoctorAppointmentsPage.tsx
 │   │   │   │   ├── DoctorDashboardPage.tsx
+│   │   │   │   ├── DoctorPatientsPage.tsx
+│   │   │   │   ├── DoctorProfilePage.tsx
+│   │   │   │   ├── DoctorRatingsPage.tsx
 │   │   │   │   ├── InboxQuestionsPage.tsx
 │   │   │   │   └── SchedulePage.tsx
 │   │   │   ├── redux/
-│   │   │   │   ├── doctor.slice.ts
 │   │   │   │   ├── doctor.saga.ts
 │   │   │   │   ├── doctor.selectors.ts
+│   │   │   │   ├── doctor.slice.ts
 │   │   │   │   └── doctor.state.ts
 │   │   │   └── types.ts
-│   │   │
-│   │   ├── admin/            # Admin feature
-│   │   │   ├── apis/
-│   │   │   │   └── admin.api.ts
+│   │   ├── patient/
+│   │   │   ├── apis/patient.api.ts
 │   │   │   ├── components/
-│   │   │   │   ├── UserTable.tsx
-│   │   │   │   ├── DoctorTable.tsx
-│   │   │   │   └── SpecialtyTable.tsx
+│   │   │   │   ├── AppointmentForm.tsx
+│   │   │   │   └── QuestionForm.tsx
 │   │   │   ├── pages/
-│   │   │   │   ├── AdminDashboardPage.tsx
-│   │   │   │   ├── UsersManagePage.tsx
-│   │   │   │   ├── DoctorsManagePage.tsx
-│   │   │   │   ├── SpecialtiesManagePage.tsx
-│   │   │   │   └── AppointmentsManagePage.tsx
+│   │   │   │   ├── AskQuestionPage.tsx
+│   │   │   │   ├── BookAppointmentPage.tsx
+│   │   │   │   ├── ConsultationHistoryPage.tsx
+│   │   │   │   ├── PatientDashboardPage.tsx
+│   │   │   │   └── PatientProfilePage.tsx
 │   │   │   ├── redux/
-│   │   │   │   ├── admin.slice.ts
-│   │   │   │   ├── admin.saga.ts
-│   │   │   │   ├── admin.selectors.ts
-│   │   │   │   └── admin.state.ts
+│   │   │   │   ├── patient.saga.ts
+│   │   │   │   ├── patient.selectors.ts
+│   │   │   │   ├── patient.slice.ts
+│   │   │   │   └── patient.state.ts
 │   │   │   └── types.ts
-│   │   │
-│   │   └── reports/          # Reports & Analytics feature
-│   │       ├── apis/
-│   │       ├── exporters/    # Export utilities (CSV, PDF)
-│   │       ├── pages/
-│   │       │   └── ReportsPage.tsx
+│   │   └── reports/
+│   │       ├── apis/reports.api.ts
+│   │       ├── exporters/toCSV.ts
+│   │       ├── pages/ReportsPage.tsx
 │   │       ├── redux/
-│   │       │   ├── reports.slice.ts
 │   │       │   ├── reports.saga.ts
 │   │       │   ├── reports.selectors.ts
+│   │       │   ├── reports.slice.ts
 │   │       │   └── reports.state.ts
 │   │       └── types.ts
-│   │
-│   ├── hooks/                 # Custom React hooks
-│   │   ├── useAuth.ts        # Authentication hook
-│   │   └── useDebouncedValue.ts
-│   │
-│   ├── i18n/                  # Internationalization
-│   │   ├── initI18n.ts       # i18next configuration
-│   │   ├── en/               # English translations
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   ├── useDebouncedValue.ts
+│   │   └── useToast.ts
+│   ├── i18n/
+│   │   ├── en/
+│   │   │   ├── admin.json
+│   │   │   ├── auth.json
 │   │   │   ├── common.json
-│   │   │   ├── patient.json
 │   │   │   ├── doctor.json
-│   │   │   └── admin.json
-│   │   └── vi/               # Vietnamese translations
-│   │       ├── common.json
-│   │       ├── patient.json
-│   │       ├── doctor.json
-│   │       └── admin.json
-│   │
-│   ├── layouts/               # Layout components
-│   │   ├── MainLayout.tsx    # Main app layout with sidebar
-│   │   └── AuthLayout.tsx    # Authentication pages layout
-│   │
-│   ├── pages/                 # Standalone pages
-│   │   └── NotFound.tsx      # 404 page
-│   │
-│   ├── redux/                 # Global Redux
-│   │   ├── sagas/
-│   │   │   └── index.ts      # Root saga
-│   │   ├── selectors/
-│   │   │   └── index.ts
-│   │   └── slices/
-│   │       └── ui.slice.ts   # UI state (dark mode, sidebar)
-│   │
-│   ├── state/                 # Redux store setup
-│   │   ├── store.ts          # Store configuration
-│   │   ├── rootSaga.ts       # Combine all sagas
-│   │   └── hooks.ts          # Typed Redux hooks
-│   │
-│   ├── styles/                # Global styles
-│   │   └── globals.css
-│   │
-│   ├── theme/                 # Theme files
+│   │   │   ├── patient.json
+│   │   │   └── validation.json
+│   │   ├── vi/
+│   │   │   ├── admin.json
+│   │   │   ├── auth.json
+│   │   │   ├── common.json
+│   │   │   ├── doctor.json
+│   │   │   ├── patient.json
+│   │   │   └── validation.json
+│   │   └── initI18n.ts
+│   ├── layouts/
+│   │   ├── AuthLayout.tsx
+│   │   └── MainLayout.tsx
+│   ├── pages/
+│   │   ├── HomePage.tsx
+│   │   └── NotFound.tsx
+│   ├── redux/
+│   │   ├── sagas/index.ts
+│   │   ├── selectors/index.ts
+│   │   └── slices/ui.slice.ts
+│   ├── state/
+│   │   ├── hooks.ts
+│   │   ├── rootSaga.ts
+│   │   └── store.ts
+│   ├── styles/globals.css
+│   ├── theme/
 │   │   ├── primereact-theme.css
 │   │   └── tailwind.css
-│   │
-│   ├── types/                 # TypeScript types
-│   │   ├── common.ts         # Common types
-│   │   └── redux/
-│   │       └── index.ts
-│   │
-│   ├── utils/                 # Utility functions
-│   │   ├── classnames.ts     # CSS class utilities
-│   │   ├── date.ts           # Date formatting
-│   │   ├── number.ts         # Number formatting
-│   │   └── storage.ts        # LocalStorage wrapper
-│   │
-│   ├── main.tsx               # Entry point
-│   ├── index.css              # Global CSS imports
-│   └── vite-env.d.ts          # Vite type definitions
-│
-├── .env                        # Environment variables
-├── .gitignore
-├── .prettierrc                 # Prettier config
-├── eslint.config.js            # ESLint config
+│   ├── types/
+│   │   ├── common.ts
+│   │   └── redux/index.ts
+│   ├── utils/
+│   │   ├── authStorage.ts
+│   │   ├── authz.ts
+│   │   ├── classnames.ts
+│   │   ├── date.ts
+│   │   ├── enumI18n.ts
+│   │   ├── errorMessage.ts
+│   │   ├── logger.ts
+│   │   ├── number.ts
+│   │   ├── storage.ts
+│   │   └── yupLocale.ts
+│   ├── index.css
+│   ├── main.tsx
+│   └── vite-env.d.ts
+├── .env
+├── .env.example
+├── .nvmrc
+├── cypress.config.ts
+├── eslint.config.js
 ├── index.html
 ├── package.json
-├── postcss.config.js           # PostCSS config
-├── tailwind.config.js          # Tailwind config
-├── tsconfig.json               # TypeScript config
-├── vite.config.ts              # Vite config
+├── postcss.config.js
+├── tailwind.config.js
+├── tsconfig.json
+├── vite.config.ts
 └── README.md
 ```
 
-### Giải thích Kiến trúc
+## Routing & phân quyền
 
-#### 🎯 Feature-based Architecture
+- Public:
+  - `/`
+  - `/login`
+  - `/register`
+  - `*` -> `/404`
+- Protected bằng `AuthGuard` + `RoleGuard`:
+  - Patient: `/patient`, `/patient/ask-question`, `/patient/book-appointment`, `/patient/history`, `/patient/profile`
+  - Doctor: `/doctor`, `/doctor/inbox`, `/doctor/patients`, `/doctor/appointments`, `/doctor/schedule`, `/doctor/ratings`, `/doctor/profile`
+  - Admin: `/admin`, `/admin/users`, `/admin/patients`, `/admin/doctors`, `/admin/specialties`, `/admin/appointments`, `/admin/moderation`
+  - Shared: `/reports` (`ADMIN`, `DOCTOR`)
 
-Dự án sử dụng kiến trúc **Feature-based** (domain-driven), mỗi feature là một module độc lập bao gồm:
+## Flow Auth/AuthZ trên FE (đúng theo code hiện tại)
 
-- **apis/**: API calls
-- **components/**: Components riêng của feature
-- **pages/**: Pages của feature
-- **redux/**: State management (slice, saga, selectors, state)
-- **types.ts**: TypeScript types
+### 1) App bootstrap
 
-#### 🔄 State Management Flow
+- `main.tsx` khởi tạo i18n + Yup locale + Redux store.
+- `App.tsx` dispatch `meRequested()` một lần khi app mount (dùng `useRef` để tránh StrictMode gọi đôi).
+- `auth.state.ts` có `isBootstrapping = true` ban đầu để chặn render protected flow khi chưa xác định session.
 
-```
-Component → Dispatch Action → Saga → API Call → Success/Error → Reducer → Update State → Re-render
-```
+### 2) Phục hồi session (me flow)
 
-#### 🛡️ Authentication & Authorization
+Trong `auth.saga.ts` (`handleMe`):
 
-- **AuthGuard**: Bảo vệ routes yêu cầu đăng nhập
-- **RoleGuard**: Bảo vệ routes theo vai trò (PATIENT, DOCTOR, ADMIN)
-- **Token Management**: Auto refresh token với axios interceptors
+1. Đọc access token từ `sessionStorage` qua `loadAuthFromStorage()`.
+2. Nếu token còn hạn: gọi `authApi.meWithToken(accessToken)` (`GET /auth/me` với `Authorization` header).
+3. Nếu token local không hợp lệ: xóa local token và fallback sang refresh.
+4. Nếu không có token local: gọi `authApi.refresh()` (`POST /auth/refresh`, dùng cookie).
+5. Thành công -> `meSucceeded` (set `user`, `accessToken`, `isAuthenticated=true`, `isBootstrapping=false`).
+6. Thất bại -> `meFailed` (clear auth, `isBootstrapping=false`).
 
----
+### 3) Login / Register / Logout
 
-## 🚀 Bắt đầu
+- Login:
+  - `loginRequested` -> saga gọi `POST /auth/login`.
+  - Thành công -> `loginSucceeded` + `saveAuthToStorage(accessToken)`.
+  - Thất bại -> `loginFailed` + đẩy toast lỗi.
+- Register:
+  - `registerRequested` -> saga gọi `POST /auth/register`.
+  - Thành công -> `registerSucceeded` + toast success.
+  - Lưu ý: `registerSucceeded` không set `isAuthenticated`; user vẫn phải login.
+- Logout:
+  - Saga gọi `POST /auth/logout` (nếu lỗi vẫn continue).
+  - Luôn `resetRefreshState()` + `clearAuthStorage()` + `logoutSucceeded()`.
 
-### Yêu cầu hệ thống
+### 4) Axios auth pipeline
 
-- **Node.js**: >= 18.0.0
-- **npm**: >= 9.0.0 hoặc **yarn**: >= 1.22.0
+Trong `apis/core/apiClient.ts` + `refreshManager.ts`:
 
-### Cài đặt
+- Request interceptor tự gắn `Authorization: Bearer <accessToken>` từ Redux (nếu có).
+- Response interceptor xử lý `401`:
+  - Bỏ qua endpoint auth (`/auth/login|register|refresh|me`) để tránh vòng lặp vô hạn.
+  - Với request thường: gọi `performRefresh()` rồi retry request cũ.
+  - Nếu refresh fail: dispatch `logoutSucceeded()` và redirect về `/login`.
+- `performRefresh()` dùng cơ chế single-flight: nhiều request 401 đồng thời chỉ dùng 1 promise refresh.
+- Có retry 1 lần cho case `TOKEN_ROTATED` (409) sau delay ngắn.
+
+### 5) AuthGuard và RoleGuard
+
+- `AuthGuard`:
+  - Nếu `isBootstrapping=true` -> render spinner.
+  - Nếu chưa authenticated -> redirect `/login`.
+  - Nếu authenticated -> cho vào `MainLayout`.
+- `RoleGuard`:
+  - So role hiện tại với roles được phép của route.
+  - Không hợp lệ -> redirect về `/`.
+  - Tại `/`, `HomeRedirect` sẽ điều hướng user về dashboard đúng role (`/patient`, `/doctor`, `/admin`).
+
+### 6) AuthZ hiển thị & thông báo
+
+- Sidebar/menu trong `MainLayout` render theo role.
+- Một số page (ví dụ Reports) dùng `isUnauthorizedMessage()` để map lỗi quyền truy cập thành message phù hợp UI.
+
+## Yêu cầu môi trường
+
+- Node.js: `20` (theo file `.nvmrc`)
+- npm: khuyến nghị npm đi kèm Node 20
+
+## Cài đặt & chạy local
 
 ```bash
-# 1. Clone repository
-git clone <repository-url>
-cd OnlineHealthConsultation-Web
-
-# 2. Cài đặt dependencies
+# 1) Cài dependencies
 npm install
 
-# 3. Cấu hình environment variables
-cp .env .env.local
-# Chỉnh sửa .env.local với API URL của bạn
+# 2) Cấu hình env
+cp .env.example .env
 
-# 4. Chạy development server
+# 3) Chạy dev server
 npm run dev
-
-# Ứng dụng sẽ chạy tại: http://localhost:5173
 ```
 
-### Scripts có sẵn
+App mặc định chạy tại `http://localhost:5173`.
+
+## Biến môi trường
+
+`.env.example` hiện có:
+
+```env
+VITE_API_BASE_URL=http://localhost:4000
+```
+
+Biến đang được code sử dụng:
+
+- `VITE_API_BASE_URL`: base URL backend (client sẽ gọi `${VITE_API_BASE_URL}/api/...`).
+- `VITE_DEBUG_REFRESH` (optional): bật log debug cho refresh manager khi đặt `true`.
+
+## Scripts
 
 ```bash
 # Development
-npm run dev          # Chạy development server với hot reload
-
-# Build
-npm run build        # Build cho production (output: dist/)
-npm run preview      # Preview production build
-
-# Code Quality
-npm run lint         # Chạy ESLint kiểm tra code
-npm run format       # Format code với Prettier
-
-# Type Checking
-npx tsc --noEmit     # Kiểm tra TypeScript errors
-```
-
----
-
-## ⚙️ Cấu hình
-
-### Environment Variables
-
-Tạo file `.env.local` với nội dung:
-
-```env
-# API Backend URL
-VITE_API_BASE_URL=http://localhost:4000
-
-# Optional: Feature flags
-VITE_ENABLE_DARK_MODE=true
-VITE_ENABLE_I18N=true
-```
-
-### API Endpoints
-
-Backend API cần cung cấp các endpoints sau:
-
-#### Authentication
-
-```
-POST   /auth/register      # Đăng ký tài khoản
-POST   /auth/login         # Đăng nhập
-POST   /auth/logout        # Đăng xuất
-POST   /auth/refresh       # Làm mới token
-GET    /auth/me            # Lấy thông tin user hiện tại
-```
-
-#### Patient
-
-```
-GET    /patients/questions              # Lấy danh sách câu hỏi
-POST   /patients/questions              # Gửi câu hỏi mới
-GET    /patients/appointments           # Lấy danh sách lịch hẹn
-POST   /patients/appointments           # Đặt lịch hẹn mới
-GET    /patients/history                # Lịch sử tư vấn
-```
-
-#### Doctor
-
-```
-GET    /doctors/inbox                   # Danh sách câu hỏi chưa trả lời
-POST   /doctors/answers                 # Trả lời câu hỏi
-GET    /doctors/schedule                # Lịch làm việc
-POST   /doctors/schedule                # Tạo/cập nhật lịch làm việc
-GET    /doctors/appointments            # Danh sách lịch hẹn
-```
-
-#### Admin
-
-```
-GET    /admin/users                     # Danh sách người dùng
-POST   /admin/users                     # Tạo người dùng
-PUT    /admin/users/:id                 # Cập nhật người dùng
-DELETE /admin/users/:id                 # Xóa người dùng
-
-GET    /admin/doctors                   # Danh sách bác sĩ
-POST   /admin/doctors                   # Tạo bác sĩ
-PUT    /admin/doctors/:id               # Cập nhật bác sĩ
-DELETE /admin/doctors/:id               # Xóa bác sĩ
-
-GET    /admin/specialties               # Danh sách chuyên khoa
-POST   /admin/specialties               # Tạo chuyên khoa
-PUT    /admin/specialties/:id           # Cập nhật chuyên khoa
-DELETE /admin/specialties/:id           # Xóa chuyên khoa
-
-GET    /admin/appointments              # Danh sách lịch hẹn
-PUT    /admin/appointments/:id          # Cập nhật trạng thái lịch hẹn
-
-GET    /admin/stats                     # Thống kê tổng quan
-```
-
-#### Reports
-
-```
-GET    /reports/statistics              # Thống kê hệ thống
-GET    /reports/appointments-chart      # Dữ liệu biểu đồ lịch hẹn
-GET    /reports/questions-chart         # Dữ liệu biểu đồ câu hỏi
-```
-
----
-
-## 🎨 Giao diện & Responsive
-
-### Trang chủ
-
-- Giới thiệu ứng dụng
-- Danh sách bác sĩ nổi bật (theo chuyên khoa)
-- Call-to-action: Đăng ký/Đăng nhập
-
-### Trang Bệnh nhân
-
-- Dashboard với quick actions
-- Form gửi câu hỏi với validation
-- Form đặt lịch tư vấn (chọn bác sĩ, ngày giờ)
-- Lịch sử tư vấn với filter & search
-
-### Trang Bác sĩ
-
-- Dashboard thống kê
-- Danh sách câu hỏi chờ trả lời
-- Form trả lời câu hỏi
-- Quản lý lịch làm việc (calendar view)
-
-### Trang Quản trị
-
-- Dashboard với biểu đồ thống kê
-- CRUD tables cho Users, Doctors, Specialties
-- Quản lý lịch hẹn với status tracking
-- Báo cáo chi tiết với export options
-
-### Responsive Breakpoints
-
-- **Mobile**: < 640px
-- **Tablet**: 640px - 1024px
-- **Desktop**: > 1024px
-
----
-
-## 🔒 Bảo mật
-
-### Authentication
-
-- JWT-based authentication
-- HttpOnly cookies để lưu refresh token
-- Access token trong memory (không lưu localStorage)
-
-### Authorization
-
-- Role-based access control (RBAC)
-- Route guards kiểm tra quyền truy cập
-- API endpoints được bảo vệ theo role
-
-### Security Best Practices
-
-- XSS protection với React's built-in escaping
-- CSRF protection với SameSite cookies
-- Input validation với Yup schemas
-- Secure HTTP headers
-
----
-
-## 📊 State Management
-
-### Redux Toolkit
-
-```typescript
-// Example: Dispatch action from component
-const dispatch = useAppDispatch();
-dispatch(fetchQuestions());
-
-// Example: Select state
-const questions = useAppSelector(selectQuestions);
-```
-
-### Redux Saga
-
-```typescript
-// Example: Saga flow
-function* fetchQuestionsSaga() {
-  try {
-    const questions = yield call(patientApi.getQuestions);
-    yield put(fetchQuestionsSuccess(questions));
-  } catch (error) {
-    yield put(fetchQuestionsError(error));
-  }
-}
-```
-
----
-
-## 🌐 Internationalization (i18n)
-
-### Sử dụng trong Component
-
-```typescript
-import { useTranslation } from 'react-i18next';
-
-function MyComponent() {
-  const { t } = useTranslation('patient');
-
-  return <h1>{t('dashboard')}</h1>;
-}
-```
-
-### Thêm Translation Key
-
-1. Thêm key vào `src/i18n/en/<namespace>.json`
-2. Thêm key tương ứng vào `src/i18n/vi/<namespace>.json`
-
----
-
-## 🌙 Dark Mode
-
-Dark mode được quản lý bởi Redux và tự động lưu vào localStorage:
-
-```typescript
-import { useAppDispatch, useAppSelector } from '@/state/hooks';
-import { toggleDarkMode } from '@/redux/slices/ui.slice';
-
-function ThemeToggle() {
-  const dispatch = useAppDispatch();
-  const darkMode = useAppSelector(state => state.ui.darkMode);
-
-  return (
-    <button onClick={() => dispatch(toggleDarkMode())}>
-      {darkMode ? '☀️' : '🌙'}
-    </button>
-  );
-}
-```
-
----
-
-## 📦 Build & Deploy
-
-### Build cho Production
-
-```bash
-# Build
+npm run dev
 npm run build
+npm run preview
 
-# Output: dist/ folder
-# - index.html
-# - assets/
-#   - *.js (minified, code-split)
-#   - *.css (minified)
+# Code quality
+npm run lint
+npm run format
+npm run format:check
+npm run type-check
+
+# Cypress
+npm run cy:open
+npm run cy:run
+npm run cy:run:auth
+npm run cy:run:patient
+npm run cy:run:doctor
+npm run cy:run:admin
+npm run cy:run:role-guard
+npm run test:e2e
 ```
 
-### Deploy Options
+## E2E Testing
 
-#### 1. Static Hosting (Vercel, Netlify)
+- Specs nằm tại `cypress/e2e/**/*.cy.ts`.
+- Có nhóm test chính: `auth`, `patient`, `doctor`, `admin`, `role-guard`.
+- `test:e2e` dùng `start-server-and-test` để bật FE rồi chạy Cypress.
 
-```bash
-# Deploy to Vercel
-npx vercel
+## CI hiện tại
 
-# Deploy to Netlify
-npx netlify deploy --prod --dir=dist
-```
+Workflow: `.github/workflows/fe-ci.yml`
 
-#### 2. Docker
+Pipeline đang chạy các bước:
 
-```dockerfile
-FROM node:18-alpine as build
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
+1. `npm ci`
+2. `npm run format:check`
+3. `npm run lint`
+4. `npm run type-check`
+5. `npm run build`
 
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
+Ghi chú: Cypress E2E chưa được đưa vào CI workflow này.
 
-#### 3. CI/CD với GitHub Actions
+## API modules (frontend calls)
 
-```yaml
-name: Deploy
-on:
-  push:
-    branches: [main]
-jobs:
-  build-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - run: npm ci
-      - run: npm run build
-      - run: npm run deploy
-```
+- Auth: `/auth/login`, `/auth/register`, `/auth/logout`, `/auth/me`, `/auth/refresh`
+- Patient: `/patients/questions`, `/patients/appointments`, `/patients/history`, `/patients/profile`, `/patients/ratings`, `/patients/specialties`, `/patients/doctors`
+- Doctor: `/doctors/me`, `/doctors/questions`, `/doctors/schedule`, `/doctors/appointments`, `/doctors/patients`, `/doctors/ratings`
+- Admin: `/admin/users`, `/admin/patients`, `/admin/doctors`, `/admin/specialties`, `/admin/appointments`, `/admin/moderation`
+- Reports: `/reports/stats`, `/reports/appointments-chart`, `/reports/questions-chart`, `/reports/top-doctors`, `/reports/specialty-distribution`
 
----
+## Gợi ý chạy cùng backend
 
-## 🧪 Testing (Khuyến nghị)
-
-Dự án hiện chưa có tests, nhưng nên thêm:
-
-```bash
-# Cài đặt testing dependencies
-npm install -D vitest @testing-library/react @testing-library/jest-dom
-
-# Chạy tests
-npm run test
-
-# Coverage
-npm run test:coverage
-```
-
----
-
-## 📝 Coding Standards
-
-### TypeScript
-
-- Sử dụng strict mode
-- Định nghĩa types rõ ràng, tránh `any`
-- Prefer interfaces cho object types
-- Use type aliases cho unions/primitives
-
-### React
-
-- Functional components với hooks
-- Custom hooks cho logic tái sử dụng
-- Lazy loading cho pages
-- Memoization khi cần (useMemo, useCallback)
-
-### CSS
-
-- Tailwind utility classes
-- BEM naming cho custom CSS
-- Dark mode với `dark:` prefix
-- Responsive với mobile-first approach
-
-### Git Commit Messages
-
-```
-feat: thêm tính năng đặt lịch hẹn
-fix: sửa lỗi hiển thị dark mode
-refactor: tái cấu trúc auth saga
-docs: cập nhật README
-style: format code
-```
-
----
-
-## 📚 Tài liệu Tham khảo
-
-- [React Documentation](https://react.dev/)
-- [Redux Toolkit](https://redux-toolkit.js.org/)
-- [Redux Saga](https://redux-saga.js.org/)
-- [React Router](https://reactrouter.com/)
-- [PrimeReact Components](https://primereact.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Vite Guide](https://vitejs.dev/guide/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+Dự án frontend này dùng chung API với `OnlineHealthConsultation-Service` trong workspace hiện tại. Để demo đầy đủ luồng nghiệp vụ, chạy backend trước rồi chạy frontend.
