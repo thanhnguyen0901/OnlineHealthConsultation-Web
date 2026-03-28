@@ -50,9 +50,7 @@ export const LoginPage: React.FC = () => {
         <InlineAlert
           variant="error"
           title={
-            isUnauthorizedMessage(authError)
-              ? t('common:errorUnauthorized')
-              : t('common:error')
+            isUnauthorizedMessage(authError) ? t('common:errorUnauthorized') : t('common:error')
           }
           message={authError}
           className="mb-4"

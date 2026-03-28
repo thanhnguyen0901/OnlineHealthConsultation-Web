@@ -228,11 +228,7 @@ export const PatientsManagePage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => {
               const page = Math.floor(first / pageSize) + 1;
@@ -247,7 +243,12 @@ export const PatientsManagePage: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           {/* Search toolbar */}
           <div className="mb-4 flex gap-2 items-center">
-            <Button icon="pi pi-plus" size="sm" onClick={openNew} className="shrink-0 whitespace-nowrap">
+            <Button
+              icon="pi pi-plus"
+              size="sm"
+              onClick={openNew}
+              className="shrink-0 whitespace-nowrap"
+            >
               {t('addPatient')}
             </Button>
             <InputText
@@ -257,7 +258,12 @@ export const PatientsManagePage: React.FC = () => {
               placeholder={`${t('name')} / ${t('email')}`}
               className="w-64"
             />
-            <Button icon="pi pi-search" size="sm" onClick={handleSearch} className="shrink-0 whitespace-nowrap">
+            <Button
+              icon="pi pi-search"
+              size="sm"
+              onClick={handleSearch}
+              className="shrink-0 whitespace-nowrap"
+            >
               {t('common:search')}
             </Button>
             {search && (
@@ -379,9 +385,7 @@ export const PatientsManagePage: React.FC = () => {
                 />
                 {submitted &&
                   (!(patient as any).password || (patient as any).password.length < 6) && (
-                    <small className="text-red-500 text-xs mt-1">
-                      {t('passwordRequired')}
-                    </small>
+                    <small className="text-red-500 text-xs mt-1">{t('passwordRequired')}</small>
                   )}
               </div>
             )}

@@ -1,9 +1,5 @@
 import apiClient from '@/apis/core/apiClient';
-import type {
-  Statistics,
-  ChartData,
-  ReportData,
-} from '../types';
+import type { Statistics, ChartData, ReportData } from '../types';
 
 // Backward-compat alias: wraps getStatistics() result as a single ReportData row keyed by today's date.
 export const getReports = async (_params?: {
@@ -47,10 +43,13 @@ export const getAppointmentsChart = async (params?: {
   const appointmentsByDate = new Map(
     (appointmentsRes.data.data ?? []).map((r) => [r.date, r.total] as const)
   );
-  const questionsByDate = new Map((questionsRes.data.data ?? []).map((r) => [r.date, r.total] as const));
+  const questionsByDate = new Map(
+    (questionsRes.data.data ?? []).map((r) => [r.date, r.total] as const)
+  );
 
-  const allDates = Array.from(new Set([...appointmentsByDate.keys(), ...questionsByDate.keys()]))
-    .sort((a, b) => a.localeCompare(b));
+  const allDates = Array.from(
+    new Set([...appointmentsByDate.keys(), ...questionsByDate.keys()])
+  ).sort((a, b) => a.localeCompare(b));
 
   return allDates.map((date) => ({
     date,
@@ -63,9 +62,12 @@ export const getQuestionsChart = async (params?: {
   from?: string;
   to?: string;
 }): Promise<ChartData[]> => {
-  const response = await apiClient.get<{ data: RawQuestionsChartRow[] }>('/reports/questions-chart', {
-    params,
-  });
+  const response = await apiClient.get<{ data: RawQuestionsChartRow[] }>(
+    '/reports/questions-chart',
+    {
+      params,
+    }
+  );
   const rows = response.data.data ?? [];
 
   const totals = rows.reduce(

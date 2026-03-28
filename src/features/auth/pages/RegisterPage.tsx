@@ -58,7 +58,9 @@ export const RegisterPage: React.FC = () => {
   }, [authError, showError]);
 
   React.useEffect(() => {
-    getSpecialties().then(setSpecialties).catch(() => setSpecialties([]));
+    getSpecialties()
+      .then(setSpecialties)
+      .catch(() => setSpecialties([]));
   }, []);
 
   const roleOptions = [
@@ -116,8 +118,7 @@ export const RegisterPage: React.FC = () => {
               email: values.email,
               password: values.password,
               role: values.role as 'PATIENT' | 'DOCTOR',
-              specialty:
-                values.role === 'DOCTOR' ? (values.specialty || undefined) : undefined,
+              specialty: values.role === 'DOCTOR' ? values.specialty || undefined : undefined,
             })
           );
           // Do NOT navigate here — wait for registerCompleted flag (see useEffect above).
@@ -125,59 +126,59 @@ export const RegisterPage: React.FC = () => {
       >
         {({ values }) => (
           <Form className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <FormikInputText
+                name="firstName"
+                label={t('common:firstName')}
+                placeholder={t('auth:firstNamePlaceholder')}
+                data-cy="register-first-name"
+              />
+              <FormikInputText
+                name="lastName"
+                label={t('common:lastName')}
+                placeholder={t('auth:lastNamePlaceholder')}
+                data-cy="register-last-name"
+              />
+            </div>
             <FormikInputText
-              name="firstName"
-              label={t('common:firstName')}
-              placeholder={t('auth:firstNamePlaceholder')}
-              data-cy="register-first-name"
+              name="email"
+              label={t('common:email')}
+              type="email"
+              placeholder={t('common:emailPlaceholder')}
+              data-cy="register-email"
             />
             <FormikInputText
-              name="lastName"
-              label={t('common:lastName')}
-              placeholder={t('auth:lastNamePlaceholder')}
-              data-cy="register-last-name"
+              name="password"
+              label={t('common:password')}
+              type="password"
+              placeholder={t('common:passwordPlaceholder')}
+              data-cy="register-password"
             />
-          </div>
-          <FormikInputText
-            name="email"
-            label={t('common:email')}
-            type="email"
-            placeholder={t('common:emailPlaceholder')}
-            data-cy="register-email"
-          />
-          <FormikInputText
-            name="password"
-            label={t('common:password')}
-            type="password"
-            placeholder={t('common:passwordPlaceholder')}
-            data-cy="register-password"
-          />
-          <FormikDropdown
-            name="role"
-            label={t('auth:registerAs')}
-            options={roleOptions}
-            placeholder={t('auth:registerAs')}
-          />
-          {values.role === 'DOCTOR' && (
             <FormikDropdown
-              name="specialty"
-              label={t('doctor:specialty')}
-              options={specialtyOptions}
-              placeholder={t('doctor:selectSpecialty')}
+              name="role"
+              label={t('auth:registerAs')}
+              options={roleOptions}
+              placeholder={t('auth:registerAs')}
             />
-          )}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              className="w-full"
-              loading={loading}
-              disabled={loading}
-              data-cy="register-submit"
-            >
-              {t('common:register')}
-            </Button>
-          </div>
+            {values.role === 'DOCTOR' && (
+              <FormikDropdown
+                name="specialty"
+                label={t('doctor:specialty')}
+                options={specialtyOptions}
+                placeholder={t('doctor:selectSpecialty')}
+              />
+            )}
+            <div className="pt-2">
+              <Button
+                type="submit"
+                className="w-full"
+                loading={loading}
+                disabled={loading}
+                data-cy="register-submit"
+              >
+                {t('common:register')}
+              </Button>
+            </div>
           </Form>
         )}
       </Formik>

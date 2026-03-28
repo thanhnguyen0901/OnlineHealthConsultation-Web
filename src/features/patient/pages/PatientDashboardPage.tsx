@@ -75,11 +75,7 @@ export const PatientDashboardPage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadProfileRequested())}
             className="mb-4"

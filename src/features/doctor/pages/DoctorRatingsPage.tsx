@@ -67,11 +67,7 @@ export const DoctorRatingsPage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadRatingsRequested({ page: 1, limit: 20 }))}
             className="mb-4"

@@ -129,11 +129,7 @@ export const AppointmentsManagePage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => {
               const page = Math.floor(first / pageSize) + 1;
@@ -266,9 +262,7 @@ export const AppointmentsManagePage: React.FC = () => {
           className="p-dialog-custom"
         >
           <div className="px-6 pt-2 pb-1 space-y-3">
-            <p className="text-gray-700 dark:text-gray-300">
-              {t('statusChangeConfirmBody')}
-            </p>
+            <p className="text-gray-700 dark:text-gray-300">{t('statusChangeConfirmBody')}</p>
             <dl className="text-sm space-y-1">
               <div className="flex gap-2">
                 <dt className="font-medium text-gray-600 dark:text-gray-400 w-28 shrink-0">

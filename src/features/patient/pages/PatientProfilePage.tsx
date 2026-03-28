@@ -76,11 +76,7 @@ export const PatientProfilePage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadProfileRequested())}
             className="mb-4"
@@ -124,82 +120,82 @@ export const PatientProfilePage: React.FC = () => {
             }}
           >
             {({ dirty, isValid }) => (
-            <Form className="space-y-8">
-              <section>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
-                  {t('patient:personalInformation')}
-                </h3>
+              <Form className="space-y-8">
+                <section>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
+                    {t('patient:personalInformation')}
+                  </h3>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormikInputText
+                        name="firstName"
+                        label={t('patient:firstName')}
+                        placeholder={t('patient:firstNamePlaceholder')}
+                      />
+                      <FormikInputText
+                        name="lastName"
+                        label={t('patient:lastName')}
+                        placeholder={t('patient:lastNamePlaceholder')}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormikInputText
+                        name="phone"
+                        label={t('patient:phone')}
+                        placeholder={t('patient:phonePlaceholder')}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormikCalendar
+                        name="dateOfBirth"
+                        label={t('patient:dateOfBirth')}
+                        placeholder={t('patient:selectDate')}
+                      />
+                      <FormikDropdown
+                        name="gender"
+                        label={t('patient:gender')}
+                        options={genderOptions}
+                        placeholder={t('patient:selectGender')}
+                      />
+                    </div>
+
                     <FormikInputText
-                      name="firstName"
-                      label={t('patient:firstName')}
-                      placeholder={t('patient:firstNamePlaceholder')}
-                    />
-                    <FormikInputText
-                      name="lastName"
-                      label={t('patient:lastName')}
-                      placeholder={t('patient:lastNamePlaceholder')}
+                      name="address"
+                      label={t('patient:address')}
+                      placeholder={t('patient:addressPlaceholder')}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </section>
+
+                <section>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
+                    {t('patient:medicalInformation')}
+                  </h3>
+
+                  <div className="space-y-4">
                     <FormikInputText
-                      name="phone"
-                      label={t('patient:phone')}
-                      placeholder={t('patient:phonePlaceholder')}
+                      name="medicalHistory"
+                      label={t('patient:medicalHistory')}
+                      placeholder={t('patient:medicalHistoryPlaceholder')}
+                      as="textarea"
+                      rows={3}
                     />
                   </div>
+                </section>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormikCalendar
-                      name="dateOfBirth"
-                      label={t('patient:dateOfBirth')}
-                      placeholder={t('patient:selectDate')}
-                    />
-                    <FormikDropdown
-                      name="gender"
-                      label={t('patient:gender')}
-                      options={genderOptions}
-                      placeholder={t('patient:selectGender')}
-                    />
-                  </div>
-
-                  <FormikInputText
-                    name="address"
-                    label={t('patient:address')}
-                    placeholder={t('patient:addressPlaceholder')}
-                  />
+                <div className="flex justify-end gap-2 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    loading={loading}
+                    disabled={loading || !dirty || !isValid}
+                  >
+                    {t('common:save')}
+                  </Button>
                 </div>
-              </section>
-
-              <section>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
-                  {t('patient:medicalInformation')}
-                </h3>
-
-                <div className="space-y-4">
-                  <FormikInputText
-                    name="medicalHistory"
-                    label={t('patient:medicalHistory')}
-                    placeholder={t('patient:medicalHistoryPlaceholder')}
-                    as="textarea"
-                    rows={3}
-                  />
-                </div>
-              </section>
-
-              <div className="flex justify-end gap-2 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  type="submit"
-                  size="sm"
-                  loading={loading}
-                  disabled={loading || !dirty || !isValid}
-                >
-                  {t('common:save')}
-                </Button>
-              </div>
-            </Form>
+              </Form>
             )}
           </Formik>
         </div>

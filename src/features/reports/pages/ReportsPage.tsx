@@ -58,9 +58,7 @@ export const ReportsPage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => {
               dispatch(loadStatisticsRequested());
@@ -90,21 +88,27 @@ export const ReportsPage: React.FC = () => {
             <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg">
               <div className="text-center p-4">
                 <i className="pi pi-calendar text-5xl mb-3 opacity-90"></i>
-                <p className="text-purple-100 text-sm font-medium mb-2">{t('admin:totalAppointments')}</p>
+                <p className="text-purple-100 text-sm font-medium mb-2">
+                  {t('admin:totalAppointments')}
+                </p>
                 <p className="text-4xl font-bold">{statistics.totalAppointments}</p>
               </div>
             </Card>
             <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg">
               <div className="text-center p-4">
                 <i className="pi pi-question-circle text-5xl mb-3 opacity-90"></i>
-                <p className="text-orange-100 text-sm font-medium mb-2">{t('admin:totalQuestions')}</p>
+                <p className="text-orange-100 text-sm font-medium mb-2">
+                  {t('admin:totalQuestions')}
+                </p>
                 <p className="text-4xl font-bold">{statistics.totalQuestions}</p>
               </div>
             </Card>
             <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white shadow-lg">
               <div className="text-center p-4">
                 <i className="pi pi-bolt text-5xl mb-3 opacity-90"></i>
-                <p className="text-cyan-100 text-sm font-medium mb-2">{t('admin:totalActiveUsers')}</p>
+                <p className="text-cyan-100 text-sm font-medium mb-2">
+                  {t('admin:totalActiveUsers')}
+                </p>
                 <p className="text-4xl font-bold">{statistics.totalActiveUsers}</p>
               </div>
             </Card>

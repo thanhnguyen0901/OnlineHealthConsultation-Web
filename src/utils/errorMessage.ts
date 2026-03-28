@@ -1,8 +1,7 @@
 import i18n from '@/i18n/initI18n';
 import { HttpError } from '@/apis/core/httpError';
 
-const toErrorCodeKey = (code: string): string =>
-  `common:errorCodes.${code.trim().toLowerCase()}`;
+const toErrorCodeKey = (code: string): string => `common:errorCodes.${code.trim().toLowerCase()}`;
 
 const localizeByCode = (code?: string): string | null => {
   if (!code) return null;

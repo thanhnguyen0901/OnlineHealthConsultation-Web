@@ -91,7 +91,9 @@ export const InboxQuestionsPage: React.FC = () => {
   };
 
   const dateTemplate = (rowData: DoctorQuestion) => {
-    return new Date(rowData.createdAt).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
+    return new Date(rowData.createdAt).toLocaleDateString(
+      i18n.language === 'vi' ? 'vi-VN' : 'en-US'
+    );
   };
 
   const statusTemplate = (rowData: DoctorQuestion) => {
@@ -125,11 +127,7 @@ export const InboxQuestionsPage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadQuestionsRequested())}
             className="mb-4"
@@ -218,7 +216,12 @@ export const InboxQuestionsPage: React.FC = () => {
             <Button size="sm" variant="secondary" onClick={() => setAnswerDialog(false)}>
               {t('cancel')}
             </Button>
-            <Button size="sm" onClick={handleSubmitAnswer} disabled={!answerText.trim()} loading={loading}>
+            <Button
+              size="sm"
+              onClick={handleSubmitAnswer}
+              disabled={!answerText.trim()}
+              loading={loading}
+            >
               {t('submit')}
             </Button>
           </div>

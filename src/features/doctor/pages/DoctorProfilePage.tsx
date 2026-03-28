@@ -107,11 +107,11 @@ export const DoctorProfilePage: React.FC = () => {
     dispatch(updateProfileRequested(payload));
   };
 
-  const isDirty = !!profile && (
-    (form.bio ?? '').trim() !== (profile.bio ?? '').trim() ||
-    (form.yearsOfExperience ?? null) !== (profile.yearsOfExperience ?? null) ||
-    (form.specialtyId ?? '') !== (profile.specialtyId ?? '')
-  );
+  const isDirty =
+    !!profile &&
+    ((form.bio ?? '').trim() !== (profile.bio ?? '').trim() ||
+      (form.yearsOfExperience ?? null) !== (profile.yearsOfExperience ?? null) ||
+      (form.specialtyId ?? '') !== (profile.specialtyId ?? ''));
 
   const isSubmitDisabled = loading || !isDirty;
 
@@ -124,11 +124,7 @@ export const DoctorProfilePage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadProfileRequested())}
             className="mb-4"

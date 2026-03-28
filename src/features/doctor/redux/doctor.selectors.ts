@@ -10,8 +10,7 @@ export const selectDoctorLoading = (state: RootState) => state.doctor.loading;
 export const selectDoctorError = (state: RootState) => state.doctor.error;
 export const selectDoctorAppointments = (state: RootState) => state.doctor.appointments;
 export const selectDoctorPatients = (state: RootState) => state.doctor.patients;
-export const selectDoctorPatientsPagination = (state: RootState) =>
-  state.doctor.patientsPagination;
+export const selectDoctorPatientsPagination = (state: RootState) => state.doctor.patientsPagination;
 export const selectAnswerSubmitted = (state: RootState) => state.doctor.answerSubmitted;
 export const selectScheduleUpdated = (state: RootState) => state.doctor.scheduleUpdated;
 export const selectDoctorRatings = (state: RootState) => state.doctor.ratings;

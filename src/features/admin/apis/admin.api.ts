@@ -157,18 +157,16 @@ export const updatePatient = async (id: Id, data: Partial<Patient>): Promise<Pat
   return normalizePatient(response.data.data);
 };
 
-export const createPatient = async (
-  data: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    dateOfBirth?: string;
-    gender?: string;
-    phone?: string;
-    address?: string;
-  }
-): Promise<Patient> => {
+export const createPatient = async (data: {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: string;
+  phone?: string;
+  address?: string;
+}): Promise<Patient> => {
   const response = await apiClient.post<{ data: BackendPatient }>('/admin/patients', data);
   return normalizePatient(response.data.data);
 };

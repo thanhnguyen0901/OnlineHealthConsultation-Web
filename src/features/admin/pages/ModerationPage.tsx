@@ -56,7 +56,10 @@ export const ModerationPage: React.FC = () => {
   const snippetBodyTemplate = (rowData: any) => {
     const preview = rowData.contentPreview || rowData.content || '';
     return (
-      <div className="max-w-[360px] whitespace-normal break-words leading-5" title={rowData.content}>
+      <div
+        className="max-w-[360px] whitespace-normal break-words leading-5"
+        title={rowData.content}
+      >
         {preview.substring(0, 160)}
         {preview.length > 160 ? '...' : ''}
       </div>
@@ -134,11 +137,7 @@ export const ModerationPage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadModerationItemsRequested())}
             className="mb-4"
@@ -203,7 +202,12 @@ export const ModerationPage: React.FC = () => {
           focusOnShow
           footer={
             <div className="flex justify-end gap-2 px-6 pb-5 pt-4">
-              <Button label={t('cancel')} size="sm" variant="secondary" onClick={hideConfirmDialog} />
+              <Button
+                label={t('cancel')}
+                size="sm"
+                variant="secondary"
+                onClick={hideConfirmDialog}
+              />
               <Button
                 label={pendingAction?.action === 'approve' ? t('approve') : t('reject')}
                 size="sm"

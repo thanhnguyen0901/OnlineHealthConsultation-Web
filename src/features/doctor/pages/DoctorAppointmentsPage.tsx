@@ -149,15 +149,20 @@ export const DoctorAppointmentsPage: React.FC = () => {
 
   const dateTemplate = (rowData: DoctorAppointment) => {
     if (!rowData.scheduledAt) return '—';
-    return new Date(rowData.scheduledAt).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
+    return new Date(rowData.scheduledAt).toLocaleDateString(
+      i18n.language === 'vi' ? 'vi-VN' : 'en-US'
+    );
   };
 
   const timeTemplate = (rowData: DoctorAppointment) => {
     if (!rowData.scheduledAt) return '—';
-    return new Date(rowData.scheduledAt).toLocaleTimeString(i18n.language === 'vi' ? 'vi-VN' : 'en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return new Date(rowData.scheduledAt).toLocaleTimeString(
+      i18n.language === 'vi' ? 'vi-VN' : 'en-US',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    );
   };
 
   const statusTemplate = (rowData: DoctorAppointment) => {
@@ -179,8 +184,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
 
   const specialtyTemplate = (rowData: DoctorAppointment) =>
     i18n.language === 'vi'
-      ? rowData.specialtyNameVi ||
-        translateEnumValue(t, 'specialty', rowData.specialtyName)
+      ? rowData.specialtyNameVi || translateEnumValue(t, 'specialty', rowData.specialtyName)
       : rowData.specialtyName || translateEnumValue(t, 'specialty', rowData.specialtyName);
 
   const actionsTemplate = (rowData: DoctorAppointment) => {
@@ -254,11 +258,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadDoctorAppointmentsRequested())}
             className="mb-4"

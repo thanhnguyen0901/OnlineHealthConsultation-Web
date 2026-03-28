@@ -92,7 +92,10 @@ const doctorSlice = createSlice({
     },
     loadDoctorPatientsSucceeded: (
       state,
-      action: PayloadAction<{ patients: DoctorPatient[]; pagination: DoctorPatientsPagination | null }>
+      action: PayloadAction<{
+        patients: DoctorPatient[];
+        pagination: DoctorPatientsPagination | null;
+      }>
     ) => {
       state.loading = false;
       state.patients = action.payload.patients;

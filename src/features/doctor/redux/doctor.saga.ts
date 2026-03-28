@@ -117,8 +117,9 @@ function* handleLoadDoctorPatients(
       action.payload
     );
     const patients = Array.isArray(result) ? (result as unknown as DoctorPatient[]) : result.data;
-    const pagination =
-      (Array.isArray(result) ? null : (result.meta ?? null)) as DoctorPatientsPagination | null;
+    const pagination = (
+      Array.isArray(result) ? null : (result.meta ?? null)
+    ) as DoctorPatientsPagination | null;
     yield put(loadDoctorPatientsSucceeded({ patients, pagination }));
   } catch (error) {
     const msg = extractErrorMessage(error);

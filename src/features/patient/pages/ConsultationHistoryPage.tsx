@@ -89,7 +89,9 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   const dateTemplate = (rowData: Question) => {
-    return new Date(rowData.createdAt).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
+    return new Date(rowData.createdAt).toLocaleDateString(
+      i18n.language === 'vi' ? 'vi-VN' : 'en-US'
+    );
   };
 
   const questionStatusTemplate = (rowData: Question) => {
@@ -197,11 +199,7 @@ export const ConsultationHistoryPage: React.FC = () => {
         {error && (
           <InlineAlert
             variant="error"
-            title={
-              isUnauthorizedMessage(error)
-                ? t('common:errorUnauthorized')
-                : t('common:error')
-            }
+            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
             message={error}
             onRetry={() => dispatch(loadHistoryRequested())}
             className="mb-4"
@@ -393,7 +391,12 @@ export const ConsultationHistoryPage: React.FC = () => {
             <Button size="sm" variant="secondary" onClick={() => setRatingDialog(false)}>
               {t('cancel')}
             </Button>
-            <Button size="sm" onClick={handleSubmitRating} disabled={ratingValue === 0} loading={loading}>
+            <Button
+              size="sm"
+              onClick={handleSubmitRating}
+              disabled={ratingValue === 0}
+              loading={loading}
+            >
               {t('submit')}
             </Button>
           </div>

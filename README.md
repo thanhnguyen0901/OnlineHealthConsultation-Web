@@ -5,6 +5,7 @@ Frontend cho hệ thống tư vấn sức khỏe trực tuyến, xây dựng b�
 ## Mục tiêu
 
 Ứng dụng phục vụ 3 vai trò:
+
 - `PATIENT`: đặt lịch, hỏi đáp, theo dõi lịch sử tư vấn, cập nhật hồ sơ.
 - `DOCTOR`: xử lý câu hỏi, quản lý lịch làm việc, quản lý lịch hẹn, xem đánh giá.
 - `ADMIN`: quản trị người dùng, bác sĩ, chuyên khoa, lịch hẹn, moderation nội dung.
@@ -67,16 +68,19 @@ OnlineHealthConsultation-Web/
 ## Auth/AuthZ flow trên frontend
 
 ### 1. Bootstrap phiên
+
 - `App.tsx` dispatch `meRequested()` khi app mount.
 - Saga auth thử lấy access token từ `sessionStorage` trước.
 - Nếu token local không hợp lệ thì fallback sang `POST /auth/refresh` (cookie).
 
 ### 2. Request pipeline
+
 - Request interceptor tự gắn `Authorization: Bearer <accessToken>` từ Redux.
 - Nếu API trả `401`, interceptor gọi refresh rồi retry request cũ.
 - Nếu refresh thất bại, app clear auth state và điều hướng về `/login`.
 
 ### 3. Guard
+
 - `AuthGuard`: chặn route private khi chưa đăng nhập.
 - `RoleGuard`: chặn route sai role.
 
@@ -99,6 +103,7 @@ VITE_API_BASE_URL=http://localhost:4000
 ```
 
 Biến sử dụng:
+
 - `VITE_API_BASE_URL`: base URL backend.
 - `VITE_DEBUG_REFRESH` (optional): bật log refresh manager khi đặt `true`.
 
