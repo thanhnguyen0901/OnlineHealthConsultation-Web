@@ -1,16 +1,16 @@
 import type { Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 
-export class RegisterPage extends BasePage {
+export class AdminDashboardPage extends BasePage {
   constructor(page: Page) {
     super(page);
   }
 
   async open() {
-    await this.goto('/register');
+    await this.goto('/admin');
   }
 
-  get submitButton() {
-    return this.byTestId('register-submit-button');
+  get root() {
+    return this.byTestId('admin-dashboard-page');
   }
 }

@@ -419,7 +419,7 @@ const parseModerationId = (id: Id) => {
 export const approveModeration = async (id: Id): Promise<void> => {
   const { type, entityId } = parseModerationId(id);
   if (type === 'QUESTION') {
-    await apiClient.patch(`/admin/questions/${entityId}/moderation`, { action: 'APPROVE' });
+    await apiClient.patch(`/admin/questions/${entityId}/moderation`, { action: 'REOPEN' });
   } else if (type === 'RATING') {
     await apiClient.patch(`/admin/ratings/${entityId}/moderation`, { status: 'VISIBLE' });
   }
@@ -428,7 +428,7 @@ export const approveModeration = async (id: Id): Promise<void> => {
 export const rejectModeration = async (id: Id): Promise<void> => {
   const { type, entityId } = parseModerationId(id);
   if (type === 'QUESTION') {
-    await apiClient.patch(`/admin/questions/${entityId}/moderation`, { action: 'REJECT' });
+    await apiClient.patch(`/admin/questions/${entityId}/moderation`, { action: 'MODERATE' });
   } else if (type === 'RATING') {
     await apiClient.patch(`/admin/ratings/${entityId}/moderation`, { status: 'HIDDEN' });
   }

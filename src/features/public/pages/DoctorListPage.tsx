@@ -150,7 +150,12 @@ export const DoctorListPage: React.FC = () => {
                   </div>
 
                   <div className="mt-auto grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    <Button size="sm" outlined onClick={() => navigate(`/doctors/${doctor.id}`)}>
+                    <Button
+                      size="sm"
+                      outlined
+                      onClick={() => navigate(`/doctors/${doctor.id}`)}
+                      data-testid="doctor-detail-link"
+                    >
                       Detail
                     </Button>
                     <Button

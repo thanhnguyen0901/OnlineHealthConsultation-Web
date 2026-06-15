@@ -1,0 +1,71 @@
+import { expect, test } from '@playwright/test';
+import { AdminDashboardPage } from '../pages/AdminDashboardPage';
+import { AdminDoctorPage } from '../pages/AdminDoctorPage';
+import { seedData } from '../test-data/seed-data';
+import { loginAsAdmin, loginAsDoctor, loginAsPatient, expectForbiddenOrRedirect } from '../utils/auth';
+
+test.describe('UC06 Admin management', () => {
+  test('E2E-030 admin can view dashboard', async ({ page }) => {
+    test.skip(!seedData.hasAdmin(), 'Requires E2E_RUN_SEEDED=true and admin credentials/backend seed.');
+    const dashboard = new AdminDashboardPage(page);
+
+    await loginAsAdmin(page);
+
+    await expect(dashboard.root).toBeVisible();
+  });
+
+  test('E2E-031 admin can view doctor list', async ({ page }) => {
+    test.skip(!seedData.hasAdmin(), 'Requires E2E_RUN_SEEDED=true and admin credentials/backend seed.');
+    const doctors = new AdminDoctorPage(page);
+
+    await loginAsAdmin(page);
+    await doctors.open();
+
+    await expect(doctors.root).toBeVisible();
+    await expect(doctors.table).toBeVisible();
+  });
+
+  test('E2E-032 admin can approve/reject doctor profile when pending doctor seed exists', async ({
+    page,
+  }) => {
+    test.skip(
+      !seedData.hasAdmin() || !seedData.hasPendingDoctor(),
+      'Requires admin credentials and E2E_PENDING_DOCTOR_ID.'
+    );
+    const doctors = new AdminDoctorPage(page);
+
+    await loginAsAdmin(page);
+    await doctors.open();
+
+    await expect(doctors.approveButton(seedData.doctors.pendingDoctorId)).toBeVisible();
+  });
+
+  test('E2E-033 admin can view specialties', async ({ page }) => {
+    test.skip(!seedData.hasAdmin(), 'Requires E2E_RUN_SEEDED=true and admin credentials/backend seed.');
+
+    await loginAsAdmin(page);
+    await page.goto('/admin/specialties');
+
+    await expect(page.getByTestId('admin-specialty-page')).toBeVisible();
+    await expect(page.getByTestId('admin-specialty-table')).toBeVisible();
+  });
+
+  test('E2E-034 admin can create/update/deactivate specialty', async () => {
+    test.fixme(true, 'Requires disposable specialty seed/reset to avoid mutating shared demo data.');
+  });
+
+  test('E2E-035 non-admin cannot access admin dashboard', async ({ page }) => {
+    test.skip(
+      !seedData.hasPatient() && !seedData.hasDoctor(),
+      'Requires E2E_RUN_SEEDED=true and patient or doctor credentials.'
+    );
+
+    if (seedData.hasPatient()) {
+      await loginAsPatient(page);
+    } else {
+      await loginAsDoctor(page);
+    }
+    await page.goto('/admin');
+    await expectForbiddenOrRedirect(page);
+  });
+});

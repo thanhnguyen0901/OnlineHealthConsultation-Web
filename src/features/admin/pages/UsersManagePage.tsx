@@ -44,14 +44,12 @@ export const UsersManagePage: React.FC = () => {
     firstName: string;
     lastName: string;
     email: string;
-    role: string;
   } | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const roleOptions = [
     { label: t('common:roles.patient'), value: ROLES.PATIENT },
     { label: t('common:roles.doctor'), value: ROLES.DOCTOR },
-    { label: t('common:roles.admin'), value: ROLES.ADMIN },
   ];
 
   useEffect(() => {
@@ -105,7 +103,6 @@ export const UsersManagePage: React.FC = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            role: user.role,
           },
         })
       );
@@ -120,7 +117,6 @@ export const UsersManagePage: React.FC = () => {
       firstName: (user.firstName ?? '').trim(),
       lastName: (user.lastName ?? '').trim(),
       email: (user.email ?? '').trim(),
-      role: user.role ?? ROLES.PATIENT,
     });
     setDialog(true);
   };
@@ -164,8 +160,7 @@ export const UsersManagePage: React.FC = () => {
     ? !!editingSnapshot &&
       ((user.firstName ?? '').trim() !== editingSnapshot.firstName ||
         (user.lastName ?? '').trim() !== editingSnapshot.lastName ||
-        (user.email ?? '').trim() !== editingSnapshot.email ||
-        (user.role ?? ROLES.PATIENT) !== editingSnapshot.role)
+        (user.email ?? '').trim() !== editingSnapshot.email)
     : true;
 
   const dialogFooter = (
@@ -329,18 +324,20 @@ export const UsersManagePage: React.FC = () => {
                 )}
               </div>
             )}
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('role')}
-              </label>
-              <Dropdown
-                value={user.role}
-                options={roleOptions}
-                onChange={(e) => setUser({ ...user, role: e.value })}
-                placeholder={t('selectRole')}
-                className="w-full"
-              />
-            </div>
+            {!user.id && (
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('role')}
+                </label>
+                <Dropdown
+                  value={user.role}
+                  options={roleOptions}
+                  onChange={(e) => setUser({ ...user, role: e.value })}
+                  placeholder={t('selectRole')}
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
         </Dialog>
 

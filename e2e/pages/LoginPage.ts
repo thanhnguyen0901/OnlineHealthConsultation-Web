@@ -11,14 +11,14 @@ export class LoginPage extends BasePage {
   }
 
   get emailInput() {
-    return this.page.getByRole('textbox', { name: /email/i });
+    return this.byTestId('email-input');
   }
 
   get passwordInput() {
-    return this.page.getByLabel(/password|mật khẩu/i);
+    return this.byTestId('password-input');
   }
 
   get submitButton() {
-    return this.page.getByRole('button', { name: /login|đăng nhập/i });
+    return this.byTestId('login-submit-button');
   }
 }
