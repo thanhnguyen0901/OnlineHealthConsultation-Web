@@ -147,9 +147,41 @@ export const DoctorsManagePage: React.FC = () => {
     setRevision((r) => r + 1);
   };
 
+  const approveDoctor = (rowData: Doctor) => {
+    dispatch(
+      updateDoctorRequested({
+        id: rowData.id,
+        data: { approvalStatus: 'APPROVED', isActive: true } as Partial<Doctor>,
+      })
+    );
+  };
+
+  const rejectDoctor = (rowData: Doctor) => {
+    dispatch(
+      updateDoctorRequested({
+        id: rowData.id,
+        data: { approvalStatus: 'REJECTED', isActive: false } as Partial<Doctor>,
+      })
+    );
+  };
+
   const actionBodyTemplate = (rowData: Doctor) => {
     return (
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          icon="pi pi-check"
+          size="sm"
+          variant="primary"
+          onClick={() => approveDoctor(rowData)}
+          data-testid={`approve-doctor-${rowData.id}`}
+        />
+        <Button
+          icon="pi pi-times"
+          size="sm"
+          variant="danger"
+          onClick={() => rejectDoctor(rowData)}
+          data-testid={`reject-doctor-${rowData.id}`}
+        />
         <Button
           icon="pi pi-pencil"
           size="sm"
@@ -204,6 +236,7 @@ export const DoctorsManagePage: React.FC = () => {
         onClick={saveDoctor}
         loading={loading}
         disabled={loading || !isEditDirty}
+        data-testid="doctor-approval-status"
       />
     </div>
   );
@@ -228,7 +261,7 @@ export const DoctorsManagePage: React.FC = () => {
   );
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div className="px-4 py-6 md:px-8 md:py-8" data-testid="admin-doctor-list-page">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageDoctors')}
@@ -268,9 +301,16 @@ export const DoctorsManagePage: React.FC = () => {
             loading={loading}
             emptyMessage={t('noDoctors')}
             className="primereact-table"
+            data-testid="admin-doctor-table"
           >
             <Column field="name" header={t('name')} sortable />
             <Column field="email" header={t('email')} sortable />
+            <Column
+              field="approvalStatus"
+              header={t('status')}
+              sortable
+              style={{ width: '150px' }}
+            />
             <Column
               field="specialtyName"
               header={t('specialty')}

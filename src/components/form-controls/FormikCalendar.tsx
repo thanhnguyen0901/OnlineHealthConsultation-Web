@@ -10,10 +10,20 @@ export interface FormikCalendarProps {
   disabled?: boolean;
   minDate?: Date;
   showIcon?: boolean;
+  'data-testid'?: string;
 }
 
 export const FormikCalendar: React.FC<FormikCalendarProps> = memo(
-  ({ name, label, placeholder, showTime = false, disabled = false, minDate, showIcon = false }) => {
+  ({
+    name,
+    label,
+    placeholder,
+    showTime = false,
+    disabled = false,
+    minDate,
+    showIcon = false,
+    'data-testid': dataTestId,
+  }) => {
     const [field, meta, helpers] = useField(name);
     const hasError = meta.touched && meta.error;
 
@@ -41,6 +51,7 @@ export const FormikCalendar: React.FC<FormikCalendarProps> = memo(
           minDate={minDate}
           showIcon={showIcon}
           className={`w-full ${hasError ? 'p-invalid' : ''}`}
+          data-testid={dataTestId}
         />
         {hasError && <small className="p-error block mt-1">{meta.error}</small>}
       </div>

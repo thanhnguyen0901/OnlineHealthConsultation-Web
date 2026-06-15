@@ -2,6 +2,9 @@ export const ROUTE_PATHS = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  SPECIALTIES: '/specialties',
+  DOCTORS: '/doctors',
+  DOCTOR_DETAIL: '/doctors/:doctorId',
 
   // Patient routes
   PATIENT_DASHBOARD: '/patient',
@@ -15,6 +18,7 @@ export const ROUTE_PATHS = {
   INBOX_QUESTIONS: '/doctor/inbox',
   DOCTOR_PATIENTS: '/doctor/patients',
   DOCTOR_APPOINTMENTS: '/doctor/appointments',
+  DOCTOR_CONSULTATION_SESSION: '/doctor/consultations/:appointmentId',
   SCHEDULE: '/doctor/schedule',
   DOCTOR_RATINGS: '/doctor/ratings',
   DOCTOR_PROFILE: '/doctor/profile',
@@ -32,5 +36,6 @@ export const ROUTE_PATHS = {
   REPORTS: '/reports',
 
   // Error pages
+  FORBIDDEN: '/403',
   NOT_FOUND: '/404',
 } as const;

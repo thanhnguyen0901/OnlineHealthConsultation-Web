@@ -17,6 +17,19 @@ const LoginPage = lazy(() =>
 const RegisterPage = lazy(() =>
   import('@/features/auth/pages/RegisterPage').then((m) => ({ default: m.RegisterPage }))
 );
+const SpecialtyListPage = lazy(() =>
+  import('@/features/public/pages/SpecialtyListPage').then((m) => ({
+    default: m.SpecialtyListPage,
+  }))
+);
+const DoctorListPage = lazy(() =>
+  import('@/features/public/pages/DoctorListPage').then((m) => ({ default: m.DoctorListPage }))
+);
+const DoctorDetailPage = lazy(() =>
+  import('@/features/public/pages/DoctorDetailPage').then((m) => ({
+    default: m.DoctorDetailPage,
+  }))
+);
 const PatientDashboardPage = lazy(() =>
   import('@/features/patient/pages/PatientDashboardPage').then((m) => ({
     default: m.PatientDashboardPage,
@@ -73,6 +86,11 @@ const DoctorProfilePage = lazy(() =>
     default: m.DoctorProfilePage,
   }))
 );
+const ConsultationSessionPage = lazy(() =>
+  import('@/features/doctor/pages/ConsultationSessionPage').then((m) => ({
+    default: m.ConsultationSessionPage,
+  }))
+);
 const AdminDashboardPage = lazy(() =>
   import('@/features/admin/pages/AdminDashboardPage').then((m) => ({
     default: m.AdminDashboardPage,
@@ -108,6 +126,9 @@ const ReportsPage = lazy(() =>
 const NotFoundPage = lazy(() =>
   import('@/pages/NotFound').then((m) => ({ default: m.NotFoundPage }))
 );
+const ForbiddenPage = lazy(() =>
+  import('@/pages/ForbiddenPage').then((m) => ({ default: m.ForbiddenPage }))
+);
 
 const HomeRedirect: React.FC = () => {
   const { user, isBootstrapping } = useAuth();
@@ -140,6 +161,10 @@ export const RoutesConfig: React.FC = () => {
     >
       <Routes>
         <Route path={ROUTE_PATHS.HOME} element={<HomeRedirect />} />
+        <Route path={ROUTE_PATHS.SPECIALTIES} element={<SpecialtyListPage />} />
+        <Route path={ROUTE_PATHS.DOCTORS} element={<DoctorListPage />} />
+        <Route path={ROUTE_PATHS.DOCTOR_DETAIL} element={<DoctorDetailPage />} />
+        <Route path={ROUTE_PATHS.FORBIDDEN} element={<ForbiddenPage />} />
 
         <Route element={<AuthLayout />}>
           <Route path={ROUTE_PATHS.LOGIN} element={<LoginPage />} />
@@ -247,6 +272,14 @@ export const RoutesConfig: React.FC = () => {
             element={
               <RoleGuard roles={['DOCTOR']}>
                 <DoctorProfilePage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.DOCTOR_CONSULTATION_SESSION}
+            element={
+              <RoleGuard roles={['DOCTOR']}>
+                <ConsultationSessionPage />
               </RoleGuard>
             }
           />

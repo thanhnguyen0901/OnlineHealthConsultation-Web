@@ -18,5 +18,9 @@ export const ToastPortal: React.FC = () => {
     }
   }, [toasts]);
 
-  return <Toast ref={toastRef} position="top-right" />;
+  return (
+    <div data-testid="global-toast">
+      <Toast ref={toastRef} position="top-right" />
+    </div>
+  );
 };

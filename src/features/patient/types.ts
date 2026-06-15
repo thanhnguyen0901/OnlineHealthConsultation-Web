@@ -5,8 +5,10 @@ export interface Question {
   patientId: Id;
   doctorId?: Id;
   doctorName?: string;
+  title?: string;
   question: string;
   answer?: string;
+  answers?: { id: Id; content: string; createdAt?: string }[];
   // Lowercased by BE controller; matches QuestionStatus enum values.
   status: 'pending' | 'answered' | 'moderated';
   createdAt: string;

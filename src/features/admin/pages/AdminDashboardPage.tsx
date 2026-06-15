@@ -18,7 +18,7 @@ type StatCardProps = {
 };
 
 const StatCard: React.FC<StatCardProps> = ({ icon, label, value, gradient, textMuted }) => (
-  <Card className={`${gradient} text-white shadow-lg`}>
+  <Card className={`${gradient} text-white shadow-lg`} data-testid="admin-dashboard-card">
     <div className="text-center p-4">
       <i className={`${icon} text-4xl mb-3 opacity-90`}></i>
       <p className={`${textMuted} mb-1 text-xs font-medium uppercase tracking-wide`}>{label}</p>
@@ -48,7 +48,7 @@ export const AdminDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div className="px-4 py-6 md:px-8 md:py-8" data-testid="admin-dashboard">
       <div className="max-w-7xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('dashboard')}

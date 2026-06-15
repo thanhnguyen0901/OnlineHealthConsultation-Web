@@ -118,7 +118,7 @@ export const BookAppointmentPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="appointment-create-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('bookAppointment')}
@@ -132,12 +132,14 @@ export const BookAppointmentPage: React.FC = () => {
           />
         )}
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            className="mb-4"
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              className="mb-4"
+            />
+          </div>
         )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
@@ -161,6 +163,7 @@ export const BookAppointmentPage: React.FC = () => {
                     label={t('selectSpecialty')}
                     options={specialtyOptions}
                     placeholder={t('selectSpecialty')}
+                    data-testid="appointment-specialty"
                     onChange={(e) => {
                       setFieldValue('specialtyId', e.value);
                       setFieldValue('doctorId', '');
@@ -177,6 +180,7 @@ export const BookAppointmentPage: React.FC = () => {
                     options={doctorOptions}
                     placeholder={t('selectDoctor')}
                     disabled={!selectedSpecialtyId || doctors.length === 0}
+                    data-testid="appointment-doctor"
                   />
                 </div>
                 {!loading && selectedSpecialtyId && doctors.length === 0 && (
@@ -193,6 +197,7 @@ export const BookAppointmentPage: React.FC = () => {
                     label={t('appointmentDate')}
                     minDate={new Date()}
                     showIcon
+                    data-testid="appointment-date"
                   />
 
                   <FormikDropdown
@@ -200,6 +205,7 @@ export const BookAppointmentPage: React.FC = () => {
                     label={t('appointmentTime')}
                     options={timeSlots}
                     placeholder={t('appointmentTime')}
+                    data-testid="appointment-time"
                   />
                 </div>
 
@@ -210,6 +216,7 @@ export const BookAppointmentPage: React.FC = () => {
                     placeholder={t('reasonPlaceholder')}
                     as="textarea"
                     rows={3}
+                    data-testid="appointment-reason"
                   />
                 </div>
 
@@ -222,7 +229,7 @@ export const BookAppointmentPage: React.FC = () => {
                     type="submit"
                     loading={loading}
                     disabled={loading}
-                    data-cy="book-appointment-submit"
+                    data-testid="appointment-submit"
                   >
                     {t('bookAppointment')}
                   </Button>

@@ -210,7 +210,7 @@ npm run dev -- --port 3000
 
 - **Backend Setup:** `../OnlineHealthConsultation-Service/QUICK_START.md`
 - **Database Setup:** `../Docs/DATABASE_SETUP.md`
-- **Test Mode:** `TEST_MODE_GUIDE.md`
+- **Playwright E2E:** `docs/playwright-migration-summary.md`
 - **Backend API:** http://localhost:4000/api
 
 ---

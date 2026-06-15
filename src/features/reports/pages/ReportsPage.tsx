@@ -50,7 +50,7 @@ export const ReportsPage: React.FC = () => {
   }
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div className="px-4 py-6 md:px-8 md:py-8" data-testid="reports-page">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('admin:reports')}
@@ -141,7 +141,7 @@ export const ReportsPage: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-white dark:bg-slate-900 shadow-sm">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm" data-testid="reports-chart">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
               {t('common:questionsDistribution')}
             </h2>
@@ -157,7 +157,7 @@ export const ReportsPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="bg-white dark:bg-slate-900 shadow-sm">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm" data-testid="reports-chart">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
               {t('common:appointmentsTrends')}
             </h2>

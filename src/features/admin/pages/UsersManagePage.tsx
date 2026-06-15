@@ -183,6 +183,7 @@ export const UsersManagePage: React.FC = () => {
         onClick={saveUser}
         loading={loading}
         disabled={loading || !isEditDirty}
+        data-testid="admin-user-save"
       />
     </div>
   );
@@ -201,7 +202,7 @@ export const UsersManagePage: React.FC = () => {
   );
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div className="px-4 py-6 md:px-8 md:py-8" data-testid="admin-user-management-page">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageUsers')}
@@ -241,6 +242,7 @@ export const UsersManagePage: React.FC = () => {
             loading={loading}
             emptyMessage={t('noUsers')}
             className="primereact-table"
+            data-testid="admin-user-table"
           >
             <Column field="name" header={t('name')} sortable />
             <Column field="email" header={t('email')} sortable />

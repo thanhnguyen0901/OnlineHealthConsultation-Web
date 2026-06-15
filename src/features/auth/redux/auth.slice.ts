@@ -35,7 +35,7 @@ const authSlice = createSlice({
         firstName: string;
         lastName: string;
         role: 'PATIENT' | 'DOCTOR';
-        specialty?: string;
+        specialtyId?: string;
       }>
     ) => {
       state.loading = true;

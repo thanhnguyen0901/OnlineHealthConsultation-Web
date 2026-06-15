@@ -36,7 +36,9 @@ import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
 import i18n from '@/i18n/initI18n';
 
-function* handleAskQuestion(action: PayloadAction<{ question: string; specialtyId?: string }>) {
+function* handleAskQuestion(
+  action: PayloadAction<{ title: string; content: string; doctorId?: string }>
+) {
   try {
     const question: Question = yield call(patientApi.askQuestion, action.payload);
     yield put(askQuestionSucceeded(question));
@@ -115,8 +117,7 @@ function* handleUpdateProfile(action: PayloadAction<Partial<PatientProfile>>) {
 function* handleRateConsultation(
   action: PayloadAction<{
     appointmentId: string;
-    doctorId: string;
-    rating: number;
+    score: number;
     comment?: string;
   }>
 ) {

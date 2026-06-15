@@ -84,6 +84,7 @@ export const InboxQuestionsPage: React.FC = () => {
           icon="pi pi-reply"
           size="sm"
           onClick={() => handleOpenAnswer(rowData)}
+          data-testid="doctor-question-detail"
         />
       );
     }
@@ -111,7 +112,7 @@ export const InboxQuestionsPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="doctor-question-list-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('inbox')}
@@ -125,13 +126,15 @@ export const InboxQuestionsPage: React.FC = () => {
           />
         )}
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            onRetry={() => dispatch(loadQuestionsRequested())}
-            className="mb-4"
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              onRetry={() => dispatch(loadQuestionsRequested())}
+              className="mb-4"
+            />
+          </div>
         )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
@@ -142,6 +145,7 @@ export const InboxQuestionsPage: React.FC = () => {
             loading={loading}
             emptyMessage={t('noQuestions')}
             className="primereact-table"
+            data-testid="doctor-question-table"
           >
             <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
             <Column field="question" header={t('question')} />
@@ -171,7 +175,7 @@ export const InboxQuestionsPage: React.FC = () => {
         onHide={() => setAnswerDialog(false)}
         modal
       >
-        <div className="p-6 space-y-5">
+        <div data-testid="doctor-answer-form" className="p-6 space-y-5">
           {selectedQuestion && (
             <div className="pb-2">
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -221,6 +225,7 @@ export const InboxQuestionsPage: React.FC = () => {
               onClick={handleSubmitAnswer}
               disabled={!answerText.trim()}
               loading={loading}
+              data-testid="answer-question-submit"
             >
               {t('submit')}
             </Button>

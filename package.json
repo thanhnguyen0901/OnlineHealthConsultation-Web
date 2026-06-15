@@ -11,14 +11,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run",
-    "cy:run:auth": "cypress run --spec \"cypress/e2e/auth.cy.ts\"",
-    "cy:run:patient": "cypress run --spec \"cypress/e2e/patient-*.cy.ts\"",
-    "cy:run:admin": "cypress run --spec \"cypress/e2e/admin-*.cy.ts\"",
-    "cy:run:doctor": "cypress run --spec \"cypress/e2e/doctor-*.cy.ts\"",
-    "cy:run:role-guard": "cypress run --spec \"cypress/e2e/role-guard.cy.ts\"",
-    "test:e2e": "start-server-and-test dev http://localhost:5173 cy:run"
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:install": "playwright install"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.7",
@@ -42,6 +40,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "@types/node": "^22.7.4",
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
@@ -49,7 +48,6 @@
     "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-react": "^4.3.2",
     "baseline-browser-mapping": "^2.9.11",
-    "cypress": "^13.17.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.0",

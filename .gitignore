@@ -29,7 +29,6 @@ dist-ssr
 .env.test.local
 .env.production.local
 
-# Cypress artifacts
-cypress/videos
-cypress/screenshots
-cypress.env.json
+# Playwright artifacts
+playwright-report/
+test-results/

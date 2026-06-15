@@ -23,13 +23,18 @@ Ngoài ra có trang `Reports` dùng chung cho `ADMIN` và `DOCTOR`.
 - Formik + Yup
 - i18next (`vi`, `en`)
 - Recharts
-- Cypress E2E
+- Playwright E2E
 
 ## Cấu trúc chính
 
 ```text
 OnlineHealthConsultation-Web/
-├── cypress/
+├── e2e/
+│   ├── fixtures/
+│   ├── pages/
+│   ├── specs/
+│   ├── test-data/
+│   └── utils/
 ├── src/
 │   ├── apis/core/
 │   ├── app/
@@ -117,15 +122,25 @@ npm run lint
 npm run format
 npm run format:check
 npm run type-check
-npm run cy:open
-npm run cy:run
 npm run test:e2e
+npm run test:e2e:headed
+npm run test:e2e:ui
+npm run test:e2e:debug
+npm run test:e2e:report
+npm run test:e2e:install
 ```
 
 ## E2E
 
-- Specs: `cypress/e2e/**/*.cy.ts`
-- Nhóm test: `auth`, `patient`, `doctor`, `admin`, `role-guard`
+- Framework: Playwright
+- Specs: `e2e/specs/**/*.spec.ts`
+- Page objects: `e2e/pages/`
+- Base URL: `PLAYWRIGHT_BASE_URL` hoặc `VITE_APP_URL`, mặc định `http://localhost:5173`
+
+```bash
+npm run test:e2e:install
+npm run test:e2e
+```
 
 ## Tích hợp backend
 

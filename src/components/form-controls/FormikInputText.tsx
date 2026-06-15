@@ -12,8 +12,7 @@ export interface FormikInputTextProps {
   as?: string;
   rows?: number;
   autoComplete?: string;
-  /** Selector hook for Cypress E2E tests (`data-cy` attribute). */
-  'data-cy'?: string;
+  'data-testid'?: string;
 }
 
 export const FormikInputText: React.FC<FormikInputTextProps> = memo(
@@ -26,7 +25,7 @@ export const FormikInputText: React.FC<FormikInputTextProps> = memo(
     as,
     rows,
     autoComplete,
-    'data-cy': dataCy,
+    'data-testid': dataTestId,
   }) => {
     const [field, meta] = useField(name);
     const hasError = meta.touched && meta.error;
@@ -51,7 +50,7 @@ export const FormikInputText: React.FC<FormikInputTextProps> = memo(
             disabled={disabled}
             rows={rows || 3}
             className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
-            data-cy={dataCy}
+            data-testid={dataTestId}
           />
         ) : (
           <InputText
@@ -62,7 +61,7 @@ export const FormikInputText: React.FC<FormikInputTextProps> = memo(
             disabled={disabled}
             autoComplete={autoComplete}
             className={`w-full ${hasError ? 'p-invalid border-red-500' : ''}`}
-            data-cy={dataCy}
+            data-testid={dataTestId}
           />
         )}
         {hasError && <small className="text-red-500 text-xs mt-1 block">{meta.error}</small>}

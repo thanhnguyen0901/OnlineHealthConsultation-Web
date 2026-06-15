@@ -18,8 +18,10 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <RoutesConfig />
-      <ToastPortal />
+      <div data-testid="app-root" className="min-h-screen">
+        <RoutesConfig />
+        <ToastPortal />
+      </div>
     </BrowserRouter>
   );
 };

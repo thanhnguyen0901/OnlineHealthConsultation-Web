@@ -18,11 +18,14 @@ interface BackendUser {
 }
 
 interface RefreshApiResponse {
-  data: {
+  data?: {
     accessToken: string;
     refreshToken?: string;
     user?: BackendUser;
   };
+  accessToken?: string;
+  refreshToken?: string;
+  user?: BackendUser;
 }
 
 // Re-export so callers can type-check against AuthResult without importing auth.api
@@ -74,9 +77,10 @@ async function executeRefresh(): Promise<AuthPayload> {
     }
   );
 
-  const { accessToken, user } = response.data.data;
+  const result = response.data.data ?? response.data;
+  const { accessToken, user } = result;
 
-  if (!user) {
+  if (!accessToken || !user) {
     throw new Error(i18n.t('common:unexpectedError'));
   }
 

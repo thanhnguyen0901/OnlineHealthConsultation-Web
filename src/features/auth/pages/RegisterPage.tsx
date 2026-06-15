@@ -16,8 +16,8 @@ import {
 } from '@/features/auth/redux/auth.selectors';
 import { useToast } from '@/hooks/useToast';
 import { ROUTE_PATHS } from '@/constants/routePaths';
-import { getSpecialties } from '@/features/admin/apis/admin.api';
-import type { Specialty } from '@/features/admin/types';
+import { getPublicSpecialties } from '@/features/public/apis/public.api';
+import type { PublicSpecialty } from '@/features/public/types';
 
 const registerSchema = Yup.object({
   firstName: Yup.string().required(),
@@ -25,7 +25,7 @@ const registerSchema = Yup.object({
   email: Yup.string().email().required(),
   password: Yup.string().min(6).required(),
   role: Yup.string().oneOf(['PATIENT', 'DOCTOR']).required(),
-  specialty: Yup.string().when('role', {
+  specialtyId: Yup.string().when('role', {
     is: 'DOCTOR',
     then: (schema) => schema.required(),
     otherwise: (schema) => schema.optional(),
@@ -41,7 +41,7 @@ export const RegisterPage: React.FC = () => {
   const registerCompleted = useAppSelector(selectRegisterCompleted);
   const { showError } = useToast();
   const [submittedRole, setSubmittedRole] = React.useState<'PATIENT' | 'DOCTOR'>('PATIENT');
-  const [specialties, setSpecialties] = React.useState<Specialty[]>([]);
+  const [specialties, setSpecialties] = React.useState<PublicSpecialty[]>([]);
 
   React.useEffect(() => {
     if (registerCompleted) {
@@ -58,7 +58,7 @@ export const RegisterPage: React.FC = () => {
   }, [authError, showError]);
 
   React.useEffect(() => {
-    getSpecialties()
+    getPublicSpecialties()
       .then(setSpecialties)
       .catch(() => setSpecialties([]));
   }, []);
@@ -74,7 +74,7 @@ export const RegisterPage: React.FC = () => {
   }));
 
   return (
-    <div>
+    <div data-testid="register-page">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
         {t('common:register')}
       </h2>
@@ -91,12 +91,14 @@ export const RegisterPage: React.FC = () => {
         />
       )}
       {authError && (
-        <InlineAlert
-          variant="error"
-          title={t('common:error')}
-          message={authError}
-          className="mb-4"
-        />
+        <div data-testid="auth-error-alert">
+          <InlineAlert
+            variant="error"
+            title={t('common:error')}
+            message={authError}
+            className="mb-4"
+          />
+        </div>
       )}
 
       <Formik
@@ -106,7 +108,7 @@ export const RegisterPage: React.FC = () => {
           email: '',
           password: '',
           role: 'PATIENT',
-          specialty: '',
+          specialtyId: '',
         }}
         validationSchema={registerSchema}
         onSubmit={(values) => {
@@ -118,7 +120,7 @@ export const RegisterPage: React.FC = () => {
               email: values.email,
               password: values.password,
               role: values.role as 'PATIENT' | 'DOCTOR',
-              specialty: values.role === 'DOCTOR' ? values.specialty || undefined : undefined,
+              specialtyId: values.role === 'DOCTOR' ? values.specialtyId || undefined : undefined,
             })
           );
           // Do NOT navigate here — wait for registerCompleted flag (see useEffect above).
@@ -131,13 +133,13 @@ export const RegisterPage: React.FC = () => {
                 name="firstName"
                 label={t('common:firstName')}
                 placeholder={t('auth:firstNamePlaceholder')}
-                data-cy="register-first-name"
+                data-testid="register-first-name"
               />
               <FormikInputText
                 name="lastName"
                 label={t('common:lastName')}
                 placeholder={t('auth:lastNamePlaceholder')}
-                data-cy="register-last-name"
+                data-testid="register-last-name"
               />
             </div>
             <FormikInputText
@@ -145,27 +147,29 @@ export const RegisterPage: React.FC = () => {
               label={t('common:email')}
               type="email"
               placeholder={t('common:emailPlaceholder')}
-              data-cy="register-email"
+              data-testid="email-input"
             />
             <FormikInputText
               name="password"
               label={t('common:password')}
               type="password"
               placeholder={t('common:passwordPlaceholder')}
-              data-cy="register-password"
+              data-testid="password-input"
             />
             <FormikDropdown
               name="role"
               label={t('auth:registerAs')}
               options={roleOptions}
               placeholder={t('auth:registerAs')}
+              data-testid="register-role"
             />
             {values.role === 'DOCTOR' && (
               <FormikDropdown
-                name="specialty"
+                name="specialtyId"
                 label={t('doctor:specialty')}
                 options={specialtyOptions}
                 placeholder={t('doctor:selectSpecialty')}
+                data-testid="register-specialty"
               />
             )}
             <div className="pt-2">
@@ -174,7 +178,7 @@ export const RegisterPage: React.FC = () => {
                 className="w-full"
                 loading={loading}
                 disabled={loading}
-                data-cy="register-submit"
+                data-testid="register-submit-button"
               >
                 {t('common:register')}
               </Button>

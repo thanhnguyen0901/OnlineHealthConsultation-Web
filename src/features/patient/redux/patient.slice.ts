@@ -9,7 +9,7 @@ const patientSlice = createSlice({
   reducers: {
     askQuestionRequested: (
       state,
-      _action: PayloadAction<{ question: string; specialtyId?: string }>
+      _action: PayloadAction<{ title: string; content: string; doctorId?: string }>
     ) => {
       state.loading = true;
       state.error = null;
@@ -119,8 +119,7 @@ const patientSlice = createSlice({
       state,
       _action: PayloadAction<{
         appointmentId: string;
-        doctorId: string;
-        rating: number;
+        score: number;
         comment?: string;
       }>
     ) => {

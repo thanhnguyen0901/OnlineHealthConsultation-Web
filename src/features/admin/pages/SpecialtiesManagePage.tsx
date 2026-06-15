@@ -119,14 +119,14 @@ export const SpecialtiesManagePage: React.FC = () => {
           size="sm"
           variant="secondary"
           onClick={() => editSpecialty(rowData)}
-          data-cy={`btn-edit-specialty-${rowData.id}`}
+          data-testid={`edit-specialty-${rowData.id}`}
         />
         <Button
           icon="pi pi-trash"
           size="sm"
           variant="danger"
           onClick={() => confirmDeleteSpecialty(rowData)}
-          data-cy={`btn-delete-specialty-${rowData.id}`}
+          data-testid={`deactivate-specialty-${rowData.id}`}
         />
       </div>
     );
@@ -154,7 +154,7 @@ export const SpecialtiesManagePage: React.FC = () => {
         onClick={saveSpecialty}
         loading={loading}
         disabled={loading || !isEditDirty}
-        data-cy="btn-save-specialty"
+        data-testid="specialty-save"
       />
     </div>
   );
@@ -174,13 +174,13 @@ export const SpecialtiesManagePage: React.FC = () => {
         variant="danger"
         onClick={deleteSpecialty}
         loading={loading}
-        data-cy="btn-confirm-delete"
+        data-testid="specialty-deactivate"
       />
     </div>
   );
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div className="px-4 py-6 md:px-8 md:py-8" data-testid="admin-specialty-page">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageSpecialties')}
@@ -197,7 +197,12 @@ export const SpecialtiesManagePage: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
           <div className="mb-4">
-            <Button icon="pi pi-plus" size="sm" onClick={openNew} data-cy="btn-new-specialty">
+            <Button
+              icon="pi pi-plus"
+              size="sm"
+              onClick={openNew}
+              data-testid="new-specialty"
+            >
               {t('addSpecialty')}
             </Button>
           </div>
@@ -208,6 +213,7 @@ export const SpecialtiesManagePage: React.FC = () => {
             loading={loading}
             emptyMessage={t('noSpecialties')}
             className="primereact-table"
+            data-testid="admin-specialty-table"
           >
             <Column field="nameEn" header={t('nameEnglish')} sortable style={{ width: '180px' }} />
             <Column

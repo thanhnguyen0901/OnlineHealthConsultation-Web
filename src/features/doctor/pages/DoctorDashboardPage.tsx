@@ -68,7 +68,7 @@ export const DoctorDashboardPage: React.FC = () => {
   const ratingAvg = stats?.ratingAverage ? stats.ratingAverage.toFixed(1) : '—';
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="doctor-dashboard-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full space-y-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -84,12 +84,14 @@ export const DoctorDashboardPage: React.FC = () => {
           )}
         </div>
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            onRetry={() => dispatch(loadProfileRequested())}
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              onRetry={() => dispatch(loadProfileRequested())}
+            />
+          </div>
         )}
 
         {loading && !profile ? (

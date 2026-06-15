@@ -31,15 +31,9 @@ const getNextStatuses = (
 ): { label: string; value: string }[] => {
   switch (current) {
     case 'pending':
-      return [
-        { label: 'confirmAction', value: 'confirmed' },
-        { label: 'cancel', value: 'cancelled' },
-      ];
+      return [{ label: 'confirmAction', value: 'confirmed' }];
     case 'confirmed':
-      return [
-        { label: 'completeAction', value: 'completed' },
-        { label: 'cancel', value: 'cancelled' },
-      ];
+      return [{ label: 'completeAction', value: 'completed' }];
     default:
       return [];
   }
@@ -207,6 +201,13 @@ export const DoctorAppointmentsPage: React.FC = () => {
               dispatch(updateDoctorAppointmentRequested({ id: rowData.id, status: opt.value }))
             }
             disabled={loading}
+            data-testid={
+              opt.value === 'confirmed'
+                ? `confirm-appointment-${rowData.id}`
+                : opt.value === 'completed'
+                  ? `complete-appointment-${rowData.id}`
+                  : undefined
+            }
           />
         ))}
         {showReschedule && (
@@ -224,7 +225,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="doctor-appointment-list-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -256,13 +257,15 @@ export const DoctorAppointmentsPage: React.FC = () => {
           />
         )}
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            onRetry={() => dispatch(loadDoctorAppointmentsRequested())}
-            className="mb-4"
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              onRetry={() => dispatch(loadDoctorAppointmentsRequested())}
+              className="mb-4"
+            />
+          </div>
         )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 overflow-x-auto">
@@ -275,6 +278,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
             className="primereact-table"
             sortField="scheduledAt"
             sortOrder={1}
+            data-testid="doctor-appointment-table"
           >
             <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
             <Column

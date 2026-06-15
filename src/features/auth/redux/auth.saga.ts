@@ -43,7 +43,7 @@ function* handleRegister(
     firstName: string;
     lastName: string;
     role: 'PATIENT' | 'DOCTOR';
-    specialty?: string;
+    specialtyId?: string;
   }>
 ) {
   try {

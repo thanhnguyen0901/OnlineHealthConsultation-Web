@@ -32,34 +32,34 @@ export const PatientDashboardPage: React.FC = () => {
       icon: 'pi pi-question-circle',
       path: ROUTE_PATHS.ASK_QUESTION,
       color: 'bg-blue-500',
-      dataCy: 'quick-action-ask-question',
+      testId: 'quick-action-ask-question',
     },
     {
       label: t('bookAppointment'),
       icon: 'pi pi-calendar-plus',
       path: ROUTE_PATHS.BOOK_APPOINTMENT,
       color: 'bg-green-500',
-      dataCy: 'quick-action-book-appointment',
+      testId: 'quick-action-book-appointment',
     },
     {
       label: t('consultationHistory'),
       icon: 'pi pi-history',
       path: ROUTE_PATHS.CONSULTATION_HISTORY,
       color: 'bg-purple-500',
-      dataCy: 'quick-action-history',
+      testId: 'quick-action-history',
     },
   ];
 
   if (loading && !profile) {
     return (
-      <div className="flex items-center justify-center min-h-[320px]">
+      <div data-testid="loading-state" className="flex items-center justify-center min-h-[320px]">
         <Spinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="patient-dashboard-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('dashboard')}
@@ -73,13 +73,15 @@ export const PatientDashboardPage: React.FC = () => {
           </p>
         )}
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            onRetry={() => dispatch(loadProfileRequested())}
-            className="mb-4"
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              onRetry={() => dispatch(loadProfileRequested())}
+              className="mb-4"
+            />
+          </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -88,7 +90,7 @@ export const PatientDashboardPage: React.FC = () => {
               key={action.path}
               className="hover:shadow-xl transition-all cursor-pointer bg-white dark:bg-slate-900"
               onClick={() => navigate(action.path)}
-              data-cy={action.dataCy}
+              data-testid={action.testId}
             >
               <div className="flex flex-col items-center p-6">
                 <div className={`${action.color} rounded-full p-6 mb-4 shadow-lg`}>

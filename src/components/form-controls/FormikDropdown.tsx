@@ -10,10 +10,11 @@ export interface FormikDropdownProps {
   options: Option[];
   disabled?: boolean;
   onChange?: (e: any) => void;
+  'data-testid'?: string;
 }
 
 export const FormikDropdown: React.FC<FormikDropdownProps> = memo(
-  ({ name, label, placeholder, options, disabled = false, onChange }) => {
+  ({ name, label, placeholder, options, disabled = false, onChange, 'data-testid': dataTestId }) => {
     const [field, meta, helpers] = useField(name);
     const hasError = meta.touched && meta.error;
 
@@ -42,6 +43,7 @@ export const FormikDropdown: React.FC<FormikDropdownProps> = memo(
           placeholder={placeholder}
           disabled={disabled}
           className={`w-full ${hasError ? 'p-invalid' : ''}`}
+          data-testid={dataTestId}
         />
         {hasError && <small className="p-error block mt-1">{meta.error}</small>}
       </div>

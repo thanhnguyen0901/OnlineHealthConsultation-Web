@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { Button } from '@/components/common/Button';
@@ -27,6 +27,7 @@ const loginSchema = Yup.object({
 export const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const loading = useAppSelector(selectAuthLoading);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -35,26 +36,39 @@ export const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === ROLES.ADMIN) navigate(ROUTE_PATHS.ADMIN_DASHBOARD);
+      const returnUrl =
+        typeof location.state === 'object' && location.state !== null
+          ? (location.state as { returnUrl?: string }).returnUrl
+          : undefined;
+
+      if (returnUrl?.startsWith('/patient') && user.role === ROLES.PATIENT) {
+        navigate(returnUrl);
+      } else if (returnUrl?.startsWith('/doctor') && user.role === ROLES.DOCTOR) {
+        navigate(returnUrl);
+      } else if (returnUrl?.startsWith('/admin') && user.role === ROLES.ADMIN) {
+        navigate(returnUrl);
+      } else if (user.role === ROLES.ADMIN) navigate(ROUTE_PATHS.ADMIN_DASHBOARD);
       else if (user.role === ROLES.DOCTOR) navigate(ROUTE_PATHS.DOCTOR_DASHBOARD);
       else navigate(ROUTE_PATHS.PATIENT_DASHBOARD);
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, location.state]);
 
   return (
-    <div>
+    <div data-testid="login-page">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
         {t('common:login')}
       </h2>
       {authError && (
-        <InlineAlert
-          variant="error"
-          title={
-            isUnauthorizedMessage(authError) ? t('common:errorUnauthorized') : t('common:error')
-          }
-          message={authError}
-          className="mb-4"
-        />
+        <div data-testid="auth-error-alert">
+          <InlineAlert
+            variant="error"
+            title={
+              isUnauthorizedMessage(authError) ? t('common:errorUnauthorized') : t('common:error')
+            }
+            message={authError}
+            className="mb-4"
+          />
+        </div>
       )}
 
       <Formik
@@ -74,7 +88,7 @@ export const LoginPage: React.FC = () => {
             type="email"
             placeholder={t('common:emailPlaceholder')}
             autoComplete="email"
-            data-cy="login-email"
+            data-testid="email-input"
           />
           <FormikInputText
             name="password"
@@ -82,10 +96,15 @@ export const LoginPage: React.FC = () => {
             type="password"
             placeholder={t('common:passwordPlaceholder')}
             autoComplete="current-password"
-            data-cy="login-password"
+            data-testid="password-input"
           />
           <div className="pt-2">
-            <Button type="submit" className="w-full" loading={loading} data-cy="login-submit">
+            <Button
+              type="submit"
+              className="w-full"
+              loading={loading}
+              data-testid="login-submit-button"
+            >
               {t('common:login')}
             </Button>
           </div>

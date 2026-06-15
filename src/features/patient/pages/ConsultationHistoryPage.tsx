@@ -23,6 +23,7 @@ import {
 import type { Question, Appointment } from '../types';
 import { isUnauthorizedMessage } from '@/utils/authz';
 import { translateEnumValue } from '@/utils/enumI18n';
+import * as patientApi from '../apis/patient.api';
 
 export const ConsultationHistoryPage: React.FC = () => {
   const { t, i18n } = useTranslation('patient');
@@ -41,6 +42,9 @@ export const ConsultationHistoryPage: React.FC = () => {
   const [comment, setComment] = useState<string>('');
   const [detailDialog, setDetailDialog] = useState(false);
   const [detailAppointment, setDetailAppointment] = useState<Appointment | null>(null);
+  const [questionDetail, setQuestionDetail] = useState<Question | null>(null);
+  const [resultDialog, setResultDialog] = useState(false);
+  const [consultationResult, setConsultationResult] = useState<any | null>(null);
   const [ratingSuccess, setRatingSuccess] = useState(false);
 
   useEffect(() => {
@@ -61,9 +65,24 @@ export const ConsultationHistoryPage: React.FC = () => {
     };
   }, [ratings.length]);
 
-  const handleOpenDetail = (appointment: Appointment) => {
+  const handleOpenDetail = async (appointment: Appointment) => {
     setDetailAppointment(appointment);
     setDetailDialog(true);
+    try {
+      setDetailAppointment(await patientApi.getAppointmentDetail(appointment.id));
+    } catch {
+      setDetailAppointment(appointment);
+    }
+  };
+
+  const handleOpenResult = async (appointment: Appointment) => {
+    setResultDialog(true);
+    setConsultationResult(null);
+    try {
+      setConsultationResult(await patientApi.getConsultationResult(appointment.id));
+    } catch (error) {
+      setConsultationResult({ error: error instanceof Error ? error.message : String(error) });
+    }
   };
 
   const handleOpenAppointmentRating = (appointment: Appointment) => {
@@ -80,8 +99,7 @@ export const ConsultationHistoryPage: React.FC = () => {
       dispatch(
         rateConsultationRequested({
           appointmentId: selectedAppointment.id,
-          doctorId: selectedAppointment.doctorId,
-          rating: ratingValue,
+          score: ratingValue,
           comment: comment || undefined,
         })
       );
@@ -139,6 +157,7 @@ export const ConsultationHistoryPage: React.FC = () => {
         variant="secondary"
         onClick={() => handleOpenDetail(rowData)}
         title={t('viewDetail')}
+        data-testid="appointment-detail"
       />
     );
 
@@ -151,11 +170,20 @@ export const ConsultationHistoryPage: React.FC = () => {
           icon="pi pi-star"
           size="sm"
           onClick={() => handleOpenAppointmentRating(rowData)}
+          data-testid="rating-dialog"
         />
       );
       return (
         <div className="flex items-center gap-2">
           {actionBtn}
+          <Button
+            label="Result"
+            icon="pi pi-file"
+            size="sm"
+            variant="secondary"
+            onClick={() => handleOpenResult(rowData)}
+            data-testid="consultation-result"
+          />
           {detailBtn}
         </div>
       );
@@ -169,6 +197,7 @@ export const ConsultationHistoryPage: React.FC = () => {
             size="sm"
             variant="danger"
             onClick={() => dispatch(cancelAppointmentRequested(rowData.id))}
+            data-testid={`appointment-cancel-${rowData.id}`}
           />
           {detailBtn}
         </div>
@@ -183,7 +212,7 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="appointment-list-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('consultationHistory')}
@@ -197,13 +226,15 @@ export const ConsultationHistoryPage: React.FC = () => {
           />
         )}
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            onRetry={() => dispatch(loadHistoryRequested())}
-            className="mb-4"
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              onRetry={() => dispatch(loadHistoryRequested())}
+              className="mb-4"
+            />
+          </div>
         )}
 
         <div className="space-y-8">
@@ -219,6 +250,7 @@ export const ConsultationHistoryPage: React.FC = () => {
                 loading={loading}
                 emptyMessage={t('noQuestions')}
                 className="primereact-table"
+                data-testid="patient-question-table"
               >
                 <Column field="question" header={t('question')} sortable />
                 <Column
@@ -246,6 +278,18 @@ export const ConsultationHistoryPage: React.FC = () => {
                   sortable
                   style={{ width: '150px' }}
                 />
+                <Column
+                  body={(rowData: Question) => (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      icon="pi pi-info-circle"
+                      onClick={() => setQuestionDetail(rowData)}
+                      data-testid="question-detail"
+                    />
+                  )}
+                  header={t('actions')}
+                />
               </DataTable>
             </div>
           </section>
@@ -262,6 +306,7 @@ export const ConsultationHistoryPage: React.FC = () => {
                 loading={loading}
                 emptyMessage={t('noAppointments')}
                 className="primereact-table"
+                data-testid="patient-appointment-table"
               >
                 <Column field="doctorName" header={t('doctor')} sortable />
                 <Column
@@ -314,7 +359,7 @@ export const ConsultationHistoryPage: React.FC = () => {
         className="p-dialog-custom"
       >
         {detailAppointment && (
-          <div className="p-6 space-y-4">
+          <div data-testid="appointment-detail" className="p-6 space-y-4">
             <div className="grid grid-cols-[140px_1fr] gap-y-3 text-sm">
               <span className="font-medium text-gray-600 dark:text-gray-400">{t('doctor')}</span>
               <span className="text-gray-900 dark:text-gray-100">
@@ -352,6 +397,70 @@ export const ConsultationHistoryPage: React.FC = () => {
             </div>
           </div>
         )}
+      </Dialog>
+
+      <Dialog
+        header="Question detail"
+        visible={Boolean(questionDetail)}
+        style={{ width: '560px' }}
+        onHide={() => setQuestionDetail(null)}
+        modal
+      >
+        {questionDetail && (
+          <div data-testid="question-detail" className="p-6 space-y-4">
+            <h3 className="font-semibold">{questionDetail.title || t('question')}</h3>
+            <p className="whitespace-pre-wrap">{questionDetail.question}</p>
+            <div>
+              <h4 className="font-medium">{t('answer')}</h4>
+              <p className="mt-2 whitespace-pre-wrap text-gray-700 dark:text-gray-200">
+                {questionDetail.answer || '—'}
+              </p>
+            </div>
+          </div>
+        )}
+      </Dialog>
+
+      <Dialog
+        header="Consultation result"
+        visible={resultDialog}
+        style={{ width: '720px' }}
+        onHide={() => setResultDialog(false)}
+        modal
+      >
+        <div data-testid="consultation-result" className="p-6 space-y-4">
+          {!consultationResult ? (
+            <div data-testid="loading-state">Loading...</div>
+          ) : consultationResult.error ? (
+            <div data-testid="error-alert">
+              <InlineAlert variant="error" title={t('common:error')} message={consultationResult.error} />
+            </div>
+          ) : (
+            <>
+              <section>
+                <h3 className="font-semibold">Summary</h3>
+                <p className="mt-2 whitespace-pre-wrap">
+                  {consultationResult.consultation?.summary ||
+                    consultationResult.session?.summary ||
+                    'No summary available.'}
+                </p>
+              </section>
+              <section data-testid="prescription-items">
+                <h3 className="font-semibold">Prescription</h3>
+                {consultationResult.prescription?.items?.length ? (
+                  <ul className="mt-2 list-disc pl-5">
+                    {consultationResult.prescription.items.map((item: any) => (
+                      <li key={item.id ?? item.medicationName}>
+                        {item.medicationName} - {item.dosage}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-gray-400 italic">No prescription available.</p>
+                )}
+              </section>
+            </>
+          )}
+        </div>
       </Dialog>
 
       <Dialog
@@ -396,6 +505,7 @@ export const ConsultationHistoryPage: React.FC = () => {
               onClick={handleSubmitRating}
               disabled={ratingValue === 0}
               loading={loading}
+              data-testid="rating-submit"
             >
               {t('submit')}
             </Button>

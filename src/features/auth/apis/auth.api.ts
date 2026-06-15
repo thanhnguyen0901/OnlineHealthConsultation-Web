@@ -14,17 +14,29 @@ interface BackendUser {
 }
 
 interface AuthResponse {
-  data: {
-    accessToken: string;
-    refreshToken: string;
+  data?: {
+    accessToken?: string;
+    refreshToken?: string;
     user: BackendUser;
   };
+  accessToken?: string;
+  refreshToken?: string;
+  user?: BackendUser;
 }
 
 export interface AuthResult {
   user: User;
   accessToken: string;
 }
+
+const unwrapAuthResponse = (payload: AuthResponse) => payload.data ?? payload;
+
+const requireBackendUser = (user?: BackendUser): BackendUser => {
+  if (!user) {
+    throw new Error('Missing user in auth response');
+  }
+  return user;
+};
 
 const normalizeUser = (backendUser: BackendUser): User => ({
   id: backendUser.id,
@@ -40,9 +52,10 @@ export const login = async (credentials: {
   password: string;
 }): Promise<AuthResult> => {
   const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+  const result = unwrapAuthResponse(response.data);
   return {
-    user: normalizeUser(response.data.data.user),
-    accessToken: response.data.data.accessToken,
+    user: normalizeUser(requireBackendUser(result.user)),
+    accessToken: result.accessToken ?? '',
   };
 };
 
@@ -52,12 +65,13 @@ export const register = async (data: {
   firstName: string;
   lastName: string;
   role: 'PATIENT' | 'DOCTOR';
-  specialty?: string;
+  specialtyId?: string;
 }): Promise<AuthResult> => {
   const response = await apiClient.post<AuthResponse>('/auth/register', data);
+  const result = unwrapAuthResponse(response.data);
   return {
-    user: normalizeUser(response.data.data.user),
-    accessToken: response.data.data.accessToken,
+    user: normalizeUser(requireBackendUser(result.user)),
+    accessToken: result.accessToken ?? '',
   };
 };
 
@@ -66,20 +80,22 @@ export const logout = async (): Promise<void> => {
 };
 
 export const me = async (): Promise<AuthResult> => {
-  const response = await apiClient.get<{ data: BackendUser }>('/auth/me');
+  const response = await apiClient.get<{ data?: BackendUser } & BackendUser>('/auth/me');
+  const user = response.data.data ?? response.data;
   return {
-    user: normalizeUser(response.data.data),
+    user: normalizeUser(user),
     accessToken: '', // Will be provided by silent refresh
   };
 };
 
 // Passes Authorization header directly; avoids POST /auth/refresh when sessionStorage already has a valid token.
 export const meWithToken = async (accessToken: string): Promise<AuthResult> => {
-  const response = await apiClient.get<{ data: BackendUser }>('/auth/me', {
+  const response = await apiClient.get<{ data?: BackendUser } & BackendUser>('/auth/me', {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
+  const user = response.data.data ?? response.data;
   return {
-    user: normalizeUser(response.data.data),
+    user: normalizeUser(user),
     accessToken, // carry the same token forward into Redux
   };
 };

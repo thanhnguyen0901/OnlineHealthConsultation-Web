@@ -45,16 +45,16 @@ export const AppointmentsManagePage: React.FC = () => {
       page: number;
       limit: number;
       status?: string;
-      startDate?: string;
-      endDate?: string;
+      fromDate?: string;
+      toDate?: string;
     } = {
       page,
       limit: pageSize,
     };
     if (statusFilter && typeof statusFilter === 'string') params.status = statusFilter;
     if (dateRange.length === 2 && dateRange[0] && dateRange[1]) {
-      params.startDate = dateRange[0].toISOString();
-      params.endDate = dateRange[1].toISOString();
+      params.fromDate = dateRange[0].toISOString();
+      params.toDate = dateRange[1].toISOString();
     }
     dispatch(loadAppointmentsRequested(params));
   }, [dispatch, first, pageSize, statusFilter, dateRange]);
@@ -121,7 +121,7 @@ export const AppointmentsManagePage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div className="px-4 py-6 md:px-8 md:py-8" data-testid="admin-appointment-page">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageAppointments')}
@@ -207,6 +207,7 @@ export const AppointmentsManagePage: React.FC = () => {
             loading={loading}
             emptyMessage={t('noAppointments')}
             className="primereact-table"
+            data-testid="admin-appointment-table"
           >
             <Column field="patientName" header={t('patient')} sortable />
             <Column field="doctorName" header={t('doctor')} sortable />
@@ -255,6 +256,7 @@ export const AppointmentsManagePage: React.FC = () => {
                 onClick={confirmChange}
                 loading={loading}
                 disabled={loading}
+                data-testid="appointment-status-save"
               />
             </div>
           }

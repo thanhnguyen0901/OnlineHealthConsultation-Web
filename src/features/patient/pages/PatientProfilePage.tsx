@@ -61,26 +61,28 @@ export const PatientProfilePage: React.FC = () => {
 
   if (loading && !profile) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
+      <div data-testid="loading-state" className="flex justify-center items-center min-h-[400px]">
         <Spinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="patient-profile-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('patient:profile')}
         </h1>
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            onRetry={() => dispatch(loadProfileRequested())}
-            className="mb-4"
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              onRetry={() => dispatch(loadProfileRequested())}
+              className="mb-4"
+            />
+          </div>
         )}
         {profileUpdated && (
           <InlineAlert
@@ -120,7 +122,7 @@ export const PatientProfilePage: React.FC = () => {
             }}
           >
             {({ dirty, isValid }) => (
-              <Form className="space-y-8">
+              <Form data-testid="patient-profile-form" className="space-y-8">
                 <section>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
                     {t('patient:personalInformation')}
@@ -191,6 +193,7 @@ export const PatientProfilePage: React.FC = () => {
                     size="sm"
                     loading={loading}
                     disabled={loading || !dirty || !isValid}
+                    data-testid="patient-profile-save"
                   >
                     {t('common:save')}
                   </Button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppSelector } from '@/state/hooks';
 import { selectIsBootstrapping } from '@/features/auth/redux/auth.selectors';
@@ -12,6 +12,7 @@ interface AuthGuardProps {
 
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
   const isBootstrapping = useAppSelector(selectIsBootstrapping);
 
   if (isBootstrapping) {
@@ -23,7 +24,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={ROUTE_PATHS.LOGIN} replace />;
+    return <Navigate to={ROUTE_PATHS.LOGIN} replace state={{ returnUrl: location.pathname }} />;
   }
 
   return <>{children}</>;

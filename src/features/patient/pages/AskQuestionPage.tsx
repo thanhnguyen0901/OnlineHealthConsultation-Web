@@ -7,6 +7,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
+import { FormikInputText } from '@/components/form-controls/FormikInputText';
 import { useAppDispatch, useAppSelector } from '@/state/hooks';
 import {
   askQuestionRequested,
@@ -26,8 +27,8 @@ const FormikTextArea: React.FC<{
   name: string;
   label: string;
   rows?: number;
-  'data-cy'?: string;
-}> = ({ name, label, rows = 5, 'data-cy': dataCy }) => {
+  'data-testid'?: string;
+}> = ({ name, label, rows = 5, 'data-testid': dataTestId }) => {
   const [field, meta] = useField(name);
   return (
     <div className="mb-4">
@@ -45,7 +46,7 @@ const FormikTextArea: React.FC<{
         rows={rows}
         className={`w-full${meta.touched && meta.error ? ' p-invalid' : ''}`}
         autoResize
-        data-cy={dataCy}
+        data-testid={dataTestId}
       />
       {meta.touched && meta.error && <small className="p-error block mt-1">{meta.error}</small>}
     </div>
@@ -65,7 +66,8 @@ export const AskQuestionPage: React.FC = () => {
     () =>
       Yup.object({
         specialtyId: Yup.string().required(t('validation:specialtyRequired')),
-        question: Yup.string()
+        title: Yup.string().min(4).required(),
+        content: Yup.string()
           .min(10, t('validation:questionMin', { min: 10 }))
           .required(t('validation:questionRequired')),
       }),
@@ -93,7 +95,7 @@ export const AskQuestionPage: React.FC = () => {
   }, [questionSubmitted, dispatch, navigate]);
 
   return (
-    <div className="px-4 py-6 md:px-8 md:py-8">
+    <div data-testid="question-create-page" className="px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('askQuestion')}
@@ -107,23 +109,28 @@ export const AskQuestionPage: React.FC = () => {
           />
         )}
         {error && (
-          <InlineAlert
-            variant="error"
-            title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
-            message={error}
-            onRetry={() => dispatch(loadSpecialtiesRequested())}
-            className="mb-4"
-          />
+          <div data-testid="error-alert">
+            <InlineAlert
+              variant="error"
+              title={isUnauthorizedMessage(error) ? t('common:errorUnauthorized') : t('common:error')}
+              message={error}
+              onRetry={() => dispatch(loadSpecialtiesRequested())}
+              className="mb-4"
+            />
+          </div>
         )}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
           <Formik
-            initialValues={{ specialtyId: '', question: '' }}
+            initialValues={{ specialtyId: '', title: '', content: '' }}
             validationSchema={questionSchema}
             onSubmit={(values) => {
               // Do not resetForm: fires before the saga completes, losing form data on error retry.
               dispatch(
-                askQuestionRequested({ question: values.question, specialtyId: values.specialtyId })
+                askQuestionRequested({
+                  title: values.title,
+                  content: values.content,
+                })
               );
             }}
           >
@@ -143,6 +150,13 @@ export const AskQuestionPage: React.FC = () => {
                   />
                 )}
 
+                <FormikInputText
+                  name="title"
+                  label="Question title"
+                  placeholder="Brief title"
+                  data-testid="question-title-input"
+                />
+
                 <div>
                   <label
                     htmlFor="question"
@@ -150,7 +164,12 @@ export const AskQuestionPage: React.FC = () => {
                   >
                     {t('yourQuestion')}
                   </label>
-                  <FormikTextArea name="question" label="" rows={8} data-cy="ask-question-text" />
+                  <FormikTextArea
+                    name="content"
+                    label=""
+                    rows={8}
+                    data-testid="question-content-input"
+                  />
                 </div>
 
                 <div className="flex justify-end pt-4">
@@ -158,7 +177,7 @@ export const AskQuestionPage: React.FC = () => {
                     type="submit"
                     loading={loading}
                     disabled={loading}
-                    data-cy="ask-question-submit"
+                    data-testid="question-submit"
                   >
                     {t('common:submit')}
                   </Button>
