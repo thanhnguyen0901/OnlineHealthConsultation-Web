@@ -2,7 +2,7 @@
 
 ## Tổng quan
 
-Đã mở rộng Playwright E2E suite cho các luồng chính của đồ án cuối kỳ theo UC trong báo cáo:
+Playwright E2E suite hiện cover các luồng chính của đồ án cuối kỳ theo UC trong báo cáo:
 
 - UC01 Guest tra cứu bác sĩ.
 - UC02 Đăng ký / đăng nhập / phân quyền.
@@ -11,7 +11,7 @@
 - UC05 Doctor tư vấn, ghi kết quả và đơn thuốc.
 - UC06 Administrator quản lý hệ thống và dashboard.
 
-Suite không dùng Cypress, không dùng intercept/fixture kiểu Cypress, không mock toàn bộ API. Các flow cần dữ liệu nghiệp vụ thật được viết sẵn nhưng skip khi chưa bật seed bằng `E2E_RUN_SEEDED=true`.
+Suite không dùng Cypress, không dùng intercept/fixture kiểu Cypress, không mock toàn bộ API. Lần chạy mới nhất sử dụng frontend thật, backend thật và seed E2E từ backend `prisma/seed-e2e.ts`.
 
 ## Spec Files
 
@@ -59,88 +59,91 @@ Helpers/test data:
 | E2E-001 | UC01 | Guest can view home page | `public.spec.ts` | Passed |
 | E2E-002 | UC01 | Guest can view doctor list | `public.spec.ts` | Passed |
 | E2E-003 | UC01 | Guest can search/filter doctors by keyword | `public.spec.ts` | Passed |
-| E2E-004 | UC01 | Guest can view doctor detail with rating summary | `public.spec.ts` | Skipped: no public doctor seed |
-| E2E-005 | UC01 | Guest book appointment redirects login | `public.spec.ts` | Skipped: no public doctor seed |
-| E2E-006 | UC02 | Patient can login | `auth.spec.ts` | Skipped: missing seeded patient env |
-| E2E-007 | UC02 | Doctor can login | `auth.spec.ts` | Skipped: missing seeded doctor env |
-| E2E-008 | UC02 | Admin can login | `auth.spec.ts` | Skipped by `E2E_RUN_SEEDED` gate |
+| E2E-004 | UC01 | Guest can view doctor detail with rating summary | `public.spec.ts` | Passed |
+| E2E-005 | UC01 | Guest book appointment redirects login | `public.spec.ts` | Passed |
+| E2E-006 | UC02 | Patient can login | `auth.spec.ts` | Passed |
+| E2E-007 | UC02 | Doctor can login | `auth.spec.ts` | Passed |
+| E2E-008 | UC02 | Admin can login | `auth.spec.ts` | Passed |
 | E2E-009 | UC02 | Guest protected Patient route redirects login | `auth.spec.ts` | Passed |
-| E2E-010 | UC02 | Patient cannot access Doctor/Admin | `auth.spec.ts` | Skipped: missing seeded patient env |
-| E2E-011 | UC02 | Doctor cannot access Patient/Admin | `auth.spec.ts` | Skipped: missing seeded doctor env |
-| E2E-012 | UC02 | Logout clears session | `auth.spec.ts` | Skipped: no seeded login account enabled |
-| E2E-013 | UC03 | Patient can create appointment | `patient-appointments.spec.ts` | Skipped: missing patient/approved doctor seed |
-| E2E-014 | UC03 | Patient can view appointment list | `patient-appointments.spec.ts` | Skipped: missing patient env |
-| E2E-015 | UC03 | Patient can view appointment detail | `patient-appointments.spec.ts` | Skipped: missing patient/appointment seed |
-| E2E-016 | UC03 | Patient can cancel appointment | `patient-appointments.spec.ts` | Fixme: needs disposable appointment seed |
-| E2E-017 | UC03 | Appointment validation error | `patient-appointments.spec.ts` | Skipped: missing patient env |
-| E2E-018 | UC04 | Patient can create health question | `patient-questions.spec.ts` | Skipped: missing patient env |
-| E2E-019 | UC04 | Patient can view own question list | `patient-questions.spec.ts` | Skipped: missing patient env |
-| E2E-020 | UC04 | Doctor can view assigned/open question | `patient-questions.spec.ts` | Skipped: missing doctor env |
-| E2E-021 | UC04 | Doctor can answer question | `patient-questions.spec.ts` | Skipped: missing doctor/pending question seed |
-| E2E-022 | UC04 | Patient can view doctor answer | `patient-questions.spec.ts` | Skipped: missing answered question seed |
-| E2E-023 | UC04 | Doctor unauthorized question negative | `patient-questions.spec.ts` | Fixme: no direct FE detail route/API |
-| E2E-024 | UC05 | Doctor can confirm appointment | `doctor-workflow.spec.ts` | Skipped: missing doctor/pending appointment seed |
-| E2E-025 | UC05 | Doctor can complete appointment | `doctor-workflow.spec.ts` | Skipped: missing doctor/confirmed appointment seed |
-| E2E-026 | UC05 | Doctor can start/join consultation | `doctor-workflow.spec.ts` | Skipped: missing consultation appointment seed |
-| E2E-027 | UC05 | Doctor can save consultation summary | `doctor-workflow.spec.ts` | Skipped: missing consultation appointment seed |
-| E2E-028 | UC05 | Doctor can create prescription | `doctor-workflow.spec.ts` | Skipped: missing consultation appointment seed |
-| E2E-029 | UC05 | Patient can view result/prescription | `doctor-workflow.spec.ts` | Skipped: missing patient/completed consultation seed |
-| E2E-030 | UC06 | Admin can view dashboard | `admin.spec.ts` | Skipped by `E2E_RUN_SEEDED` gate |
-| E2E-031 | UC06 | Admin can view doctor list | `admin.spec.ts` | Skipped by `E2E_RUN_SEEDED` gate |
-| E2E-032 | UC06 | Admin can approve/reject doctor profile | `admin.spec.ts` | Skipped: missing pending doctor seed |
-| E2E-033 | UC06 | Admin can view specialties | `admin.spec.ts` | Skipped by `E2E_RUN_SEEDED` gate |
-| E2E-034 | UC06 | Admin can create/update/deactivate specialty | `admin.spec.ts` | Fixme: needs disposable specialty seed |
-| E2E-035 | UC06 | Non-admin cannot access admin dashboard | `admin.spec.ts` | Skipped: missing patient/doctor env |
+| E2E-010 | UC02 | Patient cannot access Doctor/Admin | `auth.spec.ts` | Passed |
+| E2E-011 | UC02 | Doctor cannot access Patient/Admin | `auth.spec.ts` | Passed |
+| E2E-012 | UC02 | Logout clears session | `auth.spec.ts` | Passed |
+| E2E-013 | UC03 | Patient can create appointment | `patient-appointments.spec.ts` | Passed |
+| E2E-014 | UC03 | Patient can view appointment list | `patient-appointments.spec.ts` | Passed |
+| E2E-015 | UC03 | Patient can view appointment detail | `patient-appointments.spec.ts` | Passed |
+| E2E-016 | UC03 | Patient can cancel appointment | `patient-appointments.spec.ts` | Passed |
+| E2E-017 | UC03 | Appointment validation error | `patient-appointments.spec.ts` | Passed |
+| E2E-018 | UC04 | Patient can create health question | `patient-questions.spec.ts` | Passed |
+| E2E-019 | UC04 | Patient can view own question list | `patient-questions.spec.ts` | Passed |
+| E2E-020 | UC04 | Doctor can view assigned/open question | `patient-questions.spec.ts` | Passed |
+| E2E-021 | UC04 | Doctor can answer question | `patient-questions.spec.ts` | Passed |
+| E2E-022 | UC04 | Patient can view doctor answer | `patient-questions.spec.ts` | Passed |
+| E2E-023 | UC04 | Doctor unauthorized question negative | `patient-questions.spec.ts` | Skipped/Fixme: frontend MVP has no direct question detail route/API |
+| E2E-024 | UC05 | Doctor can confirm appointment | `doctor-workflow.spec.ts` | Passed |
+| E2E-025 | UC05 | Doctor can complete appointment | `doctor-workflow.spec.ts` | Passed |
+| E2E-026 | UC05 | Doctor can start/join consultation | `doctor-workflow.spec.ts` | Passed |
+| E2E-027 | UC05 | Doctor can save consultation summary | `doctor-workflow.spec.ts` | Passed |
+| E2E-028 | UC05 | Doctor can create prescription | `doctor-workflow.spec.ts` | Passed |
+| E2E-029 | UC05 | Patient can view result/prescription | `doctor-workflow.spec.ts` | Passed |
+| E2E-030 | UC06 | Admin can view dashboard | `admin.spec.ts` | Passed |
+| E2E-031 | UC06 | Admin can view doctor list | `admin.spec.ts` | Passed |
+| E2E-032 | UC06 | Admin can approve/reject doctor profile | `admin.spec.ts` | Passed |
+| E2E-033 | UC06 | Admin can view specialties | `admin.spec.ts` | Passed |
+| E2E-034 | UC06 | Admin can create/update/deactivate specialty | `admin.spec.ts` | Passed |
+| E2E-035 | UC06 | Non-admin cannot access admin dashboard | `admin.spec.ts` | Passed |
 
 Additional smoke checks:
 
-- Login page loads.
-- Register page loads.
+- Login page loads: Passed.
+- Register page loads: Passed.
 
-## Test Data / Accounts Required
+## Test Data / Accounts Used
 
-Environment variables:
+Seed source: backend `OnlineHealthConsultation-Service/prisma/seed-e2e.ts`.
+
+Environment variables used for the final run:
 
 ```bash
 E2E_RUN_SEEDED=true
-E2E_PATIENT_EMAIL=
-E2E_PATIENT_PASSWORD=
-E2E_DOCTOR_EMAIL=
-E2E_DOCTOR_PASSWORD=
+E2E_PATIENT_EMAIL=patient.e2e@healthcare.local
+E2E_PATIENT_PASSWORD=Patient@123
+E2E_DOCTOR_EMAIL=doctor.e2e@healthcare.local
+E2E_DOCTOR_PASSWORD=Doctor@123
 E2E_ADMIN_EMAIL=admin@healthcare.local
 E2E_ADMIN_PASSWORD=Admin@123
-E2E_APPROVED_DOCTOR_ID=
-E2E_PENDING_DOCTOR_ID=
-E2E_APPOINTMENT_ID=
-E2E_CONFIRMED_APPOINTMENT_ID=
-E2E_COMPLETED_APPOINTMENT_ID=
-E2E_CONSULTATION_APPOINTMENT_ID=
+E2E_APPROVED_DOCTOR_ID=019ed085-9bb9-7a83-bdee-b3b266b827b8
+E2E_PENDING_DOCTOR_ID=019ed085-9bb9-7a83-bdee-b3b35ffc1f61
+E2E_APPOINTMENT_ID=019ed085-9bc5-7ee1-aeb6-93edb9a2e3ce
+E2E_CONFIRMED_APPOINTMENT_ID=019ed085-9bc7-7925-9834-cedf831db8df
+E2E_COMPLETED_APPOINTMENT_ID=019ed085-9bca-78ba-b82b-f11d937b337c
+E2E_CONSULTATION_APPOINTMENT_ID=019ed085-9bcc-76ff-91ae-fa05ce14721d
+E2E_CANCELLABLE_APPOINTMENT_ID=019ed085-9bc9-76a1-b3d0-7f6a3899cc0b
+E2E_DOCTOR_SEARCH_KEYWORD=cardiology
+E2E_SPECIALTY_NAME=E2E Cardiology
+VITE_API_BASE_URL=http://localhost:4000
+E2E_API_BASE_URL=http://localhost:4000
+PLAYWRIGHT_BASE_URL=http://localhost:5173
 ```
-
-Detailed seed requirements are documented in `docs/test-seed-requirements.md`.
 
 ## Cách chạy test
 
-Install browsers once:
+Prepare backend:
 
 ```bash
-npm run test:e2e:install
+cd OnlineHealthConsultation-Service
+source ~/.nvm/nvm.sh
+npm run prisma:migrate:deploy
+npm run db:seed:e2e
+npm run dev
 ```
 
-Run default public/smoke + seed-aware suite:
+Run frontend checks:
 
 ```bash
-npm run test:e2e
-```
-
-Run with seeded real workflows:
-
-```bash
-E2E_RUN_SEEDED=true \
-E2E_PATIENT_EMAIL=... \
-E2E_PATIENT_PASSWORD=... \
-E2E_DOCTOR_EMAIL=... \
-E2E_DOCTOR_PASSWORD=... \
+cd OnlineHealthConsultation-Web
+source ~/.nvm/nvm.sh
+npm run build
+npm run lint
 npm run test:e2e
 ```
 
@@ -160,34 +163,33 @@ Results:
 - `npm run lint`: pass.
 - `npm run test:e2e`: pass.
   - 37 tests discovered.
-  - 6 passed.
-  - 31 skipped/fixme due missing seeded real workflow data or intentionally protected mutations.
+  - 36 passed.
+  - 1 skipped/fixme.
+  - 0 failed.
+
+Remaining skipped/fixme:
+
+- E2E-023: Doctor unauthorized question direct route. Reason: current frontend MVP has no direct question detail route/API for this negative test. This is documented as a future route/API coverage item, not a seed-data gap.
 
 ## Screenshot / Report Path
 
 - HTML report: `playwright-report/index.html`
 - Test artifacts on failure: `test-results/`
-- Current run had no failures, so no failure screenshot/video/trace artifact was produced.
-
-## Hình cần chụp cho báo cáo
-
-- Terminal result showing `37 tests`, `6 passed`, `31 skipped`.
-- Playwright HTML report overview from `npm run test:e2e:report`.
-- Optional seeded run report after adding patient/doctor/appointment/consultation seed data.
+- Final run had no failed tests, so no final failure screenshot/video/trace artifact was produced.
+- Earlier failed/retried runs may have artifacts under `test-results/`; they are not final-pass evidence.
 
 ## Mapping với UC trong report
 
-- UC01: `public.spec.ts`
-- UC02: `auth.spec.ts`
-- UC03: `patient-appointments.spec.ts`
-- UC04: `patient-questions.spec.ts`
-- UC05: `doctor-workflow.spec.ts`
-- UC06: `admin.spec.ts`
+- UC01: `public.spec.ts` - 5 passed.
+- UC02: `auth.spec.ts` - 8 passed including smoke login/register.
+- UC03: `patient-appointments.spec.ts` - 5 passed.
+- UC04: `patient-questions.spec.ts` - 5 passed, 1 skipped/fixme.
+- UC05: `doctor-workflow.spec.ts` - 6 passed.
+- UC06: `admin.spec.ts` - 6 passed.
 
-## Flow chưa automation đầy đủ và lý do
+## Bug/fix notes
 
-- Patient appointment create/cancel requires disposable approved doctor and appointment seed.
-- Question answer workflow requires pending question assigned to seeded doctor.
-- Consultation summary/prescription/result requires completed/consultation appointment seed.
-- Admin approve/reject requires pending doctor seed.
-- Admin specialty mutation is marked fixme to avoid mutating shared demo data without DB reset.
+- Added E2E seed data in backend for patient, doctor, admin, appointments, questions, consultations, prescriptions, ratings and disposable specialty workflows.
+- Updated tests that checked seeded UI rows too early to wait for expected seeded controls instead of skipping.
+- Updated doctor confirm/complete tests to target deterministic seeded appointment IDs instead of clicking the first matching action.
+- Reopened patient cancel appointment and admin specialty create/update/deactivate tests using disposable seed/test data.

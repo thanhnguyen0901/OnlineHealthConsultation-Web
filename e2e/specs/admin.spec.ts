@@ -50,8 +50,36 @@ test.describe('UC06 Admin management', () => {
     await expect(page.getByTestId('admin-specialty-table')).toBeVisible();
   });
 
-  test('E2E-034 admin can create/update/deactivate specialty', async () => {
-    test.fixme(true, 'Requires disposable specialty seed/reset to avoid mutating shared demo data.');
+  test('E2E-034 admin can create/update/deactivate specialty', async ({ page }) => {
+    test.skip(!seedData.hasAdmin(), 'Requires E2E_RUN_SEEDED=true and admin credentials/backend seed.');
+    const uniqueSuffix = Date.now();
+    const nameEn = `E2E Disposable Specialty ${uniqueSuffix}`;
+    const updatedNameEn = `E2E Disposable Specialty Updated ${uniqueSuffix}`;
+
+    await loginAsAdmin(page);
+    await page.goto('/admin/specialties');
+    await expect(page.getByTestId('admin-specialty-page')).toBeVisible();
+
+    await page.getByTestId('new-specialty').click();
+    await page.locator('#nameEn').fill(nameEn);
+    await page.locator('#nameVi').fill(`Chuyen khoa tam E2E ${uniqueSuffix}`);
+    await page.locator('#description').fill('Created by Playwright E2E.');
+    await page.getByTestId('specialty-save').click();
+
+    const createdRow = page.getByRole('row', { name: new RegExp(nameEn) });
+    await expect(createdRow).toBeVisible();
+
+    await createdRow.locator('[data-testid^="edit-specialty-"]').click();
+    await page.locator('#nameEn').fill(updatedNameEn);
+    await page.locator('#description').fill('Updated by Playwright E2E.');
+    await page.getByTestId('specialty-save').click();
+
+    const updatedRow = page.getByRole('row', { name: new RegExp(updatedNameEn) });
+    await expect(updatedRow).toBeVisible();
+
+    await updatedRow.locator('[data-testid^="deactivate-specialty-"]').click();
+    await page.getByTestId('specialty-deactivate').click();
+    await expect(page.getByTestId('admin-specialty-page')).toBeVisible();
   });
 
   test('E2E-035 non-admin cannot access admin dashboard', async ({ page }) => {

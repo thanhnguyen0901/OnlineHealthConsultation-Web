@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { PatientAppointmentPage } from '../pages/PatientAppointmentPage';
+import { appointments } from '../test-data/appointments';
 import { seedData } from '../test-data/seed-data';
 import { loginAsPatient } from '../utils/auth';
 
@@ -36,16 +37,27 @@ test.describe('UC03 Patient appointment', () => {
 
     await appointment.openHistory();
     const detailButton = page.getByTestId('appointment-detail').first();
-    if ((await detailButton.count()) === 0) {
-      test.skip(true, 'No appointment row/detail action exists in current seed data.');
-    }
+    await expect(detailButton).toBeVisible();
 
     await detailButton.click();
     await expect(appointment.detail.first()).toBeVisible();
   });
 
-  test('E2E-016 patient can cancel appointment if status allows', async () => {
-    test.fixme(true, 'Requires disposable cancelable appointment seed to avoid mutating shared demo data.');
+  test('E2E-016 patient can cancel appointment if status allows', async ({ page }) => {
+    test.skip(
+      !appointments.cancellableAppointmentId,
+      'Requires E2E_CANCELLABLE_APPOINTMENT_ID disposable appointment seed.'
+    );
+    const appointment = new PatientAppointmentPage(page);
+
+    await appointment.openHistory();
+    const cancelButton = page.getByTestId(
+      `appointment-cancel-${appointments.cancellableAppointmentId}`
+    );
+    await expect(cancelButton).toBeVisible();
+    await cancelButton.click();
+
+    await expect(cancelButton).toBeHidden();
   });
 
   test('E2E-017 patient sees validation error when appointment data is missing', async ({ page }) => {

@@ -44,9 +44,7 @@ test.describe('UC01 Public discovery', () => {
     const doctorDetail = new DoctorDetailPage(page);
 
     await doctorList.open();
-    if ((await doctorList.firstDetailLink.count()) === 0) {
-      test.skip(true, 'No approved public doctor seed data is available.');
-    }
+    await expect(doctorList.firstDetailLink).toBeVisible();
 
     await doctorList.firstDetailLink.click();
 
@@ -59,9 +57,7 @@ test.describe('UC01 Public discovery', () => {
 
     await doctorList.open();
     const firstBookButton = page.getByTestId('book-appointment-guest').first();
-    if ((await firstBookButton.count()) === 0) {
-      test.skip(true, 'No approved public doctor seed data is available.');
-    }
+    await expect(firstBookButton).toBeVisible();
 
     await firstBookButton.click();
 

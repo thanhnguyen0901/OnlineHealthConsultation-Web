@@ -7,6 +7,7 @@ import { loginAsDoctor, loginAsPatient } from '../utils/auth';
 test.describe('UC05 Doctor consultation and prescription workflow', () => {
   test('E2E-024 doctor can confirm appointment when pending action exists', async ({ page }) => {
     test.skip(!seedData.hasDoctor(), 'Requires E2E_RUN_SEEDED=true and doctor credentials.');
+    test.skip(!seedData.hasAppointment(), 'Requires E2E_APPOINTMENT_ID pending appointment seed.');
     const appointment = new DoctorAppointmentPage(page);
 
     await loginAsDoctor(page);
@@ -14,28 +15,32 @@ test.describe('UC05 Doctor consultation and prescription workflow', () => {
     await expect(appointment.root).toBeVisible();
     await expect(appointment.table).toBeVisible();
 
-    const confirmButton = page.locator('[data-testid^="confirm-appointment-"]').first();
-    if ((await confirmButton.count()) === 0) {
-      test.skip(true, 'No pending appointment confirm action exists in current seed data.');
-    }
+    const confirmButton = page.getByTestId(`confirm-appointment-${appointments.appointmentId}`);
+    await expect(confirmButton).toBeVisible();
 
     await confirmButton.click();
+    await expect(confirmButton).toBeHidden();
   });
 
   test('E2E-025 doctor can complete appointment when complete action exists', async ({ page }) => {
     test.skip(!seedData.hasDoctor(), 'Requires E2E_RUN_SEEDED=true and doctor credentials.');
+    test.skip(
+      !seedData.hasConfirmedAppointment(),
+      'Requires E2E_CONFIRMED_APPOINTMENT_ID confirmed appointment seed.'
+    );
     const appointment = new DoctorAppointmentPage(page);
 
     await loginAsDoctor(page);
     await appointment.open();
     await expect(appointment.root).toBeVisible();
 
-    const completeButton = page.locator('[data-testid^="complete-appointment-"]').first();
-    if ((await completeButton.count()) === 0) {
-      test.skip(true, 'No confirmed appointment complete action exists in current seed data.');
-    }
+    const completeButton = page.getByTestId(
+      `complete-appointment-${appointments.confirmedAppointmentId}`
+    );
+    await expect(completeButton).toBeVisible();
 
     await completeButton.click();
+    await expect(completeButton).toBeHidden();
   });
 
   test('E2E-026 doctor can start/join consultation session route', async ({ page }) => {
@@ -86,9 +91,7 @@ test.describe('UC05 Doctor consultation and prescription workflow', () => {
     await loginAsPatient(page);
     await page.goto('/patient/history');
     const resultButton = page.getByTestId('consultation-result').first();
-    if ((await resultButton.count()) === 0) {
-      test.skip(true, 'No completed consultation result action exists in current seed data.');
-    }
+    await expect(resultButton).toBeVisible();
 
     await resultButton.click();
     await expect(page.getByTestId('consultation-result').first()).toBeVisible();

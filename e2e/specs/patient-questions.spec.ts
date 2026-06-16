@@ -46,9 +46,7 @@ test.describe('UC04 Patient question and doctor answer', () => {
     await loginAsDoctor(page);
     await question.open();
     const answerButton = page.getByTestId('doctor-question-detail').first();
-    if ((await answerButton.count()) === 0) {
-      test.skip(true, 'No pending assigned question exists in current seed data.');
-    }
+    await expect(answerButton).toBeVisible();
 
     await answerButton.click();
     await expect(question.answerForm).toBeVisible();
@@ -63,9 +61,7 @@ test.describe('UC04 Patient question and doctor answer', () => {
     await loginAsPatient(page);
     await question.openHistory();
     const detailButton = page.getByTestId('question-detail').first();
-    if ((await detailButton.count()) === 0) {
-      test.skip(true, 'No question detail row exists in current seed data.');
-    }
+    await expect(detailButton).toBeVisible();
 
     await detailButton.click();
     await expect(page.getByTestId('question-detail').first()).toBeVisible();
