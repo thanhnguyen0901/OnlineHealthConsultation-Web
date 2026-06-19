@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Button } from '@/components/common/Button';
+import { LanguageToggle } from '@/components/common/LanguageToggle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { Spinner } from '@/components/common/Spinner';
@@ -31,13 +32,13 @@ export const DoctorListPage: React.FC = () => {
 
   const specialtyOptions = React.useMemo(
     () => [
-      { label: 'All specialties', value: '' },
+      { label: t('home.allSpecialties'), value: '' },
       ...specialties.map((specialty) => ({
         label: specialtyName(specialty, i18n.language),
         value: specialty.id,
       })),
     ],
-    [i18n.language, specialties]
+    [i18n.language, specialties, t]
   );
 
   const loadDoctors = React.useCallback(async () => {
@@ -80,11 +81,16 @@ export const DoctorListPage: React.FC = () => {
       data-testid="doctor-list-page"
       className="min-h-screen bg-slate-50 px-4 py-10 dark:bg-gray-900"
     >
+      <div className="absolute right-4 top-4 z-10">
+        <LanguageToggle />
+      </div>
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-950 dark:text-white">Find a Doctor</h1>
+          <h1 className="text-3xl font-bold text-gray-950 dark:text-white">
+            {t('home.doctorListTitle')}
+          </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-300">
-            Search approved doctors by name, specialty or professional background.
+            {t('home.doctorListSubtitle')}
           </p>
         </div>
 
@@ -94,7 +100,7 @@ export const DoctorListPage: React.FC = () => {
             <InputText
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              placeholder="Search by doctor name or bio"
+              placeholder={t('home.doctorSearchPlaceholder')}
               className="w-full"
               data-testid="doctor-search-input"
             />
@@ -103,7 +109,7 @@ export const DoctorListPage: React.FC = () => {
             value={selectedSpecialtyId}
             options={specialtyOptions}
             onChange={(event) => setSelectedSpecialtyId(event.value)}
-            placeholder="Filter by specialty"
+            placeholder={t('home.specialtyFilterPlaceholder')}
             className="w-full"
             data-testid="specialty-filter"
           />
@@ -119,7 +125,10 @@ export const DoctorListPage: React.FC = () => {
           </div>
         ) : doctors.length === 0 ? (
           <div data-testid="empty-state">
-            <EmptyState title="No doctors found" description="Try another keyword or specialty." />
+            <EmptyState
+              title={t('home.noDoctorsFound')}
+              description={t('home.tryAnotherDoctorFilter')}
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -146,9 +155,13 @@ export const DoctorListPage: React.FC = () => {
 
                   <div className="mb-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
                     {doctor.yearsOfExperience !== null && (
-                      <p>{doctor.yearsOfExperience} years of experience</p>
+                      <p>
+                        {doctor.yearsOfExperience} {t('home.yearsExperience')}
+                      </p>
                     )}
-                    <p data-testid="doctor-rating-summary">{ratingText(doctor.avgRating, doctor.ratingCount)}</p>
+                    <p data-testid="doctor-rating-summary">
+                      {ratingText(doctor.avgRating, doctor.ratingCount, i18n.language)}
+                    </p>
                     {doctor.bio && <p className="line-clamp-3">{doctor.bio}</p>}
                   </div>
 
@@ -160,7 +173,7 @@ export const DoctorListPage: React.FC = () => {
                       onClick={() => navigate(`/doctors/${doctor.id}`)}
                       data-testid="doctor-detail-link"
                     >
-                      Detail
+                      {t('home.detail')}
                     </Button>
                     <Button
                       size="sm"
@@ -168,7 +181,7 @@ export const DoctorListPage: React.FC = () => {
                       onClick={() => redirectGuestToLogin(navigate, 'book', doctor.id)}
                       data-testid="book-appointment-guest"
                     >
-                      Book
+                      {t('home.book')}
                     </Button>
                     <Button
                       size="sm"
@@ -177,7 +190,7 @@ export const DoctorListPage: React.FC = () => {
                       onClick={() => redirectGuestToLogin(navigate, 'ask', doctor.id)}
                       data-testid="ask-question-guest"
                     >
-                      Ask
+                      {t('home.ask')}
                     </Button>
                   </div>
                 </div>

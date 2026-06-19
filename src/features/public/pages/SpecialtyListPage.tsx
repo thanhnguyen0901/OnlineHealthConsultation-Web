@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/common/Button';
+import { LanguageToggle } from '@/components/common/LanguageToggle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { Spinner } from '@/components/common/Spinner';
@@ -38,16 +39,21 @@ export const SpecialtyListPage: React.FC = () => {
       data-testid="specialty-list-page"
       className="min-h-screen bg-slate-50 px-4 py-10 dark:bg-gray-900"
     >
+      <div className="absolute right-4 top-4 z-10">
+        <LanguageToggle />
+      </div>
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-950 dark:text-white">Specialties</h1>
+            <h1 className="text-3xl font-bold text-gray-950 dark:text-white">
+              {t('home.specialtiesTitle')}
+            </h1>
             <p className="mt-2 text-gray-600 dark:text-gray-300">
-              Browse active medical specialties and find matching doctors.
+              {t('home.specialtiesSubtitle')}
             </p>
           </div>
           <Button onClick={() => navigate('/doctors')} outlined>
-            View doctors
+            {t('home.viewDoctors')}
           </Button>
         </div>
 
@@ -61,7 +67,7 @@ export const SpecialtyListPage: React.FC = () => {
           </div>
         ) : specialties.length === 0 ? (
           <div data-testid="empty-state">
-            <EmptyState title="No specialties available" />
+            <EmptyState title={t('home.noSpecialtiesAvailable')} />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -86,7 +92,7 @@ export const SpecialtyListPage: React.FC = () => {
                     className="mt-auto w-full"
                     onClick={() => navigate(`/doctors?specialtyId=${specialty.id}`)}
                   >
-                    Find doctors
+                    {t('home.findDoctors')}
                   </Button>
                 </div>
               </div>

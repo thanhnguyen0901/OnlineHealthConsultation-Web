@@ -7,10 +7,12 @@ export const specialtyName = (specialty: PublicSpecialty, language: string) =>
 
 export const doctorSpecialtyText = (doctor: PublicDoctor, language: string) =>
   doctor.specialties.map((specialty) => specialtyName(specialty, language)).join(', ') ||
-  'General Medicine';
+  (language === 'vi' ? 'Nội tổng quát' : 'General Medicine');
 
-export const ratingText = (avgRating: number | null, ratingCount: number) => {
-  if (!ratingCount || avgRating === null) return 'No ratings yet';
+export const ratingText = (avgRating: number | null, ratingCount: number, language = 'en') => {
+  if (!ratingCount || avgRating === null) {
+    return language === 'vi' ? 'Chưa có đánh giá' : 'No ratings yet';
+  }
   return `${avgRating.toFixed(1)} / 5 (${ratingCount})`;
 };
 

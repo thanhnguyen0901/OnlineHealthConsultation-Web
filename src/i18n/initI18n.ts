@@ -14,8 +14,8 @@ import adminVI from './vi/admin.json';
 import authVI from './vi/auth.json';
 import validationVI from './vi/validation.json';
 
-// Get saved locale or default to 'en'
-const savedLocale = storage.get<string>('locale') || 'en';
+// Get saved locale or default to Vietnamese for demo/report capture.
+const savedLocale = storage.get<string>('locale') || 'vi';
 
 i18n.use(initReactI18next).init({
   resources: {
@@ -43,6 +43,8 @@ i18n.use(initReactI18next).init({
     escapeValue: false,
   },
 });
+
+document.documentElement.lang = savedLocale;
 
 // Persist locale changes
 i18n.on('languageChanged', (lng) => {

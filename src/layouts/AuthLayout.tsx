@@ -1,12 +1,16 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LanguageToggle } from '@/components/common/LanguageToggle';
 
 export const AuthLayout: React.FC = () => {
   const { t } = useTranslation(['auth', 'common']);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center p-4">
+      <div className="absolute right-4 top-4 z-10">
+        <LanguageToggle className="border-white bg-white/10 text-white hover:bg-white/20" />
+      </div>
       <div className="w-full max-w-md">
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card } from 'primereact/card';
 import { Button } from '@/components/common/Button';
+import { LanguageToggle } from '@/components/common/LanguageToggle';
 import { Spinner } from '@/components/common/Spinner';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -58,6 +59,10 @@ export const HomePage: React.FC = () => {
       data-testid="home-page"
       className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800"
     >
+      <div className="absolute right-4 top-4 z-10">
+        <LanguageToggle />
+      </div>
+
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
@@ -86,13 +91,15 @@ export const HomePage: React.FC = () => {
         <div className="container mx-auto">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Specialties</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                {t('home.specialtiesTitle')}
+              </h2>
               <p className="mt-2 text-gray-600 dark:text-gray-300">
-                Explore active specialties before choosing a doctor.
+                {t('home.specialtiesSubtitle')}
               </p>
             </div>
             <Button outlined onClick={() => navigate('/specialties')}>
-              View all
+              {t('home.viewAll')}
             </Button>
           </div>
 
@@ -102,7 +109,7 @@ export const HomePage: React.FC = () => {
             </div>
           ) : specialties.length === 0 && !loadError ? (
             <div data-testid="empty-state">
-              <EmptyState title="No specialties available" />
+              <EmptyState title={t('home.noSpecialtiesAvailable')} />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -223,10 +230,10 @@ export const HomePage: React.FC = () => {
                       </p>
                     )}
                     <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {ratingText(doctor.avgRating, doctor.ratingCount)}
+                      {ratingText(doctor.avgRating, doctor.ratingCount, i18n.language)}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
-                      {doctor.bio || 'No biography available yet.'}
+                      {doctor.bio || t('home.noBiographyAvailable')}
                     </p>
                     <div className="mt-auto grid w-full grid-cols-1 gap-3 pt-6 sm:grid-cols-3">
                       <Button
@@ -235,7 +242,7 @@ export const HomePage: React.FC = () => {
                         className="w-full"
                         onClick={() => navigate(`/doctors/${doctor.id}`)}
                       >
-                        Detail
+                        {t('home.detail')}
                       </Button>
                       <Button
                         size="sm"
@@ -243,7 +250,7 @@ export const HomePage: React.FC = () => {
                         data-testid="home-book-cta"
                         onClick={() => redirectGuestToLogin(navigate, 'book', doctor.id)}
                       >
-                        Book
+                        {t('home.book')}
                       </Button>
                       <Button
                         size="sm"
@@ -252,7 +259,7 @@ export const HomePage: React.FC = () => {
                         data-testid="home-ask-cta"
                         onClick={() => redirectGuestToLogin(navigate, 'ask', doctor.id)}
                       >
-                        Ask
+                        {t('home.ask')}
                       </Button>
                     </div>
                   </div>
@@ -263,7 +270,7 @@ export const HomePage: React.FC = () => {
           {!loading && !loadError && doctors.length > 0 && (
             <div className="mt-8 text-center">
               <Button outlined onClick={() => navigate('/doctors')}>
-                View all doctors
+                {t('home.viewAllDoctors')}
               </Button>
             </div>
           )}

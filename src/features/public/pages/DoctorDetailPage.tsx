@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/common/Button';
+import { LanguageToggle } from '@/components/common/LanguageToggle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { Spinner } from '@/components/common/Spinner';
@@ -13,16 +14,6 @@ import {
   redirectGuestToLogin,
   specialtyName,
 } from './publicPageUtils';
-
-const dayNames: Record<number, string> = {
-  0: 'Sunday',
-  1: 'Monday',
-  2: 'Tuesday',
-  3: 'Wednesday',
-  4: 'Thursday',
-  5: 'Friday',
-  6: 'Saturday',
-};
 
 type WeeklyScheduleItem = {
   dayOfWeek?: number;
@@ -80,6 +71,9 @@ export const DoctorDetailPage: React.FC = () => {
       data-testid="doctor-detail-page"
       className="min-h-screen bg-slate-50 px-4 py-10 dark:bg-gray-900"
     >
+      <div className="absolute right-4 top-4 z-10">
+        <LanguageToggle />
+      </div>
       <div className="mx-auto max-w-5xl">
         {loading ? (
           <div data-testid="loading-state" className="py-16">
@@ -91,7 +85,12 @@ export const DoctorDetailPage: React.FC = () => {
           </div>
         ) : !doctor ? (
           <div data-testid="empty-state">
-            <EmptyState title="Doctor not found" action={<Button onClick={() => navigate('/doctors')}>Back to doctors</Button>} />
+            <EmptyState
+              title={t('home.doctorNotFound')}
+              action={
+                <Button onClick={() => navigate('/doctors')}>{t('home.backToDoctors')}</Button>
+              }
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
@@ -112,21 +111,23 @@ export const DoctorDetailPage: React.FC = () => {
                       data-testid="doctor-rating-summary"
                       className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-200"
                     >
-                      {ratingText(doctor.avgRating, doctor.ratingCount)}
+                      {ratingText(doctor.avgRating, doctor.ratingCount, i18n.language)}
                     </p>
                   </div>
                 </div>
 
                 <section>
-                  <h2 className="text-lg font-semibold text-gray-950 dark:text-white">Biography</h2>
+                  <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
+                    {t('home.biography')}
+                  </h2>
                   <p className="mt-2 whitespace-pre-line text-gray-600 dark:text-gray-300">
-                    {doctor.bio || 'No biography has been provided yet.'}
+                    {doctor.bio || t('home.noBiographyAvailable')}
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-                    Specialties
+                    {t('home.specialtiesDetailTitle')}
                   </h2>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {doctor.specialties.map((specialty) => (
@@ -143,7 +144,7 @@ export const DoctorDetailPage: React.FC = () => {
                 {weeklySchedule.length > 0 ? (
                   <section>
                     <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-                      Schedule
+                      {t('home.schedule')}
                     </h2>
                     <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {weeklySchedule.map((item) => (
@@ -152,7 +153,7 @@ export const DoctorDetailPage: React.FC = () => {
                           className="rounded-lg border border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-slate-900"
                         >
                           <p className="font-medium text-gray-950 dark:text-white">
-                            {dayNames[item.dayOfWeek ?? 0] ?? `Day ${item.dayOfWeek}`}
+                            {t(`weekdays.${item.dayOfWeek ?? 0}`)}
                           </p>
                           <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                             {item.startTime} - {item.endTime}
@@ -169,9 +170,11 @@ export const DoctorDetailPage: React.FC = () => {
               <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Experience</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('home.experience')}
+                    </p>
                     <p className="text-lg font-semibold text-gray-950 dark:text-white">
-                      {doctor.yearsOfExperience ?? 0} years
+                      {doctor.yearsOfExperience ?? 0} {t('home.yearsExperience')}
                     </p>
                   </div>
                   <Button
@@ -179,7 +182,7 @@ export const DoctorDetailPage: React.FC = () => {
                     onClick={() => redirectGuestToLogin(navigate, 'book', doctor.id)}
                     data-testid="book-appointment-guest"
                   >
-                    Book appointment
+                    {t('home.bookAppointment')}
                   </Button>
                   <Button
                     className="w-full"
@@ -187,10 +190,10 @@ export const DoctorDetailPage: React.FC = () => {
                     onClick={() => redirectGuestToLogin(navigate, 'ask', doctor.id)}
                     data-testid="ask-question-guest"
                   >
-                    Ask question
+                    {t('home.askQuestion')}
                   </Button>
                   <Button className="w-full" outlined onClick={() => navigate('/doctors')}>
-                    Back to doctors
+                    {t('home.backToDoctors')}
                   </Button>
                 </div>
               </div>
