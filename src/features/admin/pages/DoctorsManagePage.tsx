@@ -212,6 +212,27 @@ export const DoctorsManagePage: React.FC = () => {
     return translateEnumValue(t, 'specialty', rowData.specialtyName);
   };
 
+  const approvalStatusBodyTemplate = (rowData: Doctor) => {
+    const status = rowData.approvalStatus ?? '';
+    const normalized = status.toLowerCase();
+    const severity =
+      normalized === 'approved' ? 'success' : normalized === 'rejected' ? 'danger' : 'warning';
+
+    return (
+      <span
+        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+          severity === 'success'
+            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            : severity === 'danger'
+              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+              : 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
+        }`}
+      >
+        {translateEnumValue(t, 'status', status)}
+      </span>
+    );
+  };
+
   const isEditDirty = doctor.id
     ? !!editingSnapshot &&
       ((doctor.firstName ?? '').trim() !== editingSnapshot.firstName ||
@@ -262,7 +283,7 @@ export const DoctorsManagePage: React.FC = () => {
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8" data-testid="admin-doctor-list-page">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageDoctors')}
         </h1>
@@ -308,6 +329,7 @@ export const DoctorsManagePage: React.FC = () => {
             <Column
               field="approvalStatus"
               header={t('status')}
+              body={approvalStatusBodyTemplate}
               sortable
               style={{ width: '150px' }}
             />

@@ -69,19 +69,15 @@ export const SchedulePage: React.FC = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const todayDate = useRef(new Date()).current;
 
-  const initialised = useRef(false);
-
   useEffect(() => {
     dispatch(loadScheduleRequested());
   }, [dispatch]);
 
-  // initialised guard prevents re-overwriting local edits on subsequent Redux updates.
   useEffect(() => {
-    if (!initialised.current && serverSchedule.length >= 0) {
+    if (!isDirty) {
       setLocalSlots(toEditable(serverSchedule));
-      initialised.current = true;
     }
-  }, [serverSchedule]);
+  }, [serverSchedule, isDirty]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -166,7 +162,7 @@ export const SchedulePage: React.FC = () => {
   // ── render ─────────────────────────────────────────────────────────────────
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-5xl mx-auto w-full">
+      <div className="w-full">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">

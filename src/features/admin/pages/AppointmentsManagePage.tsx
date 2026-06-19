@@ -107,7 +107,7 @@ export const AppointmentsManagePage: React.FC = () => {
   };
 
   const dateBodyTemplate = (rowData: any) => {
-    return new Date(rowData.date).toLocaleDateString();
+    return new Date(rowData.date).toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
   const specialtyBodyTemplate = (rowData: any) => {
@@ -122,7 +122,7 @@ export const AppointmentsManagePage: React.FC = () => {
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8" data-testid="admin-appointment-page">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('manageAppointments')}
         </h1>

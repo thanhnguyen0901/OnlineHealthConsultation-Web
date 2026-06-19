@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { ROUTE_PATHS } from '@/constants/routePaths';
@@ -13,6 +14,7 @@ const dashboardForRole = (role?: string) => {
 };
 
 export const ForbiddenPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -27,15 +29,15 @@ export const ForbiddenPage: React.FC = () => {
         </div>
         <h1 className="text-4xl font-bold text-gray-950 dark:text-white">403</h1>
         <p className="mt-3 text-lg font-semibold text-gray-800 dark:text-gray-100">
-          Access forbidden
+          {t('accessForbidden')}
         </p>
         <p className="mt-2 text-gray-600 dark:text-gray-300">
-          Your current role does not have permission to open this page.
+          {t('accessForbiddenDescription')}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <Button onClick={() => navigate(dashboardForRole(user?.role))}>Go to dashboard</Button>
+          <Button onClick={() => navigate(dashboardForRole(user?.role))}>{t('goToDashboard')}</Button>
           <Button outlined onClick={() => navigate(ROUTE_PATHS.HOME)}>
-            Home
+            {t('homeLabel')}
           </Button>
         </div>
       </div>

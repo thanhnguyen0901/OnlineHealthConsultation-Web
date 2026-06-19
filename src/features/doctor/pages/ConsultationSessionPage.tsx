@@ -56,6 +56,8 @@ const getPatientName = (result: ConsultationResult | null, fallback: string) => 
 const isCompleted = (result: ConsultationResult | null) =>
   result?.appointment?.status === 'COMPLETED' || result?.consultation?.status === 'COMPLETED';
 
+const isOngoing = (result: ConsultationResult | null) => result?.consultation?.status === 'ONGOING';
+
 export const ConsultationSessionPage: React.FC = () => {
   const { t, i18n } = useTranslation('doctor');
   const { appointmentId = '' } = useParams();
@@ -117,28 +119,49 @@ export const ConsultationSessionPage: React.FC = () => {
   };
 
   const handleSaveSummary = async () => {
-    setError(null);
-    await doctorApi.saveSummary(appointmentId, summary);
-    setSuccess(t('consultationSummarySaved'));
-    loadConsultation();
+    try {
+      setError(null);
+      await doctorApi.saveSummary(appointmentId, summary);
+      setSuccess(t('consultationSummarySaved'));
+      loadConsultation();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   const handleSavePrescription = async () => {
-    setError(null);
-    await doctorApi.createPrescription(appointmentId, {
-      notes: result?.prescription?.notes,
-      items,
-    });
-    setSuccess(t('prescriptionSaved'));
-    loadConsultation();
+    try {
+      setError(null);
+      await doctorApi.createPrescription(appointmentId, {
+        notes: result?.prescription?.notes,
+        items,
+      });
+      setSuccess(t('prescriptionSaved'));
+      loadConsultation();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const handleStartConsultation = async () => {
+    try {
+      setError(null);
+      await doctorApi.startConsultation(appointmentId);
+      setSuccess(t('consultationStarted'));
+      loadConsultation();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   const completed = isCompleted(result);
+  const ongoing = isOngoing(result);
   const prescriptionItems = result?.prescription?.items ?? [];
+  const canEditClinicalContent = Boolean(result?.consultation);
 
   return (
     <div data-testid="consultation-session-page" className="space-y-6 px-4 py-6 md:px-8 md:py-8">
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="w-full space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -149,8 +172,14 @@ export const ConsultationSessionPage: React.FC = () => {
             </p>
           </div>
           <Tag
-            severity={completed ? 'success' : 'info'}
-            value={completed ? t('consultationCompleted') : t('consultationOngoing')}
+            severity={completed ? 'success' : ongoing ? 'info' : 'warning'}
+            value={
+              completed
+                ? t('consultationCompleted')
+                : ongoing
+                  ? t('consultationOngoing')
+                  : t('consultationNotStarted')
+            }
             className="w-fit"
           />
         </div>
@@ -191,7 +220,31 @@ export const ConsultationSessionPage: React.FC = () => {
           </div>
         </section>
 
-        {!completed && (
+        {!completed && !ongoing && (
+          <section className="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="font-semibold text-gray-900 dark:text-white">
+                  {t('consultationNotStarted')}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {t('consultationStartHint')}
+                </p>
+              </div>
+              <Button
+                data-testid="start-consultation"
+                icon="pi pi-play"
+                disabled={loading}
+                loading={loading}
+                onClick={handleStartConsultation}
+              >
+                {t('startConsultation')}
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {ongoing && (
           <section className="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
             <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
               {t('consultationChat')}
@@ -224,9 +277,14 @@ export const ConsultationSessionPage: React.FC = () => {
                 data-testid="send-message"
                 disabled={!message.trim() || loading}
                 onClick={async () => {
-                  await doctorApi.sendMessage(appointmentId, message);
-                  setMessage('');
-                  loadConsultation();
+                  try {
+                    setError(null);
+                    await doctorApi.sendMessage(appointmentId, message);
+                    setMessage('');
+                    loadConsultation();
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : String(err));
+                  }
                 }}
               >
                 {t('send')}
@@ -235,8 +293,14 @@ export const ConsultationSessionPage: React.FC = () => {
                 data-testid="end-consultation"
                 variant="danger"
                 onClick={async () => {
-                  await doctorApi.endConsultation(appointmentId);
-                  loadConsultation();
+                  try {
+                    setError(null);
+                    await doctorApi.endConsultation(appointmentId);
+                    setSuccess(t('consultationEnded'));
+                    loadConsultation();
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : String(err));
+                  }
                 }}
               >
                 {t('endConsultation')}
@@ -249,27 +313,24 @@ export const ConsultationSessionPage: React.FC = () => {
           <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
             {t('consultationSummary')}
           </h2>
-          {completed ? (
-            <p
-              data-testid="consultation-summary-text"
-              className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-700 dark:border-gray-700 dark:bg-slate-950 dark:text-gray-200"
-            >
-              {result?.consultation?.summary || t('notUpdated')}
-            </p>
-          ) : (
-            <>
-              <InputTextarea
-                value={summary}
-                onChange={(event) => setSummary(event.target.value)}
-                rows={5}
-                className="w-full"
-                data-testid="consultation-summary-input"
-              />
-              <Button className="mt-3" data-testid="save-summary" onClick={handleSaveSummary}>
-                {t('saveSummary')}
-              </Button>
-            </>
-          )}
+          <InputTextarea
+            value={summary}
+            onChange={(event) => setSummary(event.target.value)}
+            rows={5}
+            className="w-full"
+            data-testid="consultation-summary-input"
+            disabled={!canEditClinicalContent}
+            placeholder={canEditClinicalContent ? undefined : t('consultationStartRequired')}
+          />
+          <Button
+            className="mt-3"
+            data-testid="save-summary"
+            onClick={handleSaveSummary}
+            disabled={!canEditClinicalContent || loading}
+            loading={loading}
+          >
+            {t('saveSummary')}
+          </Button>
         </section>
 
         <section data-testid="prescription-form" className="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
@@ -278,58 +339,54 @@ export const ConsultationSessionPage: React.FC = () => {
             <p className="text-sm text-gray-500 dark:text-gray-400">{t('prescriptionSubtitle')}</p>
           </div>
 
-          {completed ? (
-            prescriptionItems.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500 dark:border-gray-700">
-                {t('noPrescriptionItems')}
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-separate border-spacing-0 text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-slate-950">
-                      <th className="rounded-l-lg border-y border-l border-gray-200 px-3 py-2 dark:border-gray-700">
-                        {t('medicationName')}
-                      </th>
-                      <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
-                        {t('dosage')}
-                      </th>
-                      <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
-                        {t('frequency')}
-                      </th>
-                      <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
-                        {t('duration')}
-                      </th>
-                      <th className="rounded-r-lg border-y border-r border-gray-200 px-3 py-2 dark:border-gray-700">
-                        {t('notes')}
-                      </th>
+          {prescriptionItems.length > 0 && (
+            <div className="mb-4 overflow-x-auto">
+              <table className="min-w-full border-separate border-spacing-0 text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-slate-950">
+                    <th className="rounded-l-lg border-y border-l border-gray-200 px-3 py-2 dark:border-gray-700">
+                      {t('medicationName')}
+                    </th>
+                    <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
+                      {t('dosage')}
+                    </th>
+                    <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
+                      {t('frequency')}
+                    </th>
+                    <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
+                      {t('duration')}
+                    </th>
+                    <th className="rounded-r-lg border-y border-r border-gray-200 px-3 py-2 dark:border-gray-700">
+                      {t('notes')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {prescriptionItems.map((item, index) => (
+                    <tr key={`${item.medicationName}-${index}`} className="align-top">
+                      <td className="border-b border-gray-100 px-3 py-3 font-medium text-gray-900 dark:border-gray-800 dark:text-white">
+                        {item.medicationName}
+                      </td>
+                      <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
+                        {item.dosage}
+                      </td>
+                      <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
+                        {item.frequency}
+                      </td>
+                      <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
+                        {item.duration}
+                      </td>
+                      <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
+                        {item.notes || t('notUpdated')}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {prescriptionItems.map((item, index) => (
-                      <tr key={`${item.medicationName}-${index}`} className="align-top">
-                        <td className="border-b border-gray-100 px-3 py-3 font-medium text-gray-900 dark:border-gray-800 dark:text-white">
-                          {item.medicationName}
-                        </td>
-                        <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
-                          {item.dosage}
-                        </td>
-                        <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
-                          {item.frequency}
-                        </td>
-                        <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
-                          {item.duration}
-                        </td>
-                        <td className="border-b border-gray-100 px-3 py-3 text-gray-700 dark:border-gray-800 dark:text-gray-200">
-                          {item.notes || t('notUpdated')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
-          ) : (
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {completed ? (
             <>
               <div className="space-y-3">
                 {items.map((item, index) => (
@@ -374,11 +431,20 @@ export const ConsultationSessionPage: React.FC = () => {
                 >
                   {t('addMedication')}
                 </Button>
-                <Button data-testid="save-prescription" onClick={handleSavePrescription}>
+                <Button
+                  data-testid="save-prescription"
+                  onClick={handleSavePrescription}
+                  disabled={loading}
+                  loading={loading}
+                >
                   {t('savePrescription')}
                 </Button>
               </div>
             </>
+          ) : (
+            <p className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500 dark:border-gray-700">
+              {t('prescriptionAfterComplete')}
+            </p>
           )}
         </section>
       </div>

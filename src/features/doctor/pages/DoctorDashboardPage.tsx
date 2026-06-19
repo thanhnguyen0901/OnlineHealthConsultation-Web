@@ -69,7 +69,7 @@ export const DoctorDashboardPage: React.FC = () => {
 
   return (
     <div data-testid="doctor-dashboard-page" className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-6xl mx-auto w-full space-y-8">
+      <div className="w-full space-y-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             {t('dashboard')}

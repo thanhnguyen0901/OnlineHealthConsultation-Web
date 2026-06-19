@@ -15,6 +15,8 @@ export interface Doctor extends User {
   specialtyName: string;
   specialtyNameVi?: string;
   bio?: string;
+  approvalStatus?: string;
+  isActive?: boolean;
 }
 
 export interface Specialty {

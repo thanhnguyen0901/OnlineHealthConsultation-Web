@@ -29,13 +29,17 @@ export const DoctorRatingsPage: React.FC = () => {
     dispatch(loadRatingsRequested({ page: 1, limit: 20 }));
   }, [dispatch]);
 
-  // Prefer profile.stats for aggregates if loaded; fall back to pagination total.
-  const avgRating: number =
-    profile?.ratingAverage ??
-    (ratings.length > 0
+  const listAverage =
+    ratings.length > 0
       ? Math.round((ratings.reduce((sum, r) => sum + r.score, 0) / ratings.length) * 10) / 10
-      : 0);
-  const totalRatings: number = profile?.ratingCount ?? pagination?.total ?? ratings.length;
+      : 0;
+
+  const avgRating: number =
+    profile?.ratingCount && profile.ratingCount > 0 ? profile.ratingAverage : listAverage;
+  const totalRatings: number =
+    profile?.ratingCount && profile.ratingCount > 0
+      ? profile.ratingCount
+      : (pagination?.total ?? ratings.length);
 
   const scoreTemplate = (rowData: DoctorRating) => (
     <Rating value={rowData.score} readOnly cancel={false} className="text-yellow-500" />
@@ -60,7 +64,7 @@ export const DoctorRatingsPage: React.FC = () => {
 
   return (
     <div data-testid="doctor-ratings-page" className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-5xl mx-auto w-full">
+      <div className="w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('ratings')}
         </h1>

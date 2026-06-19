@@ -116,7 +116,7 @@ export const DoctorProfilePage: React.FC = () => {
 
   return (
     <div data-testid="doctor-profile-page" className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-2xl mx-auto w-full">
+      <div className="w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('editProfile')}
         </h1>
@@ -157,7 +157,7 @@ export const DoctorProfilePage: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <span className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                {t('patientName')}
+                {t('doctorName')}
               </span>
               {profile ? (
                 <span className="text-gray-900 dark:text-gray-100 font-medium">

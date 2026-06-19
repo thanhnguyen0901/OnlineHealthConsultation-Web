@@ -96,7 +96,7 @@ export const AskQuestionPage: React.FC = () => {
 
   return (
     <div data-testid="question-create-page" className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('askQuestion')}
         </h1>
@@ -152,8 +152,8 @@ export const AskQuestionPage: React.FC = () => {
 
                 <FormikInputText
                   name="title"
-                  label="Question title"
-                  placeholder="Brief title"
+                  label={t('questionTitle')}
+                  placeholder={t('questionTitlePlaceholder')}
                   data-testid="question-title-input"
                 />
 

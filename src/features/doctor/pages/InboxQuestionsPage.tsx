@@ -113,7 +113,7 @@ export const InboxQuestionsPage: React.FC = () => {
 
   return (
     <div data-testid="doctor-question-list-page" className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('inbox')}
         </h1>

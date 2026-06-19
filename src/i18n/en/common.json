@@ -37,6 +37,10 @@
   "confirmDelete": "Are you sure you want to delete this item?",
   "pageNotFound": "Page not found",
   "backToHome": "Back to Home",
+  "accessForbidden": "Access forbidden",
+  "accessForbiddenDescription": "Your current role does not have permission to open this page.",
+  "goToDashboard": "Go to dashboard",
+  "homeLabel": "Home",
   "home": {
     "heroTitle": "Online Health Consultation System",
     "heroSubtitle": "Connect with specialist doctors, ask health questions and receive online consultation quickly and conveniently",

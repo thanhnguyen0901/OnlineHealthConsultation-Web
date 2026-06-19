@@ -258,7 +258,7 @@ export const MainLayout: React.FC = () => {
 
         {/* Main Content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto px-4 py-6 md:px-8 md:py-8">
+          <div className="w-full">
             <Outlet />
           </div>
         </main>

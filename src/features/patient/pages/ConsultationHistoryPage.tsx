@@ -26,7 +26,7 @@ import { translateEnumValue } from '@/utils/enumI18n';
 import * as patientApi from '../apis/patient.api';
 
 export const ConsultationHistoryPage: React.FC = () => {
-  const { t, i18n } = useTranslation('patient');
+  const { t, i18n } = useTranslation(['patient', 'common']);
   const dispatch = useAppDispatch();
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
@@ -177,7 +177,7 @@ export const ConsultationHistoryPage: React.FC = () => {
         <div className="flex items-center gap-2">
           {actionBtn}
           <Button
-            label="Result"
+            label={t('result')}
             icon="pi pi-file"
             size="sm"
             variant="secondary"
@@ -213,7 +213,7 @@ export const ConsultationHistoryPage: React.FC = () => {
 
   return (
     <div data-testid="appointment-list-page" className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="w-full">
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('consultationHistory')}
         </h1>
@@ -400,7 +400,7 @@ export const ConsultationHistoryPage: React.FC = () => {
       </Dialog>
 
       <Dialog
-        header="Question detail"
+        header={t('questionDetail')}
         visible={Boolean(questionDetail)}
         style={{ width: '560px' }}
         onHide={() => setQuestionDetail(null)}
@@ -421,7 +421,7 @@ export const ConsultationHistoryPage: React.FC = () => {
       </Dialog>
 
       <Dialog
-        header="Consultation result"
+        header={t('consultationResult')}
         visible={resultDialog}
         style={{ width: '720px' }}
         onHide={() => setResultDialog(false)}
@@ -429,7 +429,7 @@ export const ConsultationHistoryPage: React.FC = () => {
       >
         <div data-testid="consultation-result" className="p-6 space-y-4">
           {!consultationResult ? (
-            <div data-testid="loading-state">Loading...</div>
+            <div data-testid="loading-state">{t('common:loading')}</div>
           ) : consultationResult.error ? (
             <div data-testid="error-alert">
               <InlineAlert variant="error" title={t('common:error')} message={consultationResult.error} />
@@ -437,25 +437,62 @@ export const ConsultationHistoryPage: React.FC = () => {
           ) : (
             <>
               <section>
-                <h3 className="font-semibold">Summary</h3>
+                <h3 className="font-semibold">{t('summary')}</h3>
                 <p className="mt-2 whitespace-pre-wrap">
                   {consultationResult.consultation?.summary ||
                     consultationResult.session?.summary ||
-                    'No summary available.'}
+                    t('noSummaryAvailable')}
                 </p>
               </section>
               <section data-testid="prescription-items">
-                <h3 className="font-semibold">Prescription</h3>
+                <h3 className="font-semibold">{t('prescription')}</h3>
                 {consultationResult.prescription?.items?.length ? (
-                  <ul className="mt-2 list-disc pl-5">
-                    {consultationResult.prescription.items.map((item: any) => (
-                      <li key={item.id ?? item.medicationName}>
-                        {item.medicationName} - {item.dosage}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="mt-2 overflow-x-auto">
+                    <table className="min-w-full border-separate border-spacing-0 text-sm">
+                      <thead>
+                        <tr className="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-slate-950">
+                          <th className="rounded-l-lg border-y border-l border-gray-200 px-3 py-2 dark:border-gray-700">
+                            {t('medicationName')}
+                          </th>
+                          <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
+                            {t('dosage')}
+                          </th>
+                          <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
+                            {t('frequency')}
+                          </th>
+                          <th className="border-y border-gray-200 px-3 py-2 dark:border-gray-700">
+                            {t('duration')}
+                          </th>
+                          <th className="rounded-r-lg border-y border-r border-gray-200 px-3 py-2 dark:border-gray-700">
+                            {t('notes')}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {consultationResult.prescription.items.map((item: any) => (
+                          <tr key={item.id ?? item.medicationName}>
+                            <td className="border-b border-gray-100 px-3 py-3 font-medium text-gray-900 dark:border-gray-800 dark:text-white">
+                              {item.medicationName}
+                            </td>
+                            <td className="border-b border-gray-100 px-3 py-3 dark:border-gray-800">
+                              {item.dosage}
+                            </td>
+                            <td className="border-b border-gray-100 px-3 py-3 dark:border-gray-800">
+                              {item.frequency || '—'}
+                            </td>
+                            <td className="border-b border-gray-100 px-3 py-3 dark:border-gray-800">
+                              {item.duration || '—'}
+                            </td>
+                            <td className="border-b border-gray-100 px-3 py-3 dark:border-gray-800">
+                              {item.notes || '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 ) : (
-                  <p className="mt-2 text-gray-400 italic">No prescription available.</p>
+                  <p className="mt-2 text-gray-400 italic">{t('noPrescriptionAvailable')}</p>
                 )}
               </section>
             </>

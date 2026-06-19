@@ -55,7 +55,7 @@ export interface DoctorAppointment {
   scheduledAt: string;
   reason?: string;
   notes?: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
 }
 
 export interface DoctorRating {

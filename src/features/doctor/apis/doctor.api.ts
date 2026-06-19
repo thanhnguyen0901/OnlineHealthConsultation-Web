@@ -23,7 +23,8 @@ const normalizeStatus = (status?: string): DoctorAppointment['status'] => {
   if (value === 'confirmed') return 'confirmed';
   if (value === 'completed') return 'completed';
   if (value === 'cancelled') return 'cancelled';
-  return 'pending';
+  if (value === 'no_show') return 'no_show';
+  return 'cancelled';
 };
 
 const normalizeProfile = (raw: any): DoctorProfile => {
@@ -51,7 +52,7 @@ const normalizeProfile = (raw: any): DoctorProfile => {
 const normalizeQuestion = (raw: any): DoctorQuestion => ({
   id: raw.id,
   patientId: raw.patientId,
-  patientName: raw.patientName ?? fullName(raw.patient?.user) ?? 'Patient',
+  patientName: raw.patientName || fullName(raw.patient?.user) || 'Patient',
   question: raw.content ?? raw.question ?? raw.title ?? '',
   createdAt: raw.createdAt,
   status: (raw.status ?? 'PENDING').toLowerCase() === 'answered' ? 'answered' : 'pending',
@@ -74,6 +75,67 @@ const normalizeAppointment = (raw: any): DoctorAppointment => {
   };
 };
 
+const normalizePatient = (raw: any): DoctorPatient => ({
+  id: raw.user?.id ?? raw.userId ?? raw.id,
+  profileId: raw.id ?? raw.profileId,
+  firstName: raw.user?.firstName ?? raw.firstName ?? '',
+  lastName: raw.user?.lastName ?? raw.lastName ?? '',
+  email: raw.user?.email ?? raw.email ?? '',
+  phone: raw.phone,
+  gender: raw.gender,
+  dateOfBirth: raw.dateOfBirth,
+  address: raw.address,
+  isActive: raw.user?.isActive ?? raw.isActive ?? true,
+});
+
+const toLocalDateKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const normalizeSchedule = (rawSchedule: any): Schedule[] => {
+  if (Array.isArray(rawSchedule)) {
+    return rawSchedule
+      .filter((slot) => slot?.date && slot?.startTime && slot?.endTime)
+      .map((slot) => ({
+        date: String(slot.date),
+        startTime: String(slot.startTime),
+        endTime: String(slot.endTime),
+        available: slot.available ?? true,
+      }));
+  }
+
+  if (!Array.isArray(rawSchedule?.weekly)) {
+    return [];
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const slots: Schedule[] = [];
+
+  for (let offset = 0; offset < 21; offset += 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + offset);
+    const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay();
+    rawSchedule.weekly
+      .filter((item: any) => item?.dayOfWeek === dayOfWeek)
+      .forEach((item: any) => {
+        if (item?.startTime && item?.endTime) {
+          slots.push({
+            date: toLocalDateKey(date),
+            startTime: String(item.startTime),
+            endTime: String(item.endTime),
+            available: item.available ?? true,
+          });
+        }
+      });
+  }
+
+  return slots;
+};
+
 export const getMe = async (): Promise<DoctorProfile> => {
   const response = await apiClient.get('/doctors/me/profile');
   return normalizeProfile(unwrap(response.data));
@@ -94,7 +156,7 @@ export const answerQuestion = async (data: {
 export const getSchedule = async (): Promise<Schedule[]> => {
   const response = await apiClient.get('/doctors/me/profile');
   const rawSchedule = (unwrap<any>(response.data) as any).schedule;
-  return Array.isArray(rawSchedule) ? rawSchedule : [];
+  return normalizeSchedule(rawSchedule);
 };
 
 export const updateSchedule = async (schedule: Schedule[]): Promise<void> => {
@@ -123,8 +185,15 @@ export const getPatients = async (_params?: {
   limit?: number;
   search?: string;
 }): Promise<{ data: DoctorPatient[]; meta?: DoctorPatientsPagination }> => {
-  // TODO_BACKEND_API: no dedicated doctor patient list endpoint in current backend.
-  return { data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } };
+  const response = await apiClient.get('/doctors/me/patients', { params: _params });
+  const payload = unwrap<{ data?: any[]; meta?: DoctorPatientsPagination } | any[]>(response.data);
+  if (Array.isArray(payload)) {
+    return { data: payload.map(normalizePatient) };
+  }
+  return {
+    data: (payload.data ?? []).map(normalizePatient),
+    meta: payload.meta,
+  };
 };
 
 export const updateAppointment = async (
@@ -147,9 +216,12 @@ export const getAppointmentDetail = async (id: string): Promise<DoctorAppointmen
   return normalizeAppointment(unwrap(response.data));
 };
 
-export const rescheduleAppointment = async (id: string, _scheduledAt: string): Promise<unknown> => {
-  // TODO_BACKEND_API: doctor reschedule is out of current backend MVP.
-  return getAppointmentDetail(id);
+export const rescheduleAppointment = async (
+  id: string,
+  scheduledAt: string
+): Promise<DoctorAppointment> => {
+  const response = await apiClient.patch(`/appointments/${id}/reschedule`, { scheduledAt });
+  return normalizeAppointment(unwrap(response.data));
 };
 
 export const getRatings = async (_params?: {

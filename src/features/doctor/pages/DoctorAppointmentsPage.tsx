@@ -173,6 +173,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
       confirmed: { severity: 'info', label: t('confirmed') },
       completed: { severity: 'success', label: t('completed') },
       cancelled: { severity: 'danger', label: t('cancelled') },
+      no_show: { severity: 'danger', label: t('noShow') },
     };
     const config = statusMap[rowData.status] || {
       severity: 'info',
@@ -186,6 +187,15 @@ export const DoctorAppointmentsPage: React.FC = () => {
       ? rowData.specialtyNameVi || translateEnumValue(t, 'specialty', rowData.specialtyName)
       : rowData.specialtyName || translateEnumValue(t, 'specialty', rowData.specialtyName);
 
+  const reasonTemplate = (rowData: DoctorAppointment) => (
+    <span
+      className="block w-full whitespace-normal break-words text-sm leading-5 text-gray-700 dark:text-gray-200"
+      title={rowData.reason || undefined}
+    >
+      {rowData.reason || '—'}
+    </span>
+  );
+
   const actionsTemplate = (rowData: DoctorAppointment) => {
     const options = getNextStatuses(rowData.status);
     const showReschedule = canReschedule(rowData.status);
@@ -196,13 +206,14 @@ export const DoctorAppointmentsPage: React.FC = () => {
     }
 
     return (
-      <div className="flex gap-2 flex-wrap">
+      <div className="grid w-full grid-cols-2 gap-2">
         {options.map((opt) => (
           <Button
             key={opt.value}
             label={t(opt.label)}
             size="sm"
             variant={opt.value === 'cancelled' ? 'danger' : 'primary'}
+            className="w-full px-2"
             onClick={() =>
               dispatch(updateDoctorAppointmentRequested({ id: rowData.id, status: opt.value }))
             }
@@ -222,6 +233,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
             size="sm"
             variant="secondary"
             icon="pi pi-calendar"
+            className="w-full px-2"
             onClick={() => openRescheduleDialog(rowData)}
             disabled={loading}
           />
@@ -232,6 +244,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
             size="sm"
             variant="secondary"
             icon="pi pi-comments"
+            className="col-span-2 w-full px-2"
             onClick={() => navigate(`/doctor/consultations/${rowData.id}`)}
             disabled={loading}
             data-testid={`open-consultation-${rowData.id}`}
@@ -243,7 +256,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
 
   return (
     <div data-testid="doctor-appointment-list-page" className="px-4 py-6 md:px-8 md:py-8">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="w-full">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             {t('appointments')}
@@ -293,40 +306,46 @@ export const DoctorAppointmentsPage: React.FC = () => {
             loading={loading}
             emptyMessage={t('noAppointments')}
             className="primereact-table"
+            tableStyle={{ width: '100%', tableLayout: 'fixed' }}
             sortField="scheduledAt"
             sortOrder={1}
             data-testid="doctor-appointment-table"
           >
-            <Column field="patientName" header={t('patient')} sortable style={{ width: '180px' }} />
+            <Column field="patientName" header={t('patient')} sortable style={{ width: '150px' }} />
             <Column
               field="specialtyName"
               header={t('specialty')}
               body={specialtyTemplate}
               sortable
-              style={{ width: '160px' }}
+              style={{ width: '130px' }}
             />
             <Column
               field="scheduledAt"
               header={t('date')}
               body={dateTemplate}
               sortable
-              style={{ width: '120px' }}
+              style={{ width: '110px' }}
             />
             <Column
               field="scheduledAt"
               header={t('time')}
               body={timeTemplate}
-              style={{ width: '100px' }}
+              style={{ width: '90px' }}
             />
-            <Column field="reason" header={t('reason')} />
+            <Column
+              field="reason"
+              header={t('reason')}
+              body={reasonTemplate}
+              style={{ width: '32%' }}
+            />
             <Column
               field="status"
               header={t('status')}
               body={statusTemplate}
               sortable
-              style={{ width: '140px' }}
+              style={{ width: '130px' }}
             />
-            <Column body={actionsTemplate} header={t('actions')} style={{ width: '340px' }} />
+            <Column body={actionsTemplate} header={t('actions')} style={{ width: '220px' }} />
           </DataTable>
         </div>
       </div>
