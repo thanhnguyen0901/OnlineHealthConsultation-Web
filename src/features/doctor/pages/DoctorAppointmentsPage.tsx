@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -42,6 +43,9 @@ const getNextStatuses = (
 const canReschedule = (status: DoctorAppointment['status']): boolean =>
   status === 'pending' || status === 'confirmed';
 
+const canOpenConsultation = (status: DoctorAppointment['status']): boolean =>
+  status === 'confirmed' || status === 'completed';
+
 const toDateOnly = (iso: string | null | undefined): Date | null => {
   if (!iso) return null;
   const d = new Date(iso);
@@ -59,6 +63,7 @@ const toTimeOnly = (iso: string | null | undefined): Date | null => {
 export const DoctorAppointmentsPage: React.FC = () => {
   const { t, i18n } = useTranslation(['doctor', 'common']);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const appointments = useAppSelector(selectDoctorAppointments);
   const loading = useAppSelector(selectDoctorLoading);
   const rescheduleSubmitted = useAppSelector(selectRescheduleSubmitted);
@@ -184,8 +189,9 @@ export const DoctorAppointmentsPage: React.FC = () => {
   const actionsTemplate = (rowData: DoctorAppointment) => {
     const options = getNextStatuses(rowData.status);
     const showReschedule = canReschedule(rowData.status);
+    const showConsultation = canOpenConsultation(rowData.status);
 
-    if (options.length === 0 && !showReschedule) {
+    if (options.length === 0 && !showReschedule && !showConsultation) {
       return <span className="text-gray-400 text-sm italic">—</span>;
     }
 
@@ -218,6 +224,17 @@ export const DoctorAppointmentsPage: React.FC = () => {
             icon="pi pi-calendar"
             onClick={() => openRescheduleDialog(rowData)}
             disabled={loading}
+          />
+        )}
+        {showConsultation && (
+          <Button
+            label={t('openConsultation')}
+            size="sm"
+            variant="secondary"
+            icon="pi pi-comments"
+            onClick={() => navigate(`/doctor/consultations/${rowData.id}`)}
+            disabled={loading}
+            data-testid={`open-consultation-${rowData.id}`}
           />
         )}
       </div>
@@ -309,7 +326,7 @@ export const DoctorAppointmentsPage: React.FC = () => {
               sortable
               style={{ width: '140px' }}
             />
-            <Column body={actionsTemplate} header={t('actions')} style={{ width: '260px' }} />
+            <Column body={actionsTemplate} header={t('actions')} style={{ width: '340px' }} />
           </DataTable>
         </div>
       </div>

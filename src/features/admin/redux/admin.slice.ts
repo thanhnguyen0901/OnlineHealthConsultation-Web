@@ -208,7 +208,7 @@ const adminSlice = createSlice({
     },
     createSpecialtySucceeded: (state, action: PayloadAction<Specialty>) => {
       state.loading = false;
-      state.specialties.push(action.payload);
+      state.specialties.unshift(action.payload);
     },
     createSpecialtyFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;

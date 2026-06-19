@@ -185,6 +185,9 @@ export const joinConsultation = async (appointmentId: string) =>
 export const getMessages = async (appointmentId: string) =>
   unwrap<any[]>((await apiClient.get(`/consultations/${appointmentId}/messages`)).data) ?? [];
 
+export const getConsultationResult = async (appointmentId: string) =>
+  unwrap<any>((await apiClient.get(`/consultations/${appointmentId}/result`)).data);
+
 export const sendMessage = async (appointmentId: string, content: string) =>
   unwrap((await apiClient.post(`/consultations/${appointmentId}/messages`, { content })).data);
 
