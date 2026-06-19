@@ -159,20 +159,24 @@ export const MainLayout: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
-        } bg-white dark:bg-slate-900 shadow-lg transition-all duration-300 flex flex-col`}
+          sidebarOpen ? 'w-20 md:w-64' : 'w-20'
+        } shrink-0 bg-white dark:bg-slate-900 shadow-lg transition-all duration-300 flex flex-col`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           {sidebarOpen && (
-            <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 md:flex">
               <i className="pi pi-heart-fill text-2xl text-blue-600" />
               <span className="font-bold text-lg text-gray-900 dark:text-white">
                 {t('common:appTitle')}
               </span>
             </div>
           )}
-          {!sidebarOpen && <i className="pi pi-heart-fill text-2xl text-blue-600 mx-auto" />}
+          <i
+            className={`pi pi-heart-fill text-2xl text-blue-600 mx-auto ${
+              sidebarOpen ? 'md:hidden' : ''
+            }`}
+          />
         </div>
 
         {/* Navigation Menu */}
@@ -190,7 +194,7 @@ export const MainLayout: React.FC = () => {
                 }`}
               >
                 <i className={`${item.icon} text-lg`} />
-                {sidebarOpen && <span className="text-sm">{item.label}</span>}
+                {sidebarOpen && <span className="hidden text-sm md:inline">{item.label}</span>}
               </button>
             ))}
           </div>
@@ -208,12 +212,12 @@ export const MainLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="min-w-0 flex-1 flex flex-col">
         {/* Top Header */}
         <header className="bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-gray-700 px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="min-w-0 flex items-center gap-4">
+              <h2 className="truncate text-lg font-semibold text-gray-900 dark:text-white">
                 {t('common:welcome')}, {user?.name}
               </h2>
             </div>
@@ -253,7 +257,7 @@ export const MainLayout: React.FC = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 py-6 md:px-8 md:py-8">
             <Outlet />
           </div>

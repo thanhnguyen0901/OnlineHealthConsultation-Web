@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Button } from '@/components/common/Button';
@@ -125,7 +124,11 @@ export const DoctorListPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {doctors.map((doctor) => (
-              <Card key={doctor.id} data-testid={`doctor-card-${doctor.id}`}>
+              <div
+                key={doctor.id}
+                className="flex h-full flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+                data-testid={`doctor-card-${doctor.id}`}
+              >
                 <div className="flex h-full flex-col">
                   <div className="mb-4 flex items-start gap-4">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
@@ -149,10 +152,11 @@ export const DoctorListPage: React.FC = () => {
                     {doctor.bio && <p className="line-clamp-3">{doctor.bio}</p>}
                   </div>
 
-                  <div className="mt-auto grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <div className="mt-auto grid grid-cols-1 gap-3 pt-4 sm:grid-cols-3">
                     <Button
                       size="sm"
                       outlined
+                      className="w-full"
                       onClick={() => navigate(`/doctors/${doctor.id}`)}
                       data-testid="doctor-detail-link"
                     >
@@ -160,6 +164,7 @@ export const DoctorListPage: React.FC = () => {
                     </Button>
                     <Button
                       size="sm"
+                      className="w-full"
                       onClick={() => redirectGuestToLogin(navigate, 'book', doctor.id)}
                       data-testid="book-appointment-guest"
                     >
@@ -168,6 +173,7 @@ export const DoctorListPage: React.FC = () => {
                     <Button
                       size="sm"
                       variant="secondary"
+                      className="w-full"
                       onClick={() => redirectGuestToLogin(navigate, 'ask', doctor.id)}
                       data-testid="ask-question-guest"
                     >
@@ -175,7 +181,7 @@ export const DoctorListPage: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}

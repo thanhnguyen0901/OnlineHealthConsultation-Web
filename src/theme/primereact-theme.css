@@ -37,6 +37,30 @@
   padding: 0 !important;
 }
 
+/* Card custom styling - global reset should not collapse PrimeReact card spacing */
+.p-card {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
+}
+
+.dark .p-card {
+  border-color: #334155 !important;
+}
+
+.p-card .p-card-body {
+  padding: 1.5rem !important;
+}
+
+.p-card .p-card-content {
+  padding: 0 !important;
+}
+
+.p-card .p-card-title,
+.p-card .p-card-subtitle {
+  margin: 0 !important;
+}
+
 /* DataTable custom styling - better spacing and header background */
 .primereact-table {
   font-size: 0.875rem;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from 'primereact/card';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/common/Button';
@@ -67,7 +66,11 @@ export const SpecialtyListPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {specialties.map((specialty) => (
-              <Card key={specialty.id} data-testid={`specialty-card-${specialty.id}`}>
+              <div
+                key={specialty.id}
+                className="flex min-h-48 flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+                data-testid={`specialty-card-${specialty.id}`}
+              >
                 <div className="flex h-full flex-col gap-4">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
@@ -80,13 +83,13 @@ export const SpecialtyListPage: React.FC = () => {
                     )}
                   </div>
                   <Button
-                    className="mt-auto"
+                    className="mt-auto w-full"
                     onClick={() => navigate(`/doctors?specialtyId=${specialty.id}`)}
                   >
                     Find doctors
                   </Button>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}

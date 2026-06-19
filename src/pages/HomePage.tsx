@@ -200,15 +200,15 @@ export const HomePage: React.FC = () => {
               <EmptyState title={t('home.noDoctorsAvailable')} />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {doctors.map((doctor) => (
-                <Card
+                <div
                   key={doctor.id}
-                  className="hover:shadow-xl transition-shadow"
+                  className="flex h-full flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
                   data-testid="home-doctor-card"
                 >
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4">
+                  <div className="flex h-full flex-col items-center text-center">
+                    <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
                       <i className="pi pi-user text-4xl text-blue-600 dark:text-blue-400" />
                     </div>
                     <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
@@ -228,12 +228,18 @@ export const HomePage: React.FC = () => {
                     <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
                       {doctor.bio || 'No biography available yet.'}
                     </p>
-                    <div className="mt-5 grid w-full grid-cols-1 gap-2 sm:grid-cols-3">
-                      <Button size="sm" outlined onClick={() => navigate(`/doctors/${doctor.id}`)}>
+                    <div className="mt-auto grid w-full grid-cols-1 gap-3 pt-6 sm:grid-cols-3">
+                      <Button
+                        size="sm"
+                        outlined
+                        className="w-full"
+                        onClick={() => navigate(`/doctors/${doctor.id}`)}
+                      >
                         Detail
                       </Button>
                       <Button
                         size="sm"
+                        className="w-full"
                         data-testid="home-book-cta"
                         onClick={() => redirectGuestToLogin(navigate, 'book', doctor.id)}
                       >
@@ -242,6 +248,7 @@ export const HomePage: React.FC = () => {
                       <Button
                         size="sm"
                         variant="secondary"
+                        className="w-full"
                         data-testid="home-ask-cta"
                         onClick={() => redirectGuestToLogin(navigate, 'ask', doctor.id)}
                       >
@@ -249,7 +256,7 @@ export const HomePage: React.FC = () => {
                       </Button>
                     </div>
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           )}
@@ -270,7 +277,7 @@ export const HomePage: React.FC = () => {
           <p className="text-xl text-blue-100 mb-8">{t('home.ctaSubtitle')}</p>
           <Button
             onClick={() => navigate(ROUTE_PATHS.REGISTER)}
-            className="px-8 py-3 text-lg bg-white text-blue-600 hover:bg-gray-100"
+            className="px-8 py-3 text-lg !bg-white !text-blue-700 hover:!bg-blue-50"
           >
             {t('home.getStarted')}
           </Button>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'primereact/card';
 import { Button } from '@/components/common/Button';
 import { EmptyState } from '@/components/common/EmptyState';
 import { InlineAlert } from '@/components/common/InlineAlert';
@@ -14,6 +13,39 @@ import {
   redirectGuestToLogin,
   specialtyName,
 } from './publicPageUtils';
+
+const dayNames: Record<number, string> = {
+  0: 'Sunday',
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday',
+};
+
+type WeeklyScheduleItem = {
+  dayOfWeek?: number;
+  startTime?: string;
+  endTime?: string;
+};
+
+const getWeeklySchedule = (schedule: unknown): WeeklyScheduleItem[] => {
+  if (!schedule || typeof schedule !== 'object') return [];
+
+  const weekly = (schedule as { weekly?: unknown }).weekly;
+  if (!Array.isArray(weekly)) return [];
+
+  return weekly
+    .filter((item): item is WeeklyScheduleItem => item !== null && typeof item === 'object')
+    .filter(
+      (item) =>
+        typeof item.dayOfWeek === 'number' &&
+        typeof item.startTime === 'string' &&
+        typeof item.endTime === 'string'
+    )
+    .sort((a, b) => (a.dayOfWeek ?? 0) - (b.dayOfWeek ?? 0));
+};
 
 export const DoctorDetailPage: React.FC = () => {
   const { doctorId } = useParams();
@@ -41,6 +73,8 @@ export const DoctorDetailPage: React.FC = () => {
     loadDoctor();
   }, [loadDoctor]);
 
+  const weeklySchedule = React.useMemo(() => getWeeklySchedule(doctor?.schedule), [doctor]);
+
   return (
     <main
       data-testid="doctor-detail-page"
@@ -61,7 +95,7 @@ export const DoctorDetailPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-            <Card>
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                   <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
@@ -106,21 +140,33 @@ export const DoctorDetailPage: React.FC = () => {
                   </div>
                 </section>
 
-                {doctor.schedule ? (
+                {weeklySchedule.length > 0 ? (
                   <section>
                     <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
                       Schedule
                     </h2>
-                    <pre className="mt-2 max-h-52 overflow-auto rounded-lg bg-gray-100 p-3 text-sm text-gray-700 dark:bg-slate-800 dark:text-gray-200">
-                      {JSON.stringify(doctor.schedule, null, 2)}
-                    </pre>
+                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {weeklySchedule.map((item) => (
+                        <div
+                          key={`${item.dayOfWeek}-${item.startTime}-${item.endTime}`}
+                          className="rounded-lg border border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-slate-900"
+                        >
+                          <p className="font-medium text-gray-950 dark:text-white">
+                            {dayNames[item.dayOfWeek ?? 0] ?? `Day ${item.dayOfWeek}`}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                            {item.startTime} - {item.endTime}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </section>
                 ) : null}
               </div>
-            </Card>
+            </div>
 
             <aside className="space-y-4">
-              <Card>
+              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Experience</p>
@@ -147,7 +193,7 @@ export const DoctorDetailPage: React.FC = () => {
                     Back to doctors
                   </Button>
                 </div>
-              </Card>
+              </div>
             </aside>
           </div>
         )}

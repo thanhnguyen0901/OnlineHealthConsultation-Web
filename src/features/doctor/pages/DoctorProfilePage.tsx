@@ -17,8 +17,8 @@ import {
   selectDoctorError,
   selectDoctorProfileUpdated,
 } from '../redux/doctor.selectors';
-import { getSpecialties } from '@/features/admin/apis/admin.api';
-import type { Specialty } from '@/features/admin/types';
+import { getPublicSpecialties } from '@/features/public/apis/public.api';
+import type { PublicSpecialty } from '@/features/public/types';
 import { extractErrorMessage } from '@/utils/errorMessage';
 import { isUnauthorizedMessage } from '@/utils/authz';
 
@@ -41,7 +41,7 @@ export const DoctorProfilePage: React.FC = () => {
     yearsOfExperience: null,
     specialtyId: '',
   });
-  const [specialties, setSpecialties] = useState<Specialty[]>([]);
+  const [specialties, setSpecialties] = useState<PublicSpecialty[]>([]);
   const [specialtiesLoading, setSpecialtiesLoading] = useState(false);
   const [specialtiesError, setSpecialtiesError] = useState<string | null>(null);
 
@@ -69,11 +69,10 @@ export const DoctorProfilePage: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [dispatch, profileUpdated]);
 
-  // Reuses admin getSpecialties endpoint (no dedicated doctor-facing endpoint exists).
   useEffect(() => {
     setSpecialtiesLoading(true);
     setSpecialtiesError(null);
-    getSpecialties()
+    getPublicSpecialties()
       .then(setSpecialties)
       .catch((e) => setSpecialtiesError(extractErrorMessage(e)))
       .finally(() => setSpecialtiesLoading(false));
