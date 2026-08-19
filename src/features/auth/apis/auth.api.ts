@@ -16,11 +16,9 @@ interface BackendUser {
 interface AuthResponse {
   data?: {
     accessToken?: string;
-    refreshToken?: string;
     user: BackendUser;
   };
   accessToken?: string;
-  refreshToken?: string;
   user?: BackendUser;
 }
 

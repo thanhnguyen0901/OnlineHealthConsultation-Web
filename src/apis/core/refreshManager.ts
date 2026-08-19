@@ -20,11 +20,9 @@ interface BackendUser {
 interface RefreshApiResponse {
   data?: {
     accessToken: string;
-    refreshToken?: string;
     user?: BackendUser;
   };
   accessToken?: string;
-  refreshToken?: string;
   user?: BackendUser;
 }
 
