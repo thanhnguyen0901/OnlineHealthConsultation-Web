@@ -98,6 +98,15 @@ export const LoginPage: React.FC = () => {
             autoComplete="current-password"
             data-testid="password-input"
           />
+          <div className="-mt-2 text-right">
+            <Link
+              to={ROUTE_PATHS.FORGOT_PASSWORD}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+              data-testid="forgot-password-link"
+            >
+              {t('auth:forgotPasswordLink')}
+            </Link>
+          </div>
           <div className="pt-2">
             <Button
               type="submit"

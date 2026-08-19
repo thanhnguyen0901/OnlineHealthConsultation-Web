@@ -2,6 +2,8 @@ export const ROUTE_PATHS = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
   SPECIALTIES: '/specialties',
   DOCTORS: '/doctors',
   DOCTOR_DETAIL: '/doctors/:doctorId',

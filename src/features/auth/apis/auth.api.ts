@@ -22,12 +22,20 @@ interface AuthResponse {
   user?: BackendUser;
 }
 
+interface MessageResponse {
+  data?: {
+    message?: string;
+  };
+  message?: string;
+}
+
 export interface AuthResult {
   user: User;
   accessToken: string;
 }
 
 const unwrapAuthResponse = (payload: AuthResponse) => payload.data ?? payload;
+const unwrapMessageResponse = (payload: MessageResponse) => payload.data ?? payload;
 
 const requireBackendUser = (user?: BackendUser): BackendUser => {
   if (!user) {
@@ -71,6 +79,21 @@ export const register = async (data: {
     user: normalizeUser(requireBackendUser(result.user)),
     accessToken: result.accessToken ?? '',
   };
+};
+
+export const forgotPassword = async (email: string): Promise<string> => {
+  const response = await apiClient.post<MessageResponse>('/auth/forgot-password', { email });
+  const result = unwrapMessageResponse(response.data);
+  return result.message ?? 'If the email exists, reset instructions have been generated';
+};
+
+export const resetPassword = async (data: {
+  token: string;
+  newPassword: string;
+}): Promise<string> => {
+  const response = await apiClient.post<MessageResponse>('/auth/reset-password', data);
+  const result = unwrapMessageResponse(response.data);
+  return result.message ?? 'Password reset successful';
 };
 
 export const logout = async (): Promise<void> => {

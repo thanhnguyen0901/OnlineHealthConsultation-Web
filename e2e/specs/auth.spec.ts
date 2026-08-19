@@ -18,12 +18,60 @@ test.describe('UC02 Auth and role guard', () => {
     await expect(login.emailInput).toBeVisible();
     await expect(login.passwordInput).toBeVisible();
     await expect(login.submitButton).toBeVisible();
+    await expect(page.getByTestId('forgot-password-link')).toBeVisible();
   });
 
   test('register page loads', async ({ page }) => {
     const register = new RegisterPage(page);
     await register.open();
     await expect(register.submitButton).toBeVisible();
+  });
+
+  test('forgot password page submits a generic reset request', async ({ page }) => {
+    let requestedEmail = '';
+    await page.route('**/api/auth/forgot-password', async (route) => {
+      const body = route.request().postDataJSON() as { email?: string };
+      requestedEmail = body.email ?? '';
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message: 'If the email exists, reset instructions have been generated',
+        }),
+      });
+    });
+
+    await page.goto('/forgot-password');
+    await expect(page.getByTestId('forgot-password-page')).toBeVisible();
+    await page.getByTestId('forgot-email-input').fill('patient@example.com');
+    await page.getByTestId('forgot-password-submit-button').click();
+
+    await expect(page.getByText(/reset instructions/i)).toBeVisible();
+    expect(requestedEmail).toBe('patient@example.com');
+  });
+
+  test('reset password page submits token and new password', async ({ page }) => {
+    let resetBody: { token?: string; newPassword?: string } = {};
+    await page.route('**/api/auth/reset-password', async (route) => {
+      resetBody = route.request().postDataJSON() as typeof resetBody;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Password reset successful' }),
+      });
+    });
+
+    await page.goto('/reset-password?token=reset-token-123');
+    await expect(page.getByTestId('reset-password-page')).toBeVisible();
+    await page.getByTestId('new-password-input').fill('NewPassword123!');
+    await page.getByTestId('confirm-password-input').fill('NewPassword123!');
+    await page.getByTestId('reset-password-submit-button').click();
+
+    await expect(page.getByText(/password reset successful/i)).toBeVisible();
+    expect(resetBody).toEqual({
+      token: 'reset-token-123',
+      newPassword: 'NewPassword123!',
+    });
   });
 
   test('E2E-006 patient can login and is redirected to Patient dashboard', async ({ page }) => {

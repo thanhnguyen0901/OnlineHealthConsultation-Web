@@ -17,6 +17,16 @@ const LoginPage = lazy(() =>
 const RegisterPage = lazy(() =>
   import('@/features/auth/pages/RegisterPage').then((m) => ({ default: m.RegisterPage }))
 );
+const ForgotPasswordPage = lazy(() =>
+  import('@/features/auth/pages/ForgotPasswordPage').then((m) => ({
+    default: m.ForgotPasswordPage,
+  }))
+);
+const ResetPasswordPage = lazy(() =>
+  import('@/features/auth/pages/ResetPasswordPage').then((m) => ({
+    default: m.ResetPasswordPage,
+  }))
+);
 const SpecialtyListPage = lazy(() =>
   import('@/features/public/pages/SpecialtyListPage').then((m) => ({
     default: m.SpecialtyListPage,
@@ -174,6 +184,8 @@ export const RoutesConfig: React.FC = () => {
         <Route element={<AuthLayout />}>
           <Route path={ROUTE_PATHS.LOGIN} element={<LoginPage />} />
           <Route path={ROUTE_PATHS.REGISTER} element={<RegisterPage />} />
+          <Route path={ROUTE_PATHS.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+          <Route path={ROUTE_PATHS.RESET_PASSWORD} element={<ResetPasswordPage />} />
         </Route>
 
         <Route
