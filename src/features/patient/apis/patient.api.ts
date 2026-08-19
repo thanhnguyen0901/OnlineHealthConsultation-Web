@@ -5,6 +5,9 @@ import type {
   PatientProfile,
   Rating,
   DoctorAvailability,
+  ConsultationJoinResult,
+  ConsultationMessage,
+  ConsultationResult,
 } from '../types';
 import type { Doctor, Specialty } from '@/features/admin/types';
 import { getPublicDoctors, getPublicSpecialties } from '@/features/public/apis/public.api';
@@ -41,6 +44,7 @@ const normalizeAppointment = (raw: any): Appointment => {
     date: scheduledAt,
     time: scheduledAt ? new Date(scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
     status: normalizeStatus(raw.status),
+    durationMinutes: raw.durationMinutes,
     reason: raw.reason,
     notes: raw.notes,
     hasRating: Boolean(raw.hasRating ?? raw.rating),
@@ -177,9 +181,31 @@ export const getAppointmentDetail = async (id: string): Promise<Appointment> => 
   return normalizeAppointment(unwrap(response.data));
 };
 
-export const getConsultationResult = async (appointmentId: string) => {
+export const joinConsultation = async (appointmentId: string): Promise<ConsultationJoinResult> => {
+  const response = await apiClient.post(`/consultations/${appointmentId}/join`);
+  return unwrap<ConsultationJoinResult>(response.data);
+};
+
+export const getConsultationMessages = async (
+  appointmentId: string
+): Promise<ConsultationMessage[]> => {
+  const response = await apiClient.get(`/consultations/${appointmentId}/messages`);
+  return unwrap<ConsultationMessage[]>(response.data) ?? [];
+};
+
+export const sendConsultationMessage = async (
+  appointmentId: string,
+  content: string
+): Promise<ConsultationMessage> => {
+  const response = await apiClient.post(`/consultations/${appointmentId}/messages`, { content });
+  return unwrap<ConsultationMessage>(response.data);
+};
+
+export const getConsultationResult = async (
+  appointmentId: string
+): Promise<ConsultationResult> => {
   const response = await apiClient.get(`/consultations/${appointmentId}/result`);
-  return unwrap<any>(response.data);
+  return unwrap<ConsultationResult>(response.data);
 };
 
 export const getRatings = async (): Promise<Rating[]> => {

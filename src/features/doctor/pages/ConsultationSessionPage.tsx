@@ -5,6 +5,10 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
+import { selectAccessToken, selectUser } from '@/features/auth/redux/auth.selectors';
+import type { ConsultationSocketMessage } from '@/features/consultation/realtime/consultationSocketClient';
+import { useConsultationSocket } from '@/features/consultation/realtime/useConsultationSocket';
+import { useAppSelector } from '@/state/hooks';
 import * as doctorApi from '../apis/doctor.api';
 
 type PrescriptionItem = {
@@ -53,6 +57,30 @@ const getPatientName = (result: ConsultationResult | null, fallback: string) => 
   return [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback;
 };
 
+const getSenderName = (message: ConsultationSocketMessage, fallback: string) =>
+  [message.sender?.firstName, message.sender?.lastName].filter(Boolean).join(' ') || fallback;
+
+const mergeMessages = (
+  previous: ConsultationSocketMessage[],
+  incoming: ConsultationSocketMessage | ConsultationSocketMessage[]
+) => {
+  const next = Array.isArray(incoming) ? incoming : [incoming];
+  const seen = new Set(previous.map((item) => item.id).filter(Boolean));
+  const merged = [...previous];
+
+  next.forEach((item) => {
+    if (item.id && seen.has(item.id)) return;
+    if (item.id) seen.add(item.id);
+    merged.push(item);
+  });
+
+  return merged.sort((left, right) => {
+    const leftTime = left.createdAt ? new Date(left.createdAt).getTime() : 0;
+    const rightTime = right.createdAt ? new Date(right.createdAt).getTime() : 0;
+    return leftTime - rightTime;
+  });
+};
+
 const isCompleted = (result: ConsultationResult | null) =>
   result?.appointment?.status === 'COMPLETED' || result?.consultation?.status === 'COMPLETED';
 
@@ -61,14 +89,18 @@ const isOngoing = (result: ConsultationResult | null) => result?.consultation?.s
 export const ConsultationSessionPage: React.FC = () => {
   const { t, i18n } = useTranslation('doctor');
   const { appointmentId = '' } = useParams();
+  const accessToken = useAppSelector(selectAccessToken);
+  const currentUser = useAppSelector(selectUser);
   const [result, setResult] = React.useState<ConsultationResult | null>(null);
-  const [messages, setMessages] = React.useState<any[]>([]);
+  const [messages, setMessages] = React.useState<ConsultationSocketMessage[]>([]);
   const [message, setMessage] = React.useState('');
   const [summary, setSummary] = React.useState('');
   const [items, setItems] = React.useState<PrescriptionItem[]>([{ ...emptyPrescriptionItem }]);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [sending, setSending] = React.useState(false);
+  const [sessionJoined, setSessionJoined] = React.useState(false);
 
   const formatDateTime = React.useCallback(
     (value?: string) => {
@@ -99,11 +131,16 @@ export const ConsultationSessionPage: React.FC = () => {
       );
 
       if (data.consultation?.status === 'ONGOING') {
-        setMessages(await doctorApi.getMessages(appointmentId));
+        await doctorApi.joinConsultation(appointmentId);
+        setSessionJoined(true);
+        const history = (await doctorApi.getMessages(appointmentId)) as ConsultationSocketMessage[];
+        setMessages((current) => mergeMessages(current, history));
       } else {
+        setSessionJoined(false);
         setMessages([]);
       }
     } catch (err) {
+      setSessionJoined(false);
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
@@ -113,6 +150,22 @@ export const ConsultationSessionPage: React.FC = () => {
   React.useEffect(() => {
     loadConsultation();
   }, [loadConsultation]);
+
+  const appendRealtimeMessage = React.useCallback((incoming: ConsultationSocketMessage) => {
+    setMessages((current) => mergeMessages(current, incoming));
+  }, []);
+
+  const handleSocketError = React.useCallback((socketError: Error) => {
+    setError(socketError.message);
+  }, []);
+
+  const socket = useConsultationSocket({
+    appointmentId,
+    accessToken,
+    enabled: Boolean(sessionJoined && isOngoing(result)),
+    onMessage: appendRealtimeMessage,
+    onError: handleSocketError,
+  });
 
   const updateItem = (index: number, patch: Partial<PrescriptionItem>) => {
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
@@ -154,10 +207,52 @@ export const ConsultationSessionPage: React.FC = () => {
     }
   };
 
+  const handleSendMessage = async () => {
+    const content = message.trim();
+    if (!content || !ongoing) return;
+
+    setSending(true);
+    setError(null);
+    try {
+      const sentViaSocket = socket.isConnected ? socket.sendMessage(content) : false;
+      if (!sentViaSocket) {
+        const saved = (await doctorApi.sendMessage(
+          appointmentId,
+          content
+        )) as ConsultationSocketMessage;
+        setMessages((current) => mergeMessages(current, saved));
+      }
+      setMessage('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleEndConsultation = async () => {
+    try {
+      setError(null);
+      await doctorApi.endConsultation(appointmentId);
+      socket.disconnect();
+      setSessionJoined(false);
+      setSuccess(t('consultationEnded'));
+      loadConsultation();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
   const completed = isCompleted(result);
   const ongoing = isOngoing(result);
   const prescriptionItems = result?.prescription?.items ?? [];
   const canEditClinicalContent = Boolean(result?.consultation);
+  const socketHint =
+    socket.status === 'reconnecting'
+      ? t('consultationReconnecting')
+      : socket.status === 'auth_error'
+        ? t('consultationAuthExpired')
+        : null;
 
   return (
     <div data-testid="consultation-session-page" className="space-y-6 px-4 py-6 md:px-8 md:py-8">
@@ -190,6 +285,7 @@ export const ConsultationSessionPage: React.FC = () => {
           </div>
         )}
         {success && <InlineAlert variant="success" title={t('success')} message={success} />}
+        {socketHint && <InlineAlert variant="info" title={socketHint} />}
 
         <section className="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -246,62 +342,76 @@ export const ConsultationSessionPage: React.FC = () => {
 
         {ongoing && (
           <section className="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
-            <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
-              {t('consultationChat')}
-            </h2>
-            <div data-testid="chat-message-list" className="mb-3 max-h-64 space-y-2 overflow-auto">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-semibold text-gray-900 dark:text-white">
+                {t('consultationChat')}
+              </h2>
+              <span className="text-xs text-gray-500">
+                {socket.isConnected ? t('connected') : t('notConnected')}
+              </span>
+            </div>
+            <div
+              data-testid="chat-message-list"
+              className="mb-3 max-h-80 min-h-[220px] space-y-3 overflow-auto rounded-lg border border-gray-100 p-3 dark:border-slate-800"
+            >
               {messages.length === 0 ? (
                 <p data-testid="empty-state" className="text-sm text-gray-400">
                   {t('noMessages')}
                 </p>
               ) : (
-                messages.map((item) => (
-                  <div
-                    key={item.id ?? item.createdAt}
-                    className="rounded-lg bg-gray-100 p-2 text-sm dark:bg-slate-800"
-                  >
-                    {item.content}
-                  </div>
-                ))
+                messages.map((item, index) => {
+                  const mine =
+                    item.sender?.id === currentUser?.id ||
+                    item.senderUserId === currentUser?.id ||
+                    item.sender?.role === 'DOCTOR';
+                  const senderName = mine
+                    ? t('you')
+                    : getSenderName(item, item.sender?.role === 'PATIENT' ? t('patient') : t('doctor'));
+                  return (
+                    <div
+                      key={item.id ?? `${item.createdAt ?? 'message'}-${index}`}
+                      className={`flex ${mine ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[82%] rounded-lg px-3 py-2 text-sm ${
+                          mine
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-900 dark:bg-slate-800 dark:text-gray-100'
+                        }`}
+                      >
+                        <div className={`mb-1 text-xs ${mine ? 'text-blue-100' : 'text-gray-500'}`}>
+                          {senderName}
+                        </div>
+                        <div className="whitespace-pre-wrap">{item.content}</div>
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-slate-950"
+                className="min-h-[44px] flex-1 rounded-lg border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-slate-950"
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 data-testid="chat-message-input"
                 placeholder={t('chatMessagePlaceholder')}
+                disabled={sending}
               />
               <Button
                 data-testid="send-message"
-                disabled={!message.trim() || loading}
-                onClick={async () => {
-                  try {
-                    setError(null);
-                    await doctorApi.sendMessage(appointmentId, message);
-                    setMessage('');
-                    loadConsultation();
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : String(err));
-                  }
-                }}
+                icon="pi pi-send"
+                disabled={!message.trim() || loading || sending}
+                loading={sending}
+                onClick={handleSendMessage}
               >
                 {t('send')}
               </Button>
               <Button
                 data-testid="end-consultation"
                 variant="danger"
-                onClick={async () => {
-                  try {
-                    setError(null);
-                    await doctorApi.endConsultation(appointmentId);
-                    setSuccess(t('consultationEnded'));
-                    loadConsultation();
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : String(err));
-                  }
-                }}
+                disabled={loading || sending}
+                onClick={handleEndConsultation}
               >
                 {t('endConsultation')}
               </Button>

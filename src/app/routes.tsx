@@ -48,6 +48,11 @@ const ConsultationHistoryPage = lazy(() =>
     default: m.ConsultationHistoryPage,
   }))
 );
+const PatientConsultationSessionPage = lazy(() =>
+  import('@/features/patient/pages/PatientConsultationSessionPage').then((m) => ({
+    default: m.PatientConsultationSessionPage,
+  }))
+);
 const PatientProfilePage = lazy(() =>
   import('@/features/patient/pages/PatientProfilePage').then((m) => ({
     default: m.PatientProfilePage,
@@ -207,6 +212,14 @@ export const RoutesConfig: React.FC = () => {
             element={
               <RoleGuard roles={['PATIENT']}>
                 <ConsultationHistoryPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path={ROUTE_PATHS.PATIENT_CONSULTATION_SESSION}
+            element={
+              <RoleGuard roles={['PATIENT']}>
+                <PatientConsultationSessionPage />
               </RoleGuard>
             }
           />

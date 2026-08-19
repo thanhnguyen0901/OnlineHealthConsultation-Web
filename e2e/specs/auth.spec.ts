@@ -45,6 +45,10 @@ test.describe('UC02 Auth and role guard', () => {
     await page.goto('/patient');
     await expect(page).toHaveURL(/\/login/);
     await expect(page.getByTestId('login-page')).toBeVisible();
+
+    await page.goto('/patient/consultations/00000000-0000-0000-0000-000000000000');
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page.getByTestId('login-page')).toBeVisible();
   });
 
   test('E2E-010 patient cannot access Doctor/Admin routes', async ({ page }) => {

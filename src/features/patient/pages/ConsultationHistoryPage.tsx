@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
@@ -24,9 +25,11 @@ import type { Question, Appointment } from '../types';
 import { isUnauthorizedMessage } from '@/utils/authz';
 import { translateEnumValue } from '@/utils/enumI18n';
 import * as patientApi from '../apis/patient.api';
+import { ROUTE_PATHS } from '@/constants/routePaths';
 
 export const ConsultationHistoryPage: React.FC = () => {
   const { t, i18n } = useTranslation(['patient', 'common']);
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const questions = useAppSelector(selectQuestions);
   const appointments = useAppSelector(selectAppointments);
@@ -150,6 +153,10 @@ export const ConsultationHistoryPage: React.FC = () => {
   };
 
   const appointmentActionTemplate = (rowData: Appointment) => {
+    const consultationPath = ROUTE_PATHS.PATIENT_CONSULTATION_SESSION.replace(
+      ':appointmentId',
+      rowData.id
+    );
     const detailBtn = (
       <Button
         icon="pi pi-info-circle"
@@ -191,6 +198,15 @@ export const ConsultationHistoryPage: React.FC = () => {
     if (rowData.status === 'pending' || rowData.status === 'confirmed') {
       return (
         <div className="flex items-center gap-2">
+          {rowData.status === 'confirmed' && (
+            <Button
+              label={t('joinConsultation')}
+              icon="pi pi-comments"
+              size="sm"
+              onClick={() => navigate(consultationPath)}
+              data-testid={`appointment-join-${rowData.id}`}
+            />
+          )}
           <Button
             label={t('cancel')}
             icon="pi pi-times"
@@ -342,7 +358,7 @@ export const ConsultationHistoryPage: React.FC = () => {
                 <Column
                   body={appointmentActionTemplate}
                   header={t('actions')}
-                  style={{ width: '200px' }}
+                  style={{ width: '320px' }}
                 />
               </DataTable>
             </div>

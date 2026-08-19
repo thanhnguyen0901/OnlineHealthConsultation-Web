@@ -25,6 +25,7 @@ export interface Appointment {
   date: string;
   time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  durationMinutes?: number;
   reason?: string;
   notes?: string;
   hasRating?: boolean;
@@ -49,6 +50,63 @@ export interface DoctorAvailability {
 export interface ConsultationHistory {
   questions: Question[];
   appointments: Appointment[];
+}
+
+export interface ConsultationParticipant {
+  id: Id;
+  firstName?: string | null;
+  lastName?: string | null;
+  role?: string;
+}
+
+export interface ConsultationMessage {
+  id?: Id;
+  consultationSessionId?: Id;
+  senderUserId?: Id;
+  content: string;
+  messageType?: string;
+  createdAt?: string;
+  sender?: ConsultationParticipant;
+}
+
+export interface ConsultationJoinResult {
+  appointmentId: Id;
+  sessionId: Id;
+  status: 'SCHEDULED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED' | string;
+  channel: 'CHAT' | 'VIDEO' | string;
+  message?: string;
+}
+
+export interface ConsultationResult {
+  appointment: {
+    id: Id;
+    scheduledAt: string;
+    durationMinutes: number;
+    status: string;
+    reason?: string;
+    notes?: string | null;
+    patient?: { user?: ConsultationParticipant };
+    doctor?: { user?: ConsultationParticipant };
+  };
+  consultation: {
+    id: Id;
+    status: string;
+    startedAt?: string | null;
+    endedAt?: string | null;
+    summary?: string | null;
+    channel?: string | null;
+  } | null;
+  prescription: {
+    notes?: string | null;
+    items?: {
+      id?: Id;
+      medicationName: string;
+      dosage: string;
+      frequency: string;
+      duration: string;
+      notes?: string | null;
+    }[];
+  } | null;
 }
 
 export interface PatientProfile {

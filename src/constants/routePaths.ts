@@ -11,6 +11,7 @@ export const ROUTE_PATHS = {
   ASK_QUESTION: '/patient/ask-question',
   BOOK_APPOINTMENT: '/patient/book-appointment',
   CONSULTATION_HISTORY: '/patient/history',
+  PATIENT_CONSULTATION_SESSION: '/patient/consultations/:appointmentId',
   PATIENT_PROFILE: '/patient/profile',
 
   // Doctor routes
