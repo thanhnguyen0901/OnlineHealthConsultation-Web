@@ -1,6 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialPatientState } from './patient.state';
-import type { Question, Appointment, PatientProfile, Rating } from '../types';
+import type {
+  Question,
+  Appointment,
+  PatientProfile,
+  Rating,
+  DoctorAvailability,
+} from '../types';
 import type { Doctor, Specialty } from '@/features/admin/types';
 
 const patientSlice = createSlice({
@@ -163,6 +169,28 @@ const patientSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    loadDoctorAvailabilityRequested: (
+      state,
+      _action: PayloadAction<{ doctorId: string; date: string; durationMinutes?: number }>
+    ) => {
+      state.availabilityLoading = true;
+      state.availabilityError = null;
+      state.availability = null;
+    },
+    loadDoctorAvailabilitySucceeded: (state, action: PayloadAction<DoctorAvailability>) => {
+      state.availabilityLoading = false;
+      state.availability = action.payload;
+    },
+    loadDoctorAvailabilityFailed: (state, action: PayloadAction<string>) => {
+      state.availabilityLoading = false;
+      state.availabilityError = action.payload;
+      state.availability = null;
+    },
+    clearDoctorAvailability: (state) => {
+      state.availability = null;
+      state.availabilityLoading = false;
+      state.availabilityError = null;
+    },
   },
 });
 
@@ -197,6 +225,10 @@ export const {
   loadDoctorsBySpecialtyRequested,
   loadDoctorsBySpecialtySucceeded,
   loadDoctorsBySpecialtyFailed,
+  loadDoctorAvailabilityRequested,
+  loadDoctorAvailabilitySucceeded,
+  loadDoctorAvailabilityFailed,
+  clearDoctorAvailability,
 } = patientSlice.actions;
 
 export default patientSlice.reducer;

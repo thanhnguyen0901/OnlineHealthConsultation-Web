@@ -1,4 +1,4 @@
-import type { Question, Appointment, PatientProfile, Rating } from '../types';
+import type { Question, Appointment, PatientProfile, Rating, DoctorAvailability } from '../types';
 import type { Doctor, Specialty } from '@/features/admin/types';
 
 export interface PatientState {
@@ -8,6 +8,9 @@ export interface PatientState {
   ratings: Rating[];
   specialties: Specialty[];
   doctors: Doctor[];
+  availability: DoctorAvailability | null;
+  availabilityLoading: boolean;
+  availabilityError: string | null;
   loading: boolean;
   error: string | null;
   questionSubmitted: boolean;
@@ -22,6 +25,9 @@ export const initialPatientState: PatientState = {
   ratings: [],
   specialties: [],
   doctors: [],
+  availability: null,
+  availabilityLoading: false,
+  availabilityError: null,
   loading: false,
   error: null,
   questionSubmitted: false,

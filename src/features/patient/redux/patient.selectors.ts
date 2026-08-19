@@ -7,6 +7,11 @@ export const selectProfile = (state: RootState) => state.patient.profile;
 export const selectRatings = (state: RootState) => state.patient.ratings;
 export const selectSpecialties = (state: RootState) => state.patient.specialties;
 export const selectDoctors = (state: RootState) => state.patient.doctors;
+export const selectDoctorAvailability = (state: RootState) => state.patient.availability;
+export const selectDoctorAvailabilityLoading = (state: RootState) =>
+  state.patient.availabilityLoading;
+export const selectDoctorAvailabilityError = (state: RootState) =>
+  state.patient.availabilityError;
 export const selectPatientLoading = (state: RootState) => state.patient.loading;
 export const selectPatientError = (state: RootState) => state.patient.error;
 export const selectQuestionSubmitted = (state: RootState) => state.patient.questionSubmitted;

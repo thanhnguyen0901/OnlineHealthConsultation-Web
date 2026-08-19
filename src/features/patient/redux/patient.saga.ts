@@ -28,9 +28,12 @@ import {
   loadDoctorsBySpecialtyRequested,
   loadDoctorsBySpecialtySucceeded,
   loadDoctorsBySpecialtyFailed,
+  loadDoctorAvailabilityRequested,
+  loadDoctorAvailabilitySucceeded,
+  loadDoctorAvailabilityFailed,
 } from './patient.slice';
 import * as patientApi from '../apis/patient.api';
-import type { Question, Appointment, PatientProfile, Rating } from '../types';
+import type { Question, Appointment, PatientProfile, Rating, DoctorAvailability } from '../types';
 import type { Doctor, Specialty } from '@/features/admin/types';
 import { addToast } from '@/redux/slices/ui.slice';
 import { extractErrorMessage } from '@/utils/errorMessage';
@@ -62,6 +65,7 @@ function* handleBookAppointment(
   try {
     const appointment: Appointment = yield call(patientApi.bookAppointment, action.payload);
     yield put(bookAppointmentSucceeded(appointment));
+    yield put(loadHistoryRequested());
     yield put(
       addToast({
         severity: 'success',
@@ -73,6 +77,20 @@ function* handleBookAppointment(
     const msg = extractErrorMessage(error);
     yield put(bookAppointmentFailed(msg));
     yield put(addToast({ severity: 'error', summary: i18n.t('common:error'), detail: msg }));
+  }
+}
+
+function* handleLoadDoctorAvailability(
+  action: PayloadAction<{ doctorId: string; date: string; durationMinutes?: number }>
+) {
+  try {
+    const availability: DoctorAvailability = yield call(
+      patientApi.getDoctorAvailability,
+      action.payload
+    );
+    yield put(loadDoctorAvailabilitySucceeded(availability));
+  } catch (error) {
+    yield put(loadDoctorAvailabilityFailed(extractErrorMessage(error)));
   }
 }
 
@@ -184,4 +202,5 @@ export function* patientSaga() {
   yield takeLatest(rateConsultationRequested.type, handleRateConsultation);
   yield takeLatest(loadSpecialtiesRequested.type, handleLoadSpecialties);
   yield takeLatest(loadDoctorsBySpecialtyRequested.type, handleLoadDoctorsBySpecialty);
+  yield takeLatest(loadDoctorAvailabilityRequested.type, handleLoadDoctorAvailability);
 }

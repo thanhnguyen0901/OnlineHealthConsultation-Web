@@ -20,6 +20,7 @@ test.describe('UC03 Patient appointment', () => {
     await expect(appointment.specialty).toBeVisible();
     await expect(appointment.doctor).toBeVisible();
     await expect(appointment.date).toBeVisible();
+    await expect(appointment.time).toBeVisible();
     await expect(appointment.reason).toBeVisible();
   });
 

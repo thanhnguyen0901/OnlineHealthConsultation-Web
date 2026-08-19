@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Formik, Form } from 'formik';
+import { Formik, Form, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 import { FormikDropdown } from '@/components/form-controls/FormikDropdown';
 import { FormikCalendar } from '@/components/form-controls/FormikCalendar';
@@ -14,6 +14,8 @@ import {
   loadDoctorsBySpecialtyRequested,
   bookAppointmentRequested,
   clearAppointmentSubmitted,
+  loadDoctorAvailabilityRequested,
+  clearDoctorAvailability,
 } from '../redux/patient.slice';
 import {
   selectSpecialties,
@@ -21,6 +23,9 @@ import {
   selectPatientLoading,
   selectAppointmentSubmitted,
   selectPatientError,
+  selectDoctorAvailability,
+  selectDoctorAvailabilityLoading,
+  selectDoctorAvailabilityError,
 } from '../redux/patient.selectors';
 import { ROUTE_PATHS } from '@/constants/routePaths';
 import { isUnauthorizedMessage } from '@/utils/authz';
@@ -32,25 +37,6 @@ const formatLocalDate = (d: Date): string => {
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 };
-
-const timeSlots = [
-  { label: '08:00', value: '08:00' },
-  { label: '08:30', value: '08:30' },
-  { label: '09:00', value: '09:00' },
-  { label: '09:30', value: '09:30' },
-  { label: '10:00', value: '10:00' },
-  { label: '10:30', value: '10:30' },
-  { label: '11:00', value: '11:00' },
-  { label: '11:30', value: '11:30' },
-  { label: '13:00', value: '13:00' },
-  { label: '13:30', value: '13:30' },
-  { label: '14:00', value: '14:00' },
-  { label: '14:30', value: '14:30' },
-  { label: '15:00', value: '15:00' },
-  { label: '15:30', value: '15:30' },
-  { label: '16:00', value: '16:00' },
-  { label: '16:30', value: '16:30' },
-];
 
 const appointmentSchema = Yup.object().shape({
   specialtyId: Yup.string().required(),
@@ -70,6 +56,125 @@ interface AppointmentFormValues {
   notes: string;
 }
 
+const BookingAvailabilityFields: React.FC = () => {
+  const { t } = useTranslation('patient');
+  const dispatch = useAppDispatch();
+  const { values, setFieldValue, touched, errors } = useFormikContext<AppointmentFormValues>();
+  const availability = useAppSelector(selectDoctorAvailability);
+  const availabilityLoading = useAppSelector(selectDoctorAvailabilityLoading);
+  const availabilityError = useAppSelector(selectDoctorAvailabilityError);
+  const selectedDate = useMemo(
+    () => (values.date ? formatLocalDate(values.date) : ''),
+    [values.date]
+  );
+  const slots =
+    availability?.doctorId === values.doctorId && availability.date === selectedDate
+      ? availability.slots
+      : [];
+  const canLoadSlots = Boolean(values.doctorId && selectedDate);
+
+  useEffect(() => {
+    setFieldValue('time', '', false);
+    if (values.doctorId && selectedDate) {
+      dispatch(loadDoctorAvailabilityRequested({ doctorId: values.doctorId, date: selectedDate }));
+    } else {
+      dispatch(clearDoctorAvailability());
+    }
+  }, [dispatch, selectedDate, setFieldValue, values.doctorId]);
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <FormikCalendar
+        name="date"
+        label={t('appointmentDate')}
+        minDate={new Date()}
+        showIcon
+        data-testid="appointment-date"
+      />
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {t('appointmentTime')}
+        </label>
+        <div
+          data-testid="appointment-time"
+          role="radiogroup"
+          aria-label={t('appointmentTime')}
+          className="min-h-[44px]"
+        >
+          {!canLoadSlots && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t('selectDoctorAndDateFirst')}
+            </p>
+          )}
+
+          {canLoadSlots && availabilityLoading && (
+            <InlineAlert
+              variant="info"
+              title={t('loadingAvailableSlots')}
+              className="py-2"
+            />
+          )}
+
+          {canLoadSlots && availabilityError && !availabilityLoading && (
+            <InlineAlert
+              variant="error"
+              title={t('availableSlotsError')}
+              message={availabilityError}
+              className="py-2"
+              onRetry={() =>
+                dispatch(
+                  loadDoctorAvailabilityRequested({
+                    doctorId: values.doctorId,
+                    date: selectedDate,
+                  })
+                )
+              }
+            />
+          )}
+
+          {canLoadSlots && !availabilityLoading && !availabilityError && slots.length === 0 && (
+            <InlineAlert
+              variant="warning"
+              title={t('noAvailableSlots')}
+              message={t('chooseAnotherDate')}
+              className="py-2"
+            />
+          )}
+
+          {slots.length > 0 && !availabilityLoading && !availabilityError && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+              {slots.map((slot) => {
+                const selected = values.time === slot.start;
+                const disabled = !slot.available;
+                return (
+                  <button
+                    key={slot.start}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    disabled={disabled}
+                    data-testid={`appointment-slot-${slot.label}`}
+                    onClick={() => setFieldValue('time', slot.start)}
+                    className={`h-11 rounded-lg border text-sm font-medium transition ${
+                      selected
+                        ? 'border-blue-600 bg-blue-600 text-white'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-gray-200'
+                    } ${disabled ? 'cursor-not-allowed opacity-50 hover:border-gray-200' : ''}`}
+                  >
+                    {slot.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        {touched.time && errors.time && <small className="p-error block mt-1">{errors.time}</small>}
+      </div>
+    </div>
+  );
+};
+
 export const BookAppointmentPage: React.FC = () => {
   const { t, i18n } = useTranslation('patient');
   const dispatch = useAppDispatch();
@@ -77,12 +182,16 @@ export const BookAppointmentPage: React.FC = () => {
   const specialties = useAppSelector(selectSpecialties);
   const doctors = useAppSelector(selectDoctors);
   const loading = useAppSelector(selectPatientLoading);
+  const availabilityLoading = useAppSelector(selectDoctorAvailabilityLoading);
   const appointmentSubmitted = useAppSelector(selectAppointmentSubmitted);
   const error = useAppSelector(selectPatientError);
   const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>('');
 
   useEffect(() => {
     dispatch(loadSpecialtiesRequested());
+    return () => {
+      dispatch(clearDoctorAvailability());
+    };
   }, [dispatch]);
 
   // Saga dispatches toasts; navigate only.
@@ -104,13 +213,10 @@ export const BookAppointmentPage: React.FC = () => {
 
   const handleSubmit = (values: AppointmentFormValues) => {
     if (!values.date) return;
-    // No trailing Z: JS interprets the string in local timezone, mapping correctly to UTC.
-    const localDateTimeStr = `${formatLocalDate(values.date)}T${values.time}:00`;
-    const scheduledAt = new Date(localDateTimeStr).toISOString();
     dispatch(
       bookAppointmentRequested({
         doctorId: values.doctorId,
-        scheduledAt,
+        scheduledAt: values.time,
         reason: values.reason,
         notes: values.notes,
       })
@@ -167,7 +273,9 @@ export const BookAppointmentPage: React.FC = () => {
                     onChange={(e) => {
                       setFieldValue('specialtyId', e.value);
                       setFieldValue('doctorId', '');
+                      setFieldValue('time', '');
                       setSelectedSpecialtyId(e.value);
+                      dispatch(clearDoctorAvailability());
                       if (e.value) {
                         dispatch(loadDoctorsBySpecialtyRequested(e.value));
                       }
@@ -181,6 +289,10 @@ export const BookAppointmentPage: React.FC = () => {
                     placeholder={t('selectDoctor')}
                     disabled={!selectedSpecialtyId || doctors.length === 0}
                     data-testid="appointment-doctor"
+                    onChange={(e) => {
+                      setFieldValue('doctorId', e.value);
+                      setFieldValue('time', '');
+                    }}
                   />
                 </div>
                 {!loading && selectedSpecialtyId && doctors.length === 0 && (
@@ -191,23 +303,7 @@ export const BookAppointmentPage: React.FC = () => {
                   />
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormikCalendar
-                    name="date"
-                    label={t('appointmentDate')}
-                    minDate={new Date()}
-                    showIcon
-                    data-testid="appointment-date"
-                  />
-
-                  <FormikDropdown
-                    name="time"
-                    label={t('appointmentTime')}
-                    options={timeSlots}
-                    placeholder={t('appointmentTime')}
-                    data-testid="appointment-time"
-                  />
-                </div>
+                <BookingAvailabilityFields />
 
                 <div className="mt-2">
                   <FormikInputText
@@ -228,7 +324,7 @@ export const BookAppointmentPage: React.FC = () => {
                   <Button
                     type="submit"
                     loading={loading}
-                    disabled={loading}
+                    disabled={loading || availabilityLoading}
                     data-testid="appointment-submit"
                   >
                     {t('bookAppointment')}

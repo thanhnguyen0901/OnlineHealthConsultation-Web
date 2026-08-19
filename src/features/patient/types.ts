@@ -30,6 +30,22 @@ export interface Appointment {
   hasRating?: boolean;
 }
 
+export interface AppointmentAvailabilitySlot {
+  start: string;
+  end: string;
+  label: string;
+  available: boolean;
+}
+
+export interface DoctorAvailability {
+  doctorId: Id;
+  date: string;
+  timezone: string;
+  durationMinutes: number;
+  slotStepMinutes: number;
+  slots: AppointmentAvailabilitySlot[];
+}
+
 export interface ConsultationHistory {
   questions: Question[];
   appointments: Appointment[];

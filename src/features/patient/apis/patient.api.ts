@@ -1,5 +1,11 @@
 import apiClient from '@/apis/core/apiClient';
-import type { Question, Appointment, PatientProfile, Rating } from '../types';
+import type {
+  Question,
+  Appointment,
+  PatientProfile,
+  Rating,
+  DoctorAvailability,
+} from '../types';
 import type { Doctor, Specialty } from '@/features/admin/types';
 import { getPublicDoctors, getPublicSpecialties } from '@/features/public/apis/public.api';
 
@@ -100,6 +106,20 @@ export const bookAppointment = async (data: {
 }): Promise<Appointment> => {
   const response = await apiClient.post('/appointments', data);
   return normalizeAppointment(unwrap(response.data));
+};
+
+export const getDoctorAvailability = async (params: {
+  doctorId: string;
+  date: string;
+  durationMinutes?: number;
+}): Promise<DoctorAvailability> => {
+  const response = await apiClient.get(`/public/doctors/${params.doctorId}/availability`, {
+    params: {
+      date: params.date,
+      durationMinutes: params.durationMinutes,
+    },
+  });
+  return unwrap<DoctorAvailability>(response.data);
 };
 
 export const getHistory = async (): Promise<{
