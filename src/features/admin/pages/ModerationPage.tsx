@@ -18,8 +18,15 @@ import {
 } from '../redux/admin.selectors';
 import { isUnauthorizedMessage } from '@/utils/authz';
 import { translateEnumValue } from '@/utils/enumI18n';
+import type { ModerationItem } from '../apis/admin.api';
 
-type PendingAction = { item: any; action: 'approve' | 'reject' } | null;
+type PendingAction = { item: ModerationItem; action: 'approve' | 'reject' } | null;
+
+const isHiddenStatus = (status?: string) =>
+  ['MODERATED', 'HIDDEN', 'REJECTED'].includes((status || '').toUpperCase());
+
+const isVisibleStatus = (status?: string) =>
+  ['PENDING', 'ANSWERED', 'APPROVED', 'VISIBLE'].includes((status || '').toUpperCase());
 
 export const ModerationPage: React.FC = () => {
   const { t, i18n } = useTranslation(['admin', 'common']);
@@ -34,8 +41,8 @@ export const ModerationPage: React.FC = () => {
     dispatch(loadModerationItemsRequested());
   }, [dispatch]);
 
-  const confirmApprove = (item: any) => setPendingAction({ item, action: 'approve' });
-  const confirmReject = (item: any) => setPendingAction({ item, action: 'reject' });
+  const confirmApprove = (item: ModerationItem) => setPendingAction({ item, action: 'approve' });
+  const confirmReject = (item: ModerationItem) => setPendingAction({ item, action: 'reject' });
 
   const hideConfirmDialog = () => setPendingAction(null);
 
@@ -49,11 +56,11 @@ export const ModerationPage: React.FC = () => {
     setPendingAction(null);
   };
 
-  const typeBodyTemplate = (rowData: any) => {
+  const typeBodyTemplate = (rowData: ModerationItem) => {
     return <span>{translateEnumValue(t, 'type', rowData.type)}</span>;
   };
 
-  const snippetBodyTemplate = (rowData: any) => {
+  const snippetBodyTemplate = (rowData: ModerationItem) => {
     const preview = rowData.contentPreview || rowData.content || '';
     return (
       <div
@@ -66,20 +73,37 @@ export const ModerationPage: React.FC = () => {
     );
   };
 
-  const authorBodyTemplate = (rowData: any) => (
+  const authorBodyTemplate = (rowData: ModerationItem) => (
     <div className="max-w-[180px] truncate whitespace-nowrap" title={rowData.author}>
       {rowData.author}
     </div>
   );
 
-  const createdAtBodyTemplate = (rowData: any) => {
+  const contextBodyTemplate = (rowData: ModerationItem) => {
+    const context = rowData.context ?? {};
+    const lines = [
+      context.title ? `${t('title')}: ${context.title}` : null,
+      context.questionTitle ? `${t('question')}: ${context.questionTitle}` : null,
+      context.doctor ? `${t('doctor')}: ${context.doctor}` : null,
+      context.patient ? `${t('patient')}: ${context.patient}` : null,
+      context.score ? `${t('score')}: ${context.score}/5` : null,
+    ].filter(Boolean);
+
+    return (
+      <div className="max-w-[280px] whitespace-normal break-words text-sm leading-5 text-gray-700 dark:text-gray-300">
+        {lines.length > 0 ? lines.join(' · ') : t('noContext')}
+      </div>
+    );
+  };
+
+  const createdAtBodyTemplate = (rowData: ModerationItem) => {
     return new Date(rowData.createdAt).toLocaleString(i18n.language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
-  const statusBodyTemplate = (rowData: any) => {
+  const statusBodyTemplate = (rowData: ModerationItem) => {
     const s = (rowData.status || '').toUpperCase();
     const isApproved = s === 'ANSWERED' || s === 'APPROVED' || s === 'VISIBLE';
-    const isRejected = s === 'MODERATED' || s === 'HIDDEN';
+    const isRejected = isHiddenStatus(s);
     const colorClass = isApproved
       ? 'text-green-600'
       : isRejected
@@ -92,14 +116,10 @@ export const ModerationPage: React.FC = () => {
     );
   };
 
-  const actionsBodyTemplate = (rowData: any) => {
-    const s = (rowData.status || '').toUpperCase();
-    const isQuestionOrAnswerPending = rowData.type !== 'RATING' && s === 'PENDING';
-    const isRating = rowData.type === 'RATING';
-    if (!isQuestionOrAnswerPending && !isRating) return null;
+  const actionsBodyTemplate = (rowData: ModerationItem) => {
     const dialogOpen = pendingAction !== null;
-    const canApprove = !isRating || s !== 'VISIBLE';
-    const canReject = !isRating || s !== 'HIDDEN';
+    const canApprove = isHiddenStatus(rowData.status);
+    const canReject = isVisibleStatus(rowData.status);
     return (
       <div className="flex gap-2">
         {canApprove && (
@@ -167,6 +187,11 @@ export const ModerationPage: React.FC = () => {
               header={t('snippet')}
               body={snippetBodyTemplate}
               style={{ width: '360px' }}
+            />
+            <Column
+              header={t('reviewContext')}
+              body={contextBodyTemplate}
+              style={{ width: '300px' }}
             />
             <Column
               field="author"

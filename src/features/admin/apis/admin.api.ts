@@ -114,6 +114,7 @@ export interface ModerationItem {
   createdAt: string;
   status: string;
   entityId: Id;
+  context?: Record<string, unknown>;
 }
 
 const defaultPagination = { page: 1, limit: 10, total: 0, totalPages: 0 };
@@ -407,8 +408,8 @@ export const updateAppointmentStatus = async (id: Id, status: string): Promise<A
 };
 
 export const getModerationItems = async (): Promise<ModerationItem[]> => {
-  // TODO_BACKEND_API: backend has moderation action endpoints, but no unified admin moderation list yet.
-  return [];
+  const response = await apiClient.get('/admin/moderation/items');
+  return unwrap(response.data) as ModerationItem[];
 };
 
 const parseModerationId = (id: Id) => {
@@ -416,20 +417,17 @@ const parseModerationId = (id: Id) => {
   return { type, entityId: rest.join('_') };
 };
 
-export const approveModeration = async (id: Id): Promise<void> => {
+const moderationActionEndpoint = (id: Id) => {
   const { type, entityId } = parseModerationId(id);
-  if (type === 'QUESTION') {
-    await apiClient.patch(`/admin/questions/${entityId}/moderation`, { action: 'REOPEN' });
-  } else if (type === 'RATING') {
-    await apiClient.patch(`/admin/ratings/${entityId}/moderation`, { status: 'VISIBLE' });
-  }
+  return `/admin/moderation/items/${type}/${entityId}`;
 };
 
-export const rejectModeration = async (id: Id): Promise<void> => {
-  const { type, entityId } = parseModerationId(id);
-  if (type === 'QUESTION') {
-    await apiClient.patch(`/admin/questions/${entityId}/moderation`, { action: 'MODERATE' });
-  } else if (type === 'RATING') {
-    await apiClient.patch(`/admin/ratings/${entityId}/moderation`, { status: 'HIDDEN' });
-  }
+export const approveModeration = async (id: Id): Promise<unknown> => {
+  const response = await apiClient.patch(moderationActionEndpoint(id), { action: 'RESTORE' });
+  return unwrap(response.data);
+};
+
+export const rejectModeration = async (id: Id): Promise<unknown> => {
+  const response = await apiClient.patch(moderationActionEndpoint(id), { action: 'HIDE' });
+  return unwrap(response.data);
 };
