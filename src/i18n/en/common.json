@@ -41,6 +41,8 @@
   "accessForbiddenDescription": "Your current role does not have permission to open this page.",
   "goToDashboard": "Go to dashboard",
   "homeLabel": "Home",
+  "medicalDisclaimerTitle": "Consultation scope",
+  "medicalDisclaimerText": "This system supports online health consultation and does not replace emergency services or direct medical examination when necessary.",
   "home": {
     "heroTitle": "Online Health Consultation System",
     "heroSubtitle": "Connect with specialist doctors, ask health questions and receive online consultation quickly and conveniently",

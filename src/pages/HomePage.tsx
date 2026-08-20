@@ -72,6 +72,12 @@ export const HomePage: React.FC = () => {
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
             {t('home.heroSubtitle')}
           </p>
+          <InlineAlert
+            variant="info"
+            title={t('medicalDisclaimerTitle')}
+            message={t('medicalDisclaimerText')}
+            className="mx-auto mb-8 max-w-2xl text-left"
+          />
           <div className="flex gap-4 justify-center flex-wrap">
             <Button onClick={() => navigate(ROUTE_PATHS.LOGIN)} className="px-8 py-3 text-lg">
               {t('login')}

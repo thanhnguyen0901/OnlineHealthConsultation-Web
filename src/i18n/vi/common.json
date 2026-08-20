@@ -41,6 +41,8 @@
   "accessForbiddenDescription": "Vai trò hiện tại của bạn không có quyền mở trang này.",
   "goToDashboard": "Về bảng điều khiển",
   "homeLabel": "Trang chủ",
+  "medicalDisclaimerTitle": "Phạm vi tư vấn",
+  "medicalDisclaimerText": "Hệ thống hỗ trợ tư vấn sức khỏe trực tuyến và không thay thế dịch vụ cấp cứu hoặc khám trực tiếp khi cần thiết.",
   "home": {
     "heroTitle": "Hệ Thống Tư Vấn Sức Khỏe Trực Tuyến",
     "heroSubtitle": "Kết nối với bác sĩ chuyên khoa, đặt câu hỏi sức khỏe và nhận tư vấn trực tuyến nhanh chóng, tiện lợi",

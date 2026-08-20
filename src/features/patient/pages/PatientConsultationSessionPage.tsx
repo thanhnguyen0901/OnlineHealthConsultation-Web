@@ -109,6 +109,7 @@ export const PatientConsultationSessionPage: React.FC = () => {
     onMessage: appendRealtimeMessage,
     onError: handleSocketError,
   });
+  const disconnectSocket = socket.disconnect;
 
   const loadAndJoin = React.useCallback(async () => {
     if (!appointmentId) {
@@ -147,8 +148,8 @@ export const PatientConsultationSessionPage: React.FC = () => {
 
   React.useEffect(() => {
     loadAndJoin();
-    return () => socket.disconnect();
-  }, [loadAndJoin]);
+    return () => disconnectSocket();
+  }, [disconnectSocket, loadAndJoin]);
 
   React.useEffect(() => {
     if (viewState !== 'ongoing') return undefined;
@@ -159,14 +160,14 @@ export const PatientConsultationSessionPage: React.FC = () => {
           normalizeStatus(data?.appointment?.status) === 'COMPLETED' ||
           normalizeStatus(data?.consultation?.status) === 'COMPLETED';
         if (completed) {
-          socket.disconnect();
+          disconnectSocket();
         }
       } catch {
         // Keep the live chat usable; the next poll or user action can surface an error.
       }
     }, 15000);
     return () => window.clearInterval(timer);
-  }, [refreshResult, socket, viewState]);
+  }, [disconnectSocket, refreshResult, viewState]);
 
   const sendMessage = async () => {
     const content = draft.trim();
@@ -247,6 +248,12 @@ export const PatientConsultationSessionPage: React.FC = () => {
             className="w-fit"
           />
         </div>
+
+        <InlineAlert
+          variant="info"
+          title={t('common:medicalDisclaimerTitle')}
+          message={t('common:medicalDisclaimerText')}
+        />
 
         {error && (
           <div data-testid="error-alert">

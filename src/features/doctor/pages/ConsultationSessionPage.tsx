@@ -87,7 +87,7 @@ const isCompleted = (result: ConsultationResult | null) =>
 const isOngoing = (result: ConsultationResult | null) => result?.consultation?.status === 'ONGOING';
 
 export const ConsultationSessionPage: React.FC = () => {
-  const { t, i18n } = useTranslation('doctor');
+  const { t, i18n } = useTranslation(['doctor', 'common']);
   const { appointmentId = '' } = useParams();
   const accessToken = useAppSelector(selectAccessToken);
   const currentUser = useAppSelector(selectUser);
@@ -278,6 +278,12 @@ export const ConsultationSessionPage: React.FC = () => {
             className="w-fit"
           />
         </div>
+
+        <InlineAlert
+          variant="info"
+          title={t('common:medicalDisclaimerTitle')}
+          message={t('common:medicalDisclaimerText')}
+        />
 
         {error && (
           <div data-testid="error-alert">

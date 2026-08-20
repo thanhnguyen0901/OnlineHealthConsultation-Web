@@ -54,7 +54,7 @@ const FormikTextArea: React.FC<{
 };
 
 export const AskQuestionPage: React.FC = () => {
-  const { t, i18n } = useTranslation(['patient', 'validation']);
+  const { t, i18n } = useTranslation(['patient', 'validation', 'common']);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const loading = useAppSelector(selectPatientLoading);
@@ -100,6 +100,12 @@ export const AskQuestionPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
           {t('askQuestion')}
         </h1>
+        <InlineAlert
+          variant="info"
+          title={t('common:medicalDisclaimerTitle')}
+          message={t('common:medicalDisclaimerText')}
+          className="mb-4"
+        />
         {questionSubmitted && (
           <InlineAlert
             variant="success"
