@@ -1,11 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { HttpError } from './httpError';
+import { getConfiguredAccessToken, notifyRefreshFailed } from './apiAuthConfig';
 import { performRefresh } from './refreshManager';
 import { API_CONFIG } from '@/config/api.config';
 import { ROUTE_PATHS } from '@/constants/routePaths';
-import { store } from '@/state/store';
-import { selectAccessToken } from '@/features/auth/redux/auth.selectors';
-import { logoutSucceeded } from '@/features/auth/redux/auth.slice';
 
 const apiClient = axios.create({
   baseURL: (import.meta.env.VITE_API_BASE_URL || API_CONFIG.BASE_URL) + '/api',
@@ -18,7 +16,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const accessToken = selectAccessToken(store.getState());
+    const accessToken = getConfiguredAccessToken();
     if (accessToken && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -52,7 +50,7 @@ apiClient.interceptors.response.use(
         await performRefresh();
         return apiClient(originalRequest);
       } catch (refreshError) {
-        store.dispatch(logoutSucceeded());
+        notifyRefreshFailed();
         window.location.href = ROUTE_PATHS.LOGIN;
         return Promise.reject(refreshError);
       }

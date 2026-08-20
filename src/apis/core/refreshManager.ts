@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { API_CONFIG } from '@/config/api.config';
-import { store } from '@/state/store';
-import { setAccessToken } from '@/features/auth/redux/auth.slice';
+import { notifyAccessTokenRefreshed } from './apiAuthConfig';
 import { saveAuthToStorage } from '@/utils/authStorage';
 import type { User } from '@/types/common';
 import i18n from '@/i18n/initI18n';
@@ -82,10 +81,10 @@ async function executeRefresh(): Promise<AuthPayload> {
     throw new Error(i18n.t('common:unexpectedError'));
   }
 
-  store.dispatch(setAccessToken(accessToken));
+  notifyAccessTokenRefreshed(accessToken);
   saveAuthToStorage(accessToken);
 
-  debugLog('refresh succeeded, new accessToken dispatched to store and saved to sessionStorage');
+  debugLog('refresh succeeded, new accessToken published and saved to sessionStorage');
 
   return { accessToken, user: normalizeUser(user) };
 }

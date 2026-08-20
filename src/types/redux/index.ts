@@ -1,4 +1,5 @@
-import type { store } from '@/state/store';
+import type { Dispatch, UnknownAction } from '@reduxjs/toolkit';
+import type { rootReducer } from '@/state/rootReducer';
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof rootReducer>;
+export type AppDispatch = Dispatch<UnknownAction>;

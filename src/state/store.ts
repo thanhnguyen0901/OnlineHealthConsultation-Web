@@ -1,29 +1,30 @@
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import rootSaga from './rootSaga';
-import uiReducer from '@/redux/slices/ui.slice';
-import authReducer from '@/features/auth/redux/auth.slice';
-import patientReducer from '@/features/patient/redux/patient.slice';
-import doctorReducer from '@/features/doctor/redux/doctor.slice';
-import adminReducer from '@/features/admin/redux/admin.slice';
-import reportsReducer from '@/features/reports/redux/reports.slice';
+import { rootReducer } from './rootReducer';
+import { configureApiAuth } from '@/apis/core/apiAuthConfig';
+import { selectAccessToken } from '@/features/auth/redux/auth.selectors';
+import { logoutSucceeded, setAccessToken } from '@/features/auth/redux/auth.slice';
 
 const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
-  reducer: {
-    ui: uiReducer,
-    auth: authReducer,
-    patient: patientReducer,
-    doctor: doctorReducer,
-    admin: adminReducer,
-    reports: reportsReducer,
-  },
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       thunk: false,
       serializableCheck: false,
     }).concat(sagaMiddleware),
+});
+
+configureApiAuth({
+  getAccessToken: () => selectAccessToken(store.getState()),
+  onAccessTokenRefreshed: (accessToken) => {
+    store.dispatch(setAccessToken(accessToken));
+  },
+  onRefreshFailed: () => {
+    store.dispatch(logoutSucceeded());
+  },
 });
 
 sagaMiddleware.run(rootSaga);
