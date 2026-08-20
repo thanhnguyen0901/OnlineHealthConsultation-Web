@@ -1,147 +1,210 @@
-# OnlineHealthConsultation-Web
+# Online Health Consultation Web
 
-Frontend cho hệ thống tư vấn sức khỏe trực tuyến, xây dựng bằng React + TypeScript + Vite.
+Frontend React application cho hệ thống tư vấn sức khỏe trực tuyến. Repo này cung cấp public discovery pages, authentication UI, patient/doctor/admin workspaces, realtime consultation UI, reporting screens và Playwright E2E tests.
 
-## Mục tiêu
+## Business Overview
 
-Ứng dụng phục vụ 3 vai trò:
+Ứng dụng phục vụ các luồng chính của nền tảng:
 
-- `PATIENT`: đặt lịch, hỏi đáp, theo dõi lịch sử tư vấn, cập nhật hồ sơ.
-- `DOCTOR`: xử lý câu hỏi, quản lý lịch làm việc, quản lý lịch hẹn, xem đánh giá.
-- `ADMIN`: quản trị người dùng, bác sĩ, chuyên khoa, lịch hẹn, moderation nội dung.
+- Guest xem chuyên khoa, tìm kiếm bác sĩ và xem hồ sơ bác sĩ công khai.
+- Patient đăng ký/đăng nhập, cập nhật hồ sơ sức khỏe, gửi câu hỏi, đặt lịch từ available slots, tham gia tư vấn realtime, xem summary/prescription và đánh giá bác sĩ.
+- Doctor quản lý hồ sơ chuyên môn/lịch làm việc, trả lời câu hỏi, xác nhận lịch hẹn, bắt đầu phiên tư vấn, chat realtime, ghi summary và prescription.
+- Administrator quản lý users, doctors, specialties, appointments, moderation và reporting.
 
-Ngoài ra có trang `Reports` dùng chung cho `ADMIN` và `DOCTOR`.
+Ứng dụng hiển thị disclaimer rằng tư vấn online chỉ mang tính hỗ trợ/tham khảo và không thay thế cấp cứu hoặc khám trực tiếp khi cần.
 
-## Công nghệ
+## Architecture
 
-- React 18 + TypeScript
+Frontend được tổ chức theo feature-based architecture. Mỗi feature sở hữu pages, API client, Redux state/saga và types riêng; phần dùng chung nằm ở `components`, `apis/core`, `state`, `utils`, `hooks` và `i18n`.
+
+```text
+src/
+├── apis/core/                # axios client, refresh manager, auth API wiring
+├── app/                      # route config and route guards
+├── components/               # reusable UI components and form controls
+├── config/                   # runtime frontend config
+├── constants/                # roles, route paths, storage keys
+├── features/
+│   ├── admin/                # admin management, moderation, dashboard
+│   ├── auth/                 # login, register, forgot/reset password
+│   ├── consultation/         # shared realtime Socket.IO client/hook
+│   ├── doctor/               # doctor workspace
+│   ├── patient/              # patient workspace
+│   ├── public/               # public home, specialties, doctors
+│   └── reports/              # reporting UI
+├── i18n/                     # Vietnamese and English translation resources
+├── layouts/                  # auth/main layouts
+├── state/                    # Redux store, root reducer, root saga
+├── types/                    # shared app types
+└── utils/                    # formatting, storage, authz, error handling
+```
+
+## Tech Stack
+
+- React 18
+- TypeScript
 - Vite
 - React Router v6
-- Redux Toolkit + Redux Saga
+- Redux Toolkit
+- Redux Saga
 - Axios
-- PrimeReact + Tailwind CSS
-- Formik + Yup
+- Socket.IO client
+- PrimeReact
+- Tailwind CSS
+- Formik
+- Yup
 - i18next (`vi`, `en`)
 - Recharts
 - Playwright E2E
 
-## Cấu trúc chính
+## Application Routes
 
-```text
-OnlineHealthConsultation-Web/
-├── e2e/
-│   ├── fixtures/
-│   ├── pages/
-│   ├── specs/
-│   ├── test-data/
-│   └── utils/
-├── src/
-│   ├── apis/core/
-│   ├── app/
-│   ├── components/
-│   ├── constants/
-│   ├── features/
-│   │   ├── auth/
-│   │   ├── patient/
-│   │   ├── doctor/
-│   │   ├── admin/
-│   │   └── reports/
-│   ├── i18n/
-│   ├── layouts/
-│   ├── redux/
-│   ├── state/
-│   ├── types/
-│   └── utils/
-├── .env.example
-├── package.json
-└── README.md
-```
+Public routes:
 
-## Routing và phân quyền
+- `/`
+- `/login`
+- `/register`
+- `/forgot-password`
+- `/reset-password`
+- `/specialties`
+- `/doctors`
+- `/doctors/:doctorId`
+- `/403`
 
-- Public:
-  - `/`
-  - `/login`
-  - `/register`
-  - `*` -> `404`
-- Protected qua `AuthGuard` + `RoleGuard`:
-  - Patient: `/patient`, `/patient/ask-question`, `/patient/book-appointment`, `/patient/history`, `/patient/profile`
-  - Doctor: `/doctor`, `/doctor/inbox`, `/doctor/patients`, `/doctor/appointments`, `/doctor/schedule`, `/doctor/ratings`, `/doctor/profile`
-  - Admin: `/admin`, `/admin/users`, `/admin/patients`, `/admin/doctors`, `/admin/specialties`, `/admin/appointments`, `/admin/moderation`
-  - Shared: `/reports` (`ADMIN`, `DOCTOR`)
+Protected patient routes:
 
-## Auth/AuthZ flow trên frontend
+- `/patient`
+- `/patient/ask-question`
+- `/patient/book-appointment`
+- `/patient/history`
+- `/patient/profile`
+- `/patient/consultations/:appointmentId`
 
-### 1. Bootstrap phiên
+Protected doctor routes:
 
-- `App.tsx` dispatch `meRequested()` khi app mount.
-- Saga auth thử lấy access token từ `sessionStorage` trước.
-- Nếu token local không hợp lệ thì fallback sang `POST /auth/refresh` (cookie).
+- `/doctor`
+- `/doctor/inbox`
+- `/doctor/schedule`
+- `/doctor/patients`
+- `/doctor/appointments`
+- `/doctor/ratings`
+- `/doctor/profile`
+- `/doctor/consultations/:appointmentId`
 
-### 2. Request pipeline
+Protected admin routes:
 
-- Request interceptor tự gắn `Authorization: Bearer <accessToken>` từ Redux.
-- Nếu API trả `401`, interceptor gọi refresh rồi retry request cũ.
-- Nếu refresh thất bại, app clear auth state và điều hướng về `/login`.
+- `/admin`
+- `/admin/users`
+- `/admin/patients`
+- `/admin/doctors`
+- `/admin/specialties`
+- `/admin/appointments`
+- `/admin/moderation`
+- `/reports`
 
-### 3. Guard
+## Auth And API Flow
 
-- `AuthGuard`: chặn route private khi chưa đăng nhập.
-- `RoleGuard`: chặn route sai role.
+- `App.tsx` bootstraps the session by dispatching `meRequested()`.
+- Access token is kept in frontend auth state/storage for API authorization.
+- Refresh token is not exposed to JavaScript; backend stores it in an HttpOnly cookie.
+- Axios request interceptor attaches `Authorization: Bearer <accessToken>`.
+- Axios response interceptor handles `401`, deduplicates refresh attempts and retries the original request when refresh succeeds.
+- Failed refresh clears auth state and routes the user back to login.
+- `AuthGuard` protects authenticated sections; `RoleGuard` protects role-specific pages.
 
-## Cài đặt và chạy
+Backend authorization remains the source of truth. Frontend guards are for navigation and user experience.
+
+## Realtime Consultation
+
+Realtime consultation chat uses the backend Socket.IO gateway:
+
+- Base URL comes from `VITE_API_BASE_URL`.
+- Namespace: `/consultations`.
+- The shared client lives in `src/features/consultation/realtime/`.
+- Patient and doctor consultation pages use REST for initial session/history/result data and Socket.IO for realtime messages.
+- The client cleans up listeners on unmount/logout and handles reconnect behavior.
+
+## Environment
+
+Create `.env` from `.env.example`:
 
 ```bash
-npm install
 cp .env.example .env
-npm run dev
 ```
 
-App chạy tại: `http://localhost:5173`
-
-## Biến môi trường
-
-`.env.example`:
+Local default:
 
 ```env
 VITE_API_BASE_URL=http://localhost:4000
 ```
 
-Biến sử dụng:
+The same base URL is used for REST APIs and realtime consultation Socket.IO.
 
-- `VITE_API_BASE_URL`: base URL backend.
-- `VITE_DEBUG_REFRESH` (optional): bật log refresh manager khi đặt `true`.
+## Setup And Run
+
+Start the backend first, then run:
+
+```bash
+cd /Users/ThanhNguyen/Projects/SV/WebProgramming/OnlineHealthConsultation/OnlineHealthConsultation-Web
+source ~/.nvm/nvm.sh
+npm install
+npm run dev
+```
+
+Local frontend URL:
+
+```text
+http://localhost:5173
+```
+
+## Demo Accounts
+
+These accounts are created by the backend demo seed:
+
+```text
+Admin:   admin@healthcare.local / Admin@123
+Patient: lan.nguyen@healthcare.local / Patient@123
+Doctor:  bs.an.nguyen@healthcare.local / Doctor@123
+```
 
 ## Scripts
 
 ```bash
-npm run dev
-npm run build
-npm run preview
-npm run lint
-npm run format
-npm run format:check
-npm run type-check
-npm run test:e2e
-npm run test:e2e:headed
-npm run test:e2e:ui
-npm run test:e2e:debug
-npm run test:e2e:report
-npm run test:e2e:install
+npm run dev                    # Vite dev server
+npm run build                  # TypeScript build + Vite production build
+npm run preview                # Preview production build
+npm run type-check             # TypeScript type check
+npm run lint                   # ESLint
+npm run format                 # Prettier write
+npm run format:check           # Prettier check
+npm run test:e2e               # Playwright E2E
+npm run test:e2e:seeded        # Playwright E2E against seeded backend data
+npm run test:e2e:install       # Install Playwright browsers
+npm run test:e2e:report        # Show Playwright report
 ```
 
-## E2E
+## E2E Testing
 
-- Framework: Playwright
-- Specs: `e2e/specs/**/*.spec.ts`
-- Page objects: `e2e/pages/`
-- Base URL: `PLAYWRIGHT_BASE_URL` hoặc `VITE_APP_URL`, mặc định `http://localhost:5173`
+Playwright tests live under `e2e/`.
 
-```bash
-npm run test:e2e:install
-npm run test:e2e
+```text
+e2e/
+├── fixtures/
+├── pages/
+├── specs/
+├── test-data/
+└── utils/
 ```
 
-## Tích hợp backend
+For manual E2E runs, make sure backend, database and frontend are running and use the correct seed for the test suite.
 
-Frontend gọi API từ dự án `OnlineHealthConsultation-Service` trong cùng workspace.
+## Styling And UI
+
+- Tailwind CSS is used for layout and visual styling.
+- PrimeReact provides form controls and widgets.
+- Common controls live in `src/components/common` and `src/components/form-controls`.
+- Pages are responsive and localized through i18next.
+
+## Related Repo
+
+Backend service: `../OnlineHealthConsultation-Service`
