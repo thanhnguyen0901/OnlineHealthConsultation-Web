@@ -17,13 +17,26 @@ import {
   specialtyName,
 } from './publicPageUtils';
 
+const normalizeSpecialtyId = (value: unknown) => {
+  if (typeof value === 'string') {
+    return value === '[object Object]' ? '' : value;
+  }
+
+  if (value && typeof value === 'object' && 'value' in value) {
+    const optionValue = (value as { value?: unknown }).value;
+    return typeof optionValue === 'string' ? optionValue : '';
+  }
+
+  return '';
+};
+
 export const DoctorListPage: React.FC = () => {
   const { t, i18n } = useTranslation('common');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [keyword, setKeyword] = React.useState(searchParams.get('keyword') ?? '');
   const [selectedSpecialtyId, setSelectedSpecialtyId] = React.useState(
-    searchParams.get('specialtyId') ?? ''
+    normalizeSpecialtyId(searchParams.get('specialtyId'))
   );
   const [specialties, setSpecialties] = React.useState<PublicSpecialty[]>([]);
   const [doctors, setDoctors] = React.useState<PublicDoctor[]>([]);
@@ -95,20 +108,24 @@ export const DoctorListPage: React.FC = () => {
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-slate-900 md:grid-cols-[1fr_280px]">
-          <span className="p-input-icon-left w-full">
-            <i className="pi pi-search" />
+          <span className="relative block w-full">
+            <span className="pointer-events-none absolute inset-y-0 left-0 z-10 flex w-11 items-center justify-center text-gray-500 dark:text-gray-400">
+              <i className="pi pi-search" />
+            </span>
             <InputText
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
               placeholder={t('home.doctorSearchPlaceholder')}
-              className="w-full"
+              className="w-full !pl-12"
               data-testid="doctor-search-input"
             />
           </span>
           <Dropdown
             value={selectedSpecialtyId}
             options={specialtyOptions}
-            onChange={(event) => setSelectedSpecialtyId(event.value)}
+            optionLabel="label"
+            optionValue="value"
+            onChange={(event) => setSelectedSpecialtyId(normalizeSpecialtyId(event.value))}
             placeholder={t('home.specialtyFilterPlaceholder')}
             className="w-full"
             data-testid="specialty-filter"
