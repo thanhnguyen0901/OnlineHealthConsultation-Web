@@ -29,6 +29,8 @@ interface BackendDoctor {
   firstName?: string;
   lastName?: string;
   bio?: string | null;
+  qualificationSummary?: string | null;
+  consultationDescription?: string | null;
   yearsOfExperience?: number | null;
   schedule?: unknown;
   specialties?: BackendDoctorSpecialty[] | BackendSpecialty[];
@@ -100,6 +102,8 @@ export const normalizeDoctor = (doctor: BackendDoctor): PublicDoctor => {
     firstName,
     lastName,
     bio: doctor.bio ?? null,
+    qualificationSummary: doctor.qualificationSummary ?? null,
+    consultationDescription: doctor.consultationDescription ?? doctor.bio ?? null,
     yearsOfExperience: doctor.yearsOfExperience ?? null,
     schedule: doctor.schedule,
     specialties: normalizeDoctorSpecialties(doctor.specialties),

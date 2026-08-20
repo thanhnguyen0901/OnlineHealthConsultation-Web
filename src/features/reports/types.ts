@@ -19,12 +19,14 @@ export interface ReportData extends Record<string, string | number> {
   date: string;
 }
 
-export interface ChartData {
-  name: string;
-  value: number;
+export interface ReportFilters {
+  from?: string;
+  to?: string;
+  groupBy?: 'day' | 'week' | 'month';
 }
 
 export interface Statistics {
+  totalConsultations: number;
   totalUsers: number;
   totalDoctors: number;
   totalPatients: number;

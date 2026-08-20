@@ -24,6 +24,8 @@ import { isUnauthorizedMessage } from '@/utils/authz';
 
 interface ProfileFormState {
   bio: string;
+  qualificationSummary: string;
+  consultationDescription: string;
   yearsOfExperience: number | null;
   specialtyId: string;
 }
@@ -38,6 +40,8 @@ export const DoctorProfilePage: React.FC = () => {
 
   const [form, setForm] = useState<ProfileFormState>({
     bio: '',
+    qualificationSummary: '',
+    consultationDescription: '',
     yearsOfExperience: null,
     specialtyId: '',
   });
@@ -55,6 +59,8 @@ export const DoctorProfilePage: React.FC = () => {
     if (profile) {
       setForm({
         bio: profile.bio ?? '',
+        qualificationSummary: profile.qualificationSummary ?? '',
+        consultationDescription: profile.consultationDescription ?? profile.bio ?? '',
         yearsOfExperience: profile.yearsOfExperience ?? null,
         specialtyId: profile.specialtyId ?? '',
       });
@@ -87,6 +93,8 @@ export const DoctorProfilePage: React.FC = () => {
     if (!profile) return;
     setForm({
       bio: profile.bio ?? '',
+      qualificationSummary: profile.qualificationSummary ?? '',
+      consultationDescription: profile.consultationDescription ?? profile.bio ?? '',
       yearsOfExperience: profile.yearsOfExperience ?? null,
       specialtyId: profile.specialtyId ?? '',
     });
@@ -94,9 +102,17 @@ export const DoctorProfilePage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const payload: { bio?: string; yearsOfExperience?: number; specialtyId?: string } = {};
+    const payload: {
+      bio?: string;
+      qualificationSummary?: string;
+      consultationDescription?: string;
+      yearsOfExperience?: number;
+      specialtyId?: string;
+    } = {};
     // Always include bio to allow clearing it; BE accepts empty string.
     payload.bio = form.bio.trim();
+    payload.qualificationSummary = form.qualificationSummary.trim();
+    payload.consultationDescription = form.consultationDescription.trim();
     if (form.yearsOfExperience !== null && form.yearsOfExperience !== undefined) {
       payload.yearsOfExperience = form.yearsOfExperience;
     }
@@ -109,6 +125,10 @@ export const DoctorProfilePage: React.FC = () => {
   const isDirty =
     !!profile &&
     ((form.bio ?? '').trim() !== (profile.bio ?? '').trim() ||
+      (form.qualificationSummary ?? '').trim() !==
+        (profile.qualificationSummary ?? '').trim() ||
+      (form.consultationDescription ?? '').trim() !==
+        (profile.consultationDescription ?? profile.bio ?? '').trim() ||
       (form.yearsOfExperience ?? null) !== (profile.yearsOfExperience ?? null) ||
       (form.specialtyId ?? '') !== (profile.specialtyId ?? ''));
 
@@ -189,14 +209,52 @@ export const DoctorProfilePage: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {t('bio')}
+                {t('qualificationSummary')}
+              </label>
+              <InputTextarea
+                value={form.qualificationSummary}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, qualificationSummary: e.target.value }))
+                }
+                rows={3}
+                className="w-full"
+                placeholder={t('qualificationSummaryPlaceholder')}
+                maxLength={1000}
+              />
+              <span className="text-xs text-gray-400 mt-1 block text-right">
+                {form.qualificationSummary.length} / 1000
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('consultationDescription')}
+              </label>
+              <InputTextarea
+                value={form.consultationDescription}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, consultationDescription: e.target.value }))
+                }
+                rows={4}
+                className="w-full"
+                placeholder={t('consultationDescriptionPlaceholder')}
+                maxLength={2000}
+              />
+              <span className="text-xs text-gray-400 mt-1 block text-right">
+                {form.consultationDescription.length} / 2000
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('profileOverview')}
               </label>
               <InputTextarea
                 value={form.bio}
                 onChange={(e) => setForm((prev) => ({ ...prev, bio: e.target.value }))}
                 rows={5}
                 className="w-full"
-                placeholder={t('bioPlaceholder')}
+                placeholder={t('profileOverviewPlaceholder')}
                 maxLength={2000}
               />
               <span className="text-xs text-gray-400 mt-1 block text-right">

@@ -13,6 +13,8 @@ export interface DoctorProfile {
   lastName: string;
   email: string;
   bio?: string | null;
+  qualificationSummary?: string | null;
+  consultationDescription?: string | null;
   yearsOfExperience?: number | null;
   specialtyId?: string | null;
   specialty?: { id: Id; nameEn: string; nameVi: string } | null;

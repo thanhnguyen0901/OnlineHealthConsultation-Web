@@ -35,6 +35,8 @@ const normalizeProfile = (raw: any): DoctorProfile => {
     lastName: raw.user?.lastName ?? raw.lastName ?? '',
     email: raw.user?.email ?? raw.email ?? '',
     bio: raw.bio,
+    qualificationSummary: raw.qualificationSummary,
+    consultationDescription: raw.consultationDescription,
     yearsOfExperience: raw.yearsOfExperience,
     specialtyId: firstSpecialty?.id ?? raw.specialtyId,
     specialty: firstSpecialty ?? raw.specialty ?? null,
@@ -235,11 +237,15 @@ export const getRatings = async (_params?: {
 
 export const updateProfile = async (data: {
   bio?: string;
+  qualificationSummary?: string;
+  consultationDescription?: string;
   yearsOfExperience?: number;
   specialtyId?: string;
 }): Promise<unknown> => {
   await apiClient.patch('/doctors/me/profile', {
     bio: data.bio,
+    qualificationSummary: data.qualificationSummary,
+    consultationDescription: data.consultationDescription,
     yearsOfExperience: data.yearsOfExperience,
   });
   if (data.specialtyId) {

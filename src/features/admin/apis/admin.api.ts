@@ -18,6 +18,7 @@ interface BackendUser {
 interface BackendDoctorProfile {
   id: Id;
   user?: BackendUser;
+  userId?: Id;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -25,6 +26,9 @@ interface BackendDoctorProfile {
   specialtyName?: string;
   specialtyNameVi?: string;
   bio?: string | null;
+  qualificationSummary?: string | null;
+  consultationDescription?: string | null;
+  yearsOfExperience?: number | null;
   approvalStatus?: string;
   isActive?: boolean;
   specialties?: { specialty?: Specialty }[];
@@ -147,6 +151,7 @@ const normalizeDoctor = (backendDoctor: BackendDoctorProfile): Doctor => {
 
   return {
     id: backendDoctor.id,
+    userId: user?.id ?? backendDoctor.userId,
     firstName,
     lastName,
     email,
@@ -156,6 +161,10 @@ const normalizeDoctor = (backendDoctor: BackendDoctorProfile): Doctor => {
     specialtyName: backendDoctor.specialtyName ?? firstSpecialty?.nameEn ?? '',
     specialtyNameVi: backendDoctor.specialtyNameVi ?? firstSpecialty?.nameVi,
     bio: backendDoctor.bio ?? undefined,
+    qualificationSummary: backendDoctor.qualificationSummary ?? undefined,
+    consultationDescription:
+      backendDoctor.consultationDescription ?? backendDoctor.bio ?? undefined,
+    yearsOfExperience: backendDoctor.yearsOfExperience ?? undefined,
     ...(user?.isActive !== undefined ? { isActive: user.isActive } : {}),
     ...(backendDoctor.isActive !== undefined ? { doctorProfileActive: backendDoctor.isActive } : {}),
     ...(backendDoctor.approvalStatus ? { approvalStatus: backendDoctor.approvalStatus } : {}),
@@ -177,6 +186,7 @@ const normalizeStats = (raw: any): AdminStats => {
   );
 
   return {
+    totalConsultations: raw?.totalConsultations ?? raw?.completedAppointments ?? 0,
     totalUsers: raw?.totalUsers ?? raw?.totalActiveUsers ?? 0,
     totalDoctors: raw?.totalDoctors ?? raw?.totalActiveDoctors ?? 0,
     totalPatients: raw?.totalPatients ?? raw?.totalActivePatients ?? 0,
@@ -272,8 +282,6 @@ export const getDoctors = async (params?: DoctorListParams): Promise<PagedResult
 export const createDoctor = async (
   data: Partial<Doctor> & { password: string }
 ): Promise<Doctor> => {
-  // TODO_BACKEND_API: Admin can create the DOCTOR user account, but there is no dedicated admin
-  // endpoint for creating the matching doctor profile with specialty/bio in the current backend.
   const response = await apiClient.post('/admin/users', { ...data, role: 'DOCTOR' });
   const user = normalizeUser(unwrap(response.data) as BackendUser);
   return {
@@ -281,15 +289,60 @@ export const createDoctor = async (
     specialtyId: data.specialtyId ?? '',
     specialtyName: '',
     bio: data.bio,
+    qualificationSummary: data.qualificationSummary,
+    consultationDescription: data.consultationDescription,
+    yearsOfExperience: data.yearsOfExperience,
   } as Doctor;
 };
 
 export const updateDoctor = async (id: Id, data: Partial<Doctor>): Promise<Doctor> => {
-  const response = await apiClient.patch(`/admin/doctors/${id}/approval`, {
-    approvalStatus: (data as any).approvalStatus ?? 'APPROVED',
-    ...(typeof (data as any).isActive === 'boolean' ? { isActive: (data as any).isActive } : {}),
-  });
-  return normalizeDoctor(unwrap(response.data) as BackendDoctorProfile);
+  let latest: BackendDoctorProfile | null = null;
+
+  if (data.userId && (data.firstName !== undefined || data.lastName !== undefined || data.email !== undefined)) {
+    await apiClient.patch(`/admin/users/${data.userId}`, {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+    });
+  }
+
+  if (
+    data.bio !== undefined ||
+    data.qualificationSummary !== undefined ||
+    data.consultationDescription !== undefined ||
+    data.yearsOfExperience !== undefined
+  ) {
+    const response = await apiClient.patch(`/admin/doctors/${id}/profile`, {
+      bio: data.bio,
+      qualificationSummary: data.qualificationSummary,
+      consultationDescription: data.consultationDescription,
+      yearsOfExperience: data.yearsOfExperience,
+    });
+    latest = unwrap(response.data) as BackendDoctorProfile;
+  }
+
+  if (data.specialtyId) {
+    const response = await apiClient.patch(`/admin/doctors/${id}/specialties`, {
+      specialtyIds: [data.specialtyId],
+    });
+    latest = unwrap(response.data) as BackendDoctorProfile;
+  }
+
+  if (data.approvalStatus || typeof (data as any).isActive === 'boolean') {
+    const response = await apiClient.patch(`/admin/doctors/${id}/approval`, {
+      approvalStatus: (data as any).approvalStatus ?? 'APPROVED',
+      ...(typeof (data as any).isActive === 'boolean' ? { isActive: (data as any).isActive } : {}),
+    });
+    latest = unwrap(response.data) as BackendDoctorProfile;
+  }
+
+  if (!latest) {
+    const response = await apiClient.get('/admin/doctors', { params: { limit: 100 } });
+    const payload: any = response.data;
+    latest = (payload.data ?? []).find((doctor: BackendDoctorProfile) => doctor.id === id) ?? null;
+  }
+
+  return normalizeDoctor(latest ?? ({ id, ...data } as BackendDoctorProfile));
 };
 
 export const deleteDoctor = async (id: Id): Promise<void> => {

@@ -13,6 +13,8 @@ export interface PublicDoctor {
   firstName?: string;
   lastName?: string;
   bio?: string | null;
+  qualificationSummary?: string | null;
+  consultationDescription?: string | null;
   yearsOfExperience?: number | null;
   schedule?: unknown;
   specialties: PublicSpecialty[];

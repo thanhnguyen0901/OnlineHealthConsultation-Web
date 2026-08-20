@@ -13,6 +13,8 @@ import type {
 
 export type UpdateProfilePayload = {
   bio?: string;
+  qualificationSummary?: string;
+  consultationDescription?: string;
   yearsOfExperience?: number;
   specialtyId?: string;
 };

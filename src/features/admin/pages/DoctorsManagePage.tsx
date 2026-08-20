@@ -5,6 +5,7 @@ import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
@@ -45,6 +46,9 @@ export const DoctorsManagePage: React.FC = () => {
     email: string;
     specialtyId: string;
     bio: string;
+    qualificationSummary: string;
+    consultationDescription: string;
+    yearsOfExperience: number | null;
   } | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [first, setFirst] = useState(0);
@@ -111,8 +115,12 @@ export const DoctorsManagePage: React.FC = () => {
             firstName: doctor.firstName,
             lastName: doctor.lastName,
             email: doctor.email,
+            userId: doctor.userId,
             specialtyId: doctor.specialtyId,
             bio: doctor.bio,
+            qualificationSummary: doctor.qualificationSummary,
+            consultationDescription: doctor.consultationDescription,
+            yearsOfExperience: doctor.yearsOfExperience,
           },
         })
       );
@@ -129,6 +137,9 @@ export const DoctorsManagePage: React.FC = () => {
       email: (doctor.email ?? '').trim(),
       specialtyId: doctor.specialtyId ?? '',
       bio: (doctor.bio ?? '').trim(),
+      qualificationSummary: (doctor.qualificationSummary ?? '').trim(),
+      consultationDescription: (doctor.consultationDescription ?? doctor.bio ?? '').trim(),
+      yearsOfExperience: doctor.yearsOfExperience ?? null,
     });
     setDialog(true);
   };
@@ -239,7 +250,11 @@ export const DoctorsManagePage: React.FC = () => {
         (doctor.lastName ?? '').trim() !== editingSnapshot.lastName ||
         (doctor.email ?? '').trim() !== editingSnapshot.email ||
         (doctor.specialtyId ?? '') !== editingSnapshot.specialtyId ||
-        (doctor.bio ?? '').trim() !== editingSnapshot.bio)
+        (doctor.bio ?? '').trim() !== editingSnapshot.bio ||
+        (doctor.qualificationSummary ?? '').trim() !== editingSnapshot.qualificationSummary ||
+        (doctor.consultationDescription ?? doctor.bio ?? '').trim() !==
+          editingSnapshot.consultationDescription ||
+        (doctor.yearsOfExperience ?? null) !== editingSnapshot.yearsOfExperience)
     : true;
 
   const dialogFooter = (
@@ -440,6 +455,56 @@ export const DoctorsManagePage: React.FC = () => {
                 placeholder={t('bioPlaceholder')}
               />
             </div>
+            {doctor.id && (
+              <>
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('qualificationSummary')}
+                  </label>
+                  <InputTextarea
+                    value={doctor.qualificationSummary || ''}
+                    onChange={(e) =>
+                      setDoctor({ ...doctor, qualificationSummary: e.target.value })
+                    }
+                    rows={3}
+                    maxLength={1000}
+                    className="w-full"
+                    placeholder={t('qualificationSummaryPlaceholder')}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('consultationDescription')}
+                  </label>
+                  <InputTextarea
+                    value={doctor.consultationDescription || ''}
+                    onChange={(e) =>
+                      setDoctor({ ...doctor, consultationDescription: e.target.value })
+                    }
+                    rows={4}
+                    maxLength={2000}
+                    className="w-full"
+                    placeholder={t('consultationDescriptionPlaceholder')}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('yearsOfExperience')}
+                  </label>
+                  <InputNumber
+                    value={doctor.yearsOfExperience ?? null}
+                    onValueChange={(e) =>
+                      setDoctor({ ...doctor, yearsOfExperience: e.value ?? undefined })
+                    }
+                    min={0}
+                    max={60}
+                    showButtons
+                    buttonLayout="horizontal"
+                    className="w-full"
+                  />
+                </div>
+              </>
+            )}
           </div>
         </Dialog>
 

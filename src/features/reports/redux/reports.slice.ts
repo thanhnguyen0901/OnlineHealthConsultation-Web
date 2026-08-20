@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialReportsState } from './reports.state';
-import type { ReportData, Statistics, ChartData } from '../types';
+import type { ReportData, Statistics, ReportFilters } from '../types';
 
 const reportsSlice = createSlice({
   name: 'reports',
@@ -8,7 +8,7 @@ const reportsSlice = createSlice({
   reducers: {
     loadReportsRequested: (
       state,
-      _action: PayloadAction<{ startDate?: string; endDate?: string }>
+      _action: PayloadAction<ReportFilters | undefined>
     ) => {
       state.loading = true;
       state.error = null;
@@ -21,7 +21,7 @@ const reportsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    loadStatisticsRequested: (state) => {
+    loadStatisticsRequested: (state, _action: PayloadAction<ReportFilters | undefined>) => {
       state.loading = true;
       state.error = null;
     },
@@ -33,7 +33,7 @@ const reportsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    loadAppointmentsChartRequested: (state) => {
+    loadAppointmentsChartRequested: (state, _action: PayloadAction<ReportFilters | undefined>) => {
       state.loading = true;
       state.error = null;
     },
@@ -42,18 +42,6 @@ const reportsSlice = createSlice({
       state.appointmentsChart = action.payload;
     },
     loadAppointmentsChartFailed: (state, action: PayloadAction<string>) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    loadQuestionsChartRequested: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    loadQuestionsChartSucceeded: (state, action: PayloadAction<ChartData[]>) => {
-      state.loading = false;
-      state.questionsChart = action.payload;
-    },
-    loadQuestionsChartFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
@@ -70,9 +58,6 @@ export const {
   loadAppointmentsChartRequested,
   loadAppointmentsChartSucceeded,
   loadAppointmentsChartFailed,
-  loadQuestionsChartRequested,
-  loadQuestionsChartSucceeded,
-  loadQuestionsChartFailed,
 } = reportsSlice.actions;
 
 export default reportsSlice.reducer;

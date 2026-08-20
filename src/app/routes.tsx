@@ -369,7 +369,7 @@ export const RoutesConfig: React.FC = () => {
           <Route
             path={ROUTE_PATHS.REPORTS}
             element={
-              <RoleGuard roles={['ADMIN', 'DOCTOR']}>
+              <RoleGuard roles={['ADMIN']}>
                 <ReportsPage />
               </RoleGuard>
             }

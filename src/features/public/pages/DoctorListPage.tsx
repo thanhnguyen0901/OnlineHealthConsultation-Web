@@ -162,7 +162,11 @@ export const DoctorListPage: React.FC = () => {
                     <p data-testid="doctor-rating-summary">
                       {ratingText(doctor.avgRating, doctor.ratingCount, i18n.language)}
                     </p>
-                    {doctor.bio && <p className="line-clamp-3">{doctor.bio}</p>}
+                    {(doctor.consultationDescription || doctor.bio) && (
+                      <p className="line-clamp-3">
+                        {doctor.consultationDescription || doctor.bio}
+                      </p>
+                    )}
                   </div>
 
                   <div className="mt-auto grid grid-cols-1 gap-3 pt-4 sm:grid-cols-3">

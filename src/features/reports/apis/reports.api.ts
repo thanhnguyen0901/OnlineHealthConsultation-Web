@@ -1,5 +1,5 @@
 import apiClient from '@/apis/core/apiClient';
-import type { Statistics, ChartData, ReportData } from '../types';
+import type { Statistics, ReportData, ReportFilters } from '../types';
 
 const unwrap = <T>(payload: T | { data: T }): T => {
   if (payload && typeof payload === 'object' && 'data' in payload) {
@@ -18,6 +18,7 @@ const normalizeStatistics = (raw: any): Statistics => {
   );
 
   return {
+    totalConsultations: raw?.totalConsultations ?? raw?.completedAppointments ?? 0,
     totalUsers: raw?.totalUsers ?? raw?.totalActiveUsers ?? 0,
     totalDoctors: raw?.totalDoctors ?? raw?.totalActiveDoctors ?? 0,
     totalPatients: raw?.totalPatients ?? raw?.totalActivePatients ?? 0,
@@ -35,62 +36,32 @@ const normalizeStatistics = (raw: any): Statistics => {
   };
 };
 
-export const getReports = async (_params?: {
-  startDate?: string;
-  endDate?: string;
-}): Promise<ReportData[]> => {
-  const stats = await getStatistics();
+const toBackendParams = (params?: ReportFilters) => ({
+  from: params?.from,
+  to: params?.to,
+  groupBy: params?.groupBy,
+});
+
+export const getReports = async (params?: ReportFilters): Promise<ReportData[]> => {
+  const stats = await getStatistics(params);
   const today = new Date().toISOString().split('T')[0];
   return [{ date: today, ...stats } as unknown as ReportData];
 };
 
-export const getStatistics = async (): Promise<Statistics> => {
-  const response = await apiClient.get('/reports/dashboard');
+export const getStatistics = async (params?: ReportFilters): Promise<Statistics> => {
+  const response = await apiClient.get('/reports/dashboard', { params: toBackendParams(params) });
   return normalizeStatistics(unwrap(response.data));
 };
 
-export const getAppointmentsChart = async (params?: {
-  from?: string;
-  to?: string;
-}): Promise<ReportData[]> => {
+export const getAppointmentsChart = async (params?: ReportFilters): Promise<ReportData[]> => {
   const response = await apiClient.get('/reports/consultations/trend', {
-    params: { ...params, groupBy: 'day' },
+    params: toBackendParams({ ...params, groupBy: params?.groupBy ?? 'day' }),
   });
   const payload: any = unwrap(response.data);
   const points = payload.points ?? [];
 
   return points.map((point: { bucket: string; count: number }) => ({
     date: point.bucket,
-    appointments: point.count ?? 0,
-    questions: 0,
+    consultations: point.count ?? 0,
   }));
-};
-
-export const getQuestionsChart = async (): Promise<ChartData[]> => {
-  // TODO_BACKEND_API: current reporting backend exposes consultation trend but not question status chart.
-  const stats = await getStatistics();
-  return [
-    { name: 'pending', value: stats.pendingQuestions },
-    { name: 'answered', value: stats.answeredQuestions },
-    { name: 'moderated', value: 0 },
-  ];
-};
-
-export const getTopDoctors = async (): Promise<
-  {
-    id: string;
-    doctorName: string;
-    specialty: string;
-    ratingAverage: number;
-    ratingCount: number;
-    yearsOfExperience: number;
-  }[]
-> => {
-  // TODO_BACKEND_API: no top-doctors reporting endpoint in backend MVP.
-  return [];
-};
-
-export const getSpecialtyDistribution = async (): Promise<ChartData[]> => {
-  // TODO_BACKEND_API: no specialty-distribution reporting endpoint in backend MVP.
-  return [];
 };

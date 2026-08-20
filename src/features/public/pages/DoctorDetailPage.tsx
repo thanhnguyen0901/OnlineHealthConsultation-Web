@@ -118,10 +118,19 @@ export const DoctorDetailPage: React.FC = () => {
 
                 <section>
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-                    {t('home.biography')}
+                    {t('home.consultationDescription')}
                   </h2>
                   <p className="mt-2 whitespace-pre-line text-gray-600 dark:text-gray-300">
-                    {doctor.bio || t('home.noBiographyAvailable')}
+                    {doctor.consultationDescription || doctor.bio || t('home.noBiographyAvailable')}
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
+                    {t('home.qualificationSummary')}
+                  </h2>
+                  <p className="mt-2 whitespace-pre-line text-gray-600 dark:text-gray-300">
+                    {doctor.qualificationSummary || t('home.noQualificationAvailable')}
                   </p>
                 </section>
 

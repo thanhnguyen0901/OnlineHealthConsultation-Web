@@ -160,6 +160,13 @@ export const AdminDashboardPage: React.FC = () => {
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard
+            icon="pi pi-comments"
+            label={t('totalConsultations')}
+            value={stats?.totalConsultations}
+            gradient="bg-gradient-to-br from-cyan-500 to-cyan-600"
+            textMuted="text-cyan-100"
+          />
+          <StatCard
             icon="pi pi-question-circle"
             label={t('totalQuestions')}
             value={stats?.totalQuestions}
